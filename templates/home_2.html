@@ -1,0 +1,28 @@
+<html>
+
+<body>
+	<header>
+		<div >
+			<span>Restaurant Menu App</span>
+			<nav>
+				<a href={{url_for('showLogin')}}>Login</a>
+			</nav>
+		</div>
+	</header>
+	
+	<main>
+		<div>
+			<div>
+				<a href={{url_for('addRestaurant')}}>Add Restaurant</a>
+			</div>	
+			<div>
+				<h2>Restaurants</h2>  
+				{% for restaurant in restaurants %}
+					<!--<h2><a href='/catelog/{{restaurant.name}}'>{{restaurant.name}}</a></h2>-->
+					<h4><a href={{url_for('displayRestaurant', restaurant=restaurant.name)}}>{{restaurant.name}}</a></h4>
+				{% endfor %} 
+			</div>		
+	</main>
+
+</body>
+</html>

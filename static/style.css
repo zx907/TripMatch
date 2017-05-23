@@ -1,0 +1,11 @@
+.menu-col {
+	max-width:500px;
+}
+.restaurant-col {
+	max-width: 800px;
+}
+
+.status-bar {
+	position:relative;
+	right:20px;
+}

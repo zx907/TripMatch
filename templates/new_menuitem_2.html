@@ -1,0 +1,29 @@
+<html>
+<body>
+
+	<header>
+		<div>
+			<span>Restaurant Menu App</span>
+			<nav>
+				<a href="">Link1</a>
+				<a href="">Link2</a>
+			</nav>
+		</div>
+	</header>
+
+	<main>
+			<div>
+				<h4>New Menu Item</h4>
+				{% with message = get_flashed_messages() %} {% if message %}
+				<p>{{message}}</p>
+				{% endif %} {% endwith %}
+				<form name="input" action={{url_for('addMenuItem', restaurant=restaurant)}} method="post">
+					<div>Please enter new menu item below</div><br/>
+					<input type="text" name="new_menuitem" />
+					<input type="submit" value="Create" />
+				</form>
+			</div>
+	</main>
+
+</body>
+</html>

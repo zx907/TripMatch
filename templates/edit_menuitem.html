@@ -1,0 +1,14 @@
+﻿<html>
+<body>
+
+<h1>Edit MenuItem</h1>
+<h3>Description</h3>
+<form action={{url_for('displayRestaurant', restaurant=restaurant, menuitem=menuitem)}} method="post" name="form_description">
+<input name="description_text" style="width: 219px; height: 85px" type="text" /></br>
+<input name="btn_save" type="button" value="Save" onclick="on_save" />
+<input name="btn_del" type="button" value="Delete" style="height: 26px" onclick="on_delete"/>
+<input name="btn_cancel" type="button" value="Cancel" onclick="on_cancel"/>
+</form>
+
+</body>
+</html>
