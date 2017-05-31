@@ -13,5 +13,5 @@ Session.configure(bind=engine)
 
 session = Session()
 
-for item in session.query(UUT_TEST_INFO):
-    print(item.id, item.uut)
+# for item in session.query(UUT_TEST_INFO):
+#     print(item.id, item.uut)

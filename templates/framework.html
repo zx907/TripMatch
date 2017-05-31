@@ -1,23 +1,26 @@
 <html>
+
 <head>
     <meta charset="uft-8">
     <title>Framwork</title>
     <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
     <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
-    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+        crossorigin="anonymous">
     <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
-    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script> 
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
 
     <script>
         function generate_table() {
             var body = document.getElementById("table");
             var tb1 = document.createElement("table");
             var tb1Body = document.createElement("tbody");
-            for (var i=0; i<2; i++) {
+            for (var i = 0; i < 2; i++) {
                 var row = document.createElement("tr");
-                for (var j=0; j<2; j++) {
+                for (var j = 0; j < 2; j++) {
                     var cell = document.createElement("td");
-                    var cellText = document.createTextNode("cell in row " +i+", column "+j);
+                    var cellText = document.createTextNode("cell in row " + i + ", column " + j);
                     cell.appendChild(cellText);
                     row.appendChild(cell);
                 }
@@ -28,10 +31,7 @@
             body.appendChild(tb1)
             tb1.setAttribute("border", "2");
         }
-
-
     </script>
-
 
 </head>
 
@@ -70,7 +70,7 @@
                 </div>
             </div>
         </div>
-        <div id ="table" class="container">
+        <div id="table" class="container">
             <table class="table">
                 <caption>Table Name</caption>
                 <tr>
@@ -94,9 +94,6 @@
         </div>
 
         <input type="button" value="Generate a table." onclick="generate_table()">
-
-
-
     </div>
 
     <script>
@@ -105,9 +102,10 @@
         var new_item = document.createTextNode("new row")
         new_row.appendChild(new_item)
         table.appendChild(new_item)
-    <script>
+    </script>
 
-    
+
 
 </body>
+
 </html>
