@@ -45,6 +45,36 @@ class TEST_RESULT_BASE():
     waveform = Column(String(50), nullable=True)
     mipi = Column(String(255), nullable=True)
 
+    @property
+    def serialize(self):
+        return {
+            'freq': self.freq,
+            'vbatt_voltage': self.vbatt_voltage,
+            'vbatt_current': self.vbatt_current,
+            'vbatt_power': self.vbatt_power,
+            'vcc_voltage': self.vcc_voltage,
+            'vcc_current': self.vcc_current,
+            'vcc_power': self.vcc_power,
+            'pae': self.pae,
+            'pout': self.pout,
+            'pin': self.pin,
+            'gain': self.gain,
+            'dc_power': self.dc_power,
+            'ch_power': self.ch_power,
+            'utra_lowadj': self.utra_lowadj,
+            'utra_highadj': self.utra_highadj,
+            'utra_lowalt': self.utra_lowalt,
+            'utra_highalt': self.utra_highalt,
+            'rms_mean': self.rms_mean,
+            'rms_max': self.rms_max,
+            'freq_error_mean': self.freq_error_mean,
+            'target_power': self.target_power,
+            'vcc': self.vcc,
+            'vbatt': self.vbatt,
+            'waveform': self.waveform,
+            'mipi': self.mipi
+        }
+
 class LTE_RESULT(Base, TEST_RESULT_BASE):
     __tablename__ = "LTE_RESULT"
     id = Column(Integer, primary_key=True)
