@@ -96,7 +96,7 @@
         <input type="button" value="Generate a table." onclick="generate_table()">
     </div>
 
-    <div>
+    <!--<div>
         <form>
             <div class="form-group"><label>UUT</label><input type="text" id="UUT"></div>
             <div class="form-group"><label>Notes</label><input type="text" id="Notes"></div>
@@ -104,9 +104,35 @@
             <div class="form-group"><label>Date</label></div>
             <div class="checkbox"><label><input type="checkbox">Match Whole Words</label></div>
         </form>
+    </div>    -->    
+    
+    <div class="container">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">UUT</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" id="UUT">
+                </div>
+                <div><input type="checkbox">Match Whole Words</div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Notes</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" id="Notes">
+                </div>
+                <div><input type="checkbox">Match Whole Words</div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Temperature</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" id="Temperature">
+                </div>
+                <div><input type="checkbox">Match Whole Words</div>
+            </div>
+            <div class="form-group"><label>Date</label></div>
+            <div><button type="submit" class="btn btn-default">Submit</button></div>
+        </form>
     </div>
-
-
 
     <script>
         var table = document.getElementsByClassName("table")
@@ -119,8 +145,6 @@
     <!--<script>
         var data=$.getJSON("/getJSONResult", query_params, generate_table());
     </script>-->
-
-
 
 </body>
 
