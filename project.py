@@ -7,6 +7,7 @@ from database_setup import Base, Restaurant, MenuItem, User
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask import session as login_session
 from flask import make_response
+from flask import json, jsonify
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 import httplib2
@@ -446,6 +447,10 @@ def getUserID(user_email):
 @app.route('/qyer')
 def qyer():
     return render_template('framework.html')
+
+# @app.route('/api/getJSONResult')
+# def getJSONResult():
+#     return None
 
 
 if __name__ == '__main__':

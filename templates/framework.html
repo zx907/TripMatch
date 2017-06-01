@@ -96,6 +96,18 @@
         <input type="button" value="Generate a table." onclick="generate_table()">
     </div>
 
+    <div>
+        <form>
+            <div class="form-group"><label>UUT</label><input type="text" id="UUT"></div>
+            <div class="form-group"><label>Notes</label><input type="text" id="Notes"></div>
+            <div class="form-group"><label>Temperature</label><input type="text" id="Temperature"></div>
+            <div class="form-group"><label>Date</label></div>
+            <div class="checkbox"><label><input type="checkbox">Match Whole Words</label></div>
+        </form>
+    </div>
+
+
+
     <script>
         var table = document.getElementsByClassName("table")
         var new_row = document.createElement("tr")
@@ -103,6 +115,10 @@
         new_row.appendChild(new_item)
         table.appendChild(new_item)
     </script>
+
+    <!--<script>
+        var data=$.getJSON("/getJSONResult", query_params, generate_table());
+    </script>-->
 
 
 
