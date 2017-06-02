@@ -4,6 +4,7 @@ import json
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Restaurant, MenuItem, User
+from model.test_result_model import UUT_TEST_INFO, LTE_RESULT
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask import session as login_session
 from flask import make_response
@@ -12,11 +13,13 @@ from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 import httplib2
 import requests
+import pymssql
 
 app = Flask(__name__)
 
 # Create database session
-engine = create_engine('sqlite:///restaurantmenuwithusers.db')
+# engine = create_engine('sqlite:///restaurantmenuwithusers.db')
+engine = create_engine("mssql+pymssql://pash_user:123456789@10.105.56.114/TESTSTAND")
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
@@ -448,10 +451,21 @@ def getUserID(user_email):
 def qyer():
     return render_template('framework.html')
 
-# @app.route('/api/getJSONResult')
-# def getJSONResult():
-#     return None
 
+@app.route('/getJSONResult', methods=['GET', 'POST'])
+def getJSONResult():
+
+    if request.method == 'POST':
+        uut = request.form['uut']
+        notes = request.form['notes']
+        temperature = request.form['temperature']
+    # return 'successful'
+        print('so far so good')
+        filter_by_query = {k: v for k, v in {
+            'uut': uut, 'notes': notes, 'temperature': temperature}.items() if v != ""}
+        s = session.query(UUT_TEST_INFO).filter_by(filter_by_query).first()
+
+        return s.uut
 
 if __name__ == '__main__':
     app.secret_key = ''.join(random.choice(

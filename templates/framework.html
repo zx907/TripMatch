@@ -93,7 +93,7 @@
             </table>
         </div>
 
-        <input type="button" value="Generate a table." onclick="generate_table()">
+        <div class="container"><input type="button" value="Generate a table." onclick="generate_table()"></div>
     </div>
 
     <!--<div>
@@ -107,29 +107,31 @@
     </div>    -->    
     
     <div class="container">
-        <form class="form-horizontal">
+        <form class="form-horizontal" action={{url_for('getJSONResult')}} method="POST">
             <div class="form-group">
                 <label class="col-sm-2 control-label">UUT</label>
                 <div class="col-sm-8">
-                    <input type="text" class="form-control" id="UUT">
+                    <input type="text" class="form-control" name="uut">
                 </div>
                 <div><input type="checkbox">Match Whole Words</div>
             </div>
             <div class="form-group">
                 <label class="col-sm-2 control-label">Notes</label>
                 <div class="col-sm-8">
-                    <input type="text" class="form-control" id="Notes">
+                    <input type="text" class="form-control" name="notes">
                 </div>
                 <div><input type="checkbox">Match Whole Words</div>
             </div>
             <div class="form-group">
                 <label class="col-sm-2 control-label">Temperature</label>
                 <div class="col-sm-8">
-                    <input type="text" class="form-control" id="Temperature">
+                    <input type="text" class="form-control" name="temperature">
                 </div>
                 <div><input type="checkbox">Match Whole Words</div>
             </div>
-            <div class="form-group"><label>Date</label></div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Date</label>
+            </div>
             <div><button type="submit" class="btn btn-default">Submit</button></div>
         </form>
     </div>

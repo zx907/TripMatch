@@ -10,8 +10,23 @@ class UUT_TEST_INFO(Base):
     uut = Column(String(255), nullable=True)
     uut_serial_number = Column(String(255), nullable=True)
     start_date_time = Column(DateTime, nullable=True)
+    execution_time = Column(Float, nullable=True)
     notes = Column(String(1024), nullable=True)
     temperature = Column(Float, nullable=True)
+    result_file = Column(String(511), nullable=True)
+
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'uut': self.uut,
+            'uut_serial_number': self.uut_serial_number,
+            'start_date_time': self.start_date_time,
+            'execution_time': self.execution_time,
+            'notes': self.notes,
+            'temperature': self.temperature,
+            'result_file': self.result_file
+        }
 
     lte_result = relationship("LTE_RESULT")
     wcdma_result = relationship("WCDMA_RESULT")
@@ -44,6 +59,7 @@ class TEST_RESULT_BASE():
     vbatt = Column(Float, nullable=True)
     waveform = Column(String(50), nullable=True)
     mipi = Column(String(255), nullable=True)
+    notes = Column(String(255), nullable=True)
 
     @property
     def serialize(self):
@@ -72,7 +88,8 @@ class TEST_RESULT_BASE():
             'vcc': self.vcc,
             'vbatt': self.vbatt,
             'waveform': self.waveform,
-            'mipi': self.mipi
+            'mipi': self.mipi,
+            'notes': self.notes
         }
 
 class LTE_RESULT(Base, TEST_RESULT_BASE):
@@ -82,20 +99,53 @@ class LTE_RESULT(Base, TEST_RESULT_BASE):
     eutra_low = Column(Float, nullable=True)
     eutra_high = Column(Float, nullable=True)
 
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'uut_test_id': self.uut_test_id,
+            'eutra_low': self.eutra_low,
+            'eutra_high': self.eutra_high,
+        }
+
 class WCDMA_RESULT(Base, TEST_RESULT_BASE):
     __tablename__ = "WCDMA_RESULT"
     id = Column(Integer, primary_key=True)
     uut_test_id = Column(Integer, ForeignKey('UUT_TEST_INFO.id'))
     chip_rate_error = Column(Float, nullable=True)
 
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'uut_test_id': self.uut_test_id,
+            'chip_rate_error':self.chip_rate_error
+        }
+
 class TDSCDMA_RESULT(Base, TEST_RESULT_BASE):
     __tablename__ = "TDSCDMA_RESULT"
     id = Column(Integer, primary_key=True)
     uut_test_id = Column(Integer, ForeignKey('UUT_TEST_INFO.id'))
     chip_rate_error = Column(Float, nullable=True)
+
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'uut_test_id': self.uut_test_id,
+            'chip_rate_error': self.chip_rate_error
+        }
     
 class CDMA2K_RESULT(Base, TEST_RESULT_BASE):
     __tablename__ = "CDMA2K_RESULT"
     id = Column(Integer, primary_key=True)
     uut_test_id = Column(Integer, ForeignKey('UUT_TEST_INFO.id'))
     chip_rate_error = Column(Float, nullable=True)
+
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'uut_test_id': self.uut_test_id,
+            'chip_rate_error': self.chip_rate_error
+        }
