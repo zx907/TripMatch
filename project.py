@@ -456,16 +456,16 @@ def qyer():
 def getJSONResult():
 
     if request.method == 'POST':
-        uut = request.form['uut']
-        notes = request.form['notes']
-        temperature = request.form['temperature']
-    # return 'successful'
-        print('so far so good')
-        filter_by_query = {k: v for k, v in {
-            'uut': uut, 'notes': notes, 'temperature': temperature}.items() if v != ""}
-        s = session.query(UUT_TEST_INFO).filter_by(filter_by_query).first()
-
-        return s.uut
+    #     uut = request.form['uut']
+    #     notes = request.form['notes']
+    #     temperature = request.form['temperature']
+    # # return 'successful'
+    #     print('so far so good')
+    #     filter_by_query = {k: v for k, v in {
+    #         'uut': uut, 'notes': notes, 'temperature': temperature}.items() if v != ""}
+    #     s = session.query(UUT_TEST_INFO).filter_by(filter_by_query).first()
+        s = {'a':1, 'b':2, 'c':3, 'd':4, 'e':5, 'f':6, 'g':7}
+        return jsonify(s)
 
 if __name__ == '__main__':
     app.secret_key = ''.join(random.choice(

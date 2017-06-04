@@ -33,6 +33,25 @@
         }
     </script>
 
+    <script>
+        function generateResultTable(data) {
+            var tb1 = document.getElementById('table');
+            var data_length = data.length;
+            console.log(data_length);
+            var tbbody = document.createElement("tbody");
+            var row = document.createElement("tr");
+            for (var i=0; i<data_length; i++) {
+                var cell = document.createElement("td");
+                var cell_text = document.createTextNode(data[i]);
+                cell.appendChild(cell_text);
+                row.appendChild(cell);
+            }
+            tbbody.appendChild(row);
+            tb1.appendChild(tbbody);
+            document.getElementById("table").appendChild(tb1);
+        }
+    </script>
+
 </head>
 
 <body>
@@ -135,18 +154,6 @@
             <div><button type="submit" class="btn btn-default">Submit</button></div>
         </form>
     </div>
-
-    <script>
-        var table = document.getElementsByClassName("table")
-        var new_row = document.createElement("tr")
-        var new_item = document.createTextNode("new row")
-        new_row.appendChild(new_item)
-        table.appendChild(new_item)
-    </script>
-
-    <!--<script>
-        var data=$.getJSON("/getJSONResult", query_params, generate_table());
-    </script>-->
 
 </body>
 
