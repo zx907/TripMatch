@@ -447,9 +447,9 @@ def getUserID(user_email):
     except:
         return None
 
-@app.route('/qyer')
+@app.route('/qyer', methods=['GET', 'POST'])
 def qyer():
-    return render_template('framework.html')
+    return render_template('fuck.html')
 
 
 @app.route('/getJSONResult', methods=['GET', 'POST'])

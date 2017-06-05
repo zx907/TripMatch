@@ -4,16 +4,12 @@
     <meta charset="uft-8">
     <title>Framwork</title>
     <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
-    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
-    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
-        crossorigin="anonymous">
-    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
-    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap.min.css')}}" />
+    <script src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
 
     <script>
         function generate_table() {
-            var body = document.getElementById("table");
+            var body = document.getElementById("table1");
             var tb1 = document.createElement("table");
             var tb1Body = document.createElement("tbody");
             for (var i = 0; i < 2; i++) {
@@ -33,7 +29,7 @@
         }
     </script>
 
-    <script>
+    <script type="text/javascript">
         function generateResultTable(data) {
             var tb1 = document.getElementById('table');
             var data_length = data.length;
@@ -50,6 +46,21 @@
             tb1.appendChild(tbbody);
             document.getElementById("table").appendChild(tb1);
         }
+    </script>
+
+    <script>     
+        $("#result_query_form").submit(function (e) {
+
+            e.preventDefault();
+
+            $.ajax({
+                method: "POST",
+                url: "/getJSONResult",
+                data: $('#result_query_form').serialize(),
+                dataType: "application/json",
+                success: generateResultTable(data)
+            });
+        });
     </script>
 
 </head>
@@ -89,7 +100,7 @@
                 </div>
             </div>
         </div>
-        <div id="table" class="container">
+        <div id="table1" class="container">
             <table class="table">
                 <caption>Table Name</caption>
                 <tr>
@@ -114,19 +125,10 @@
 
         <div class="container"><input type="button" value="Generate a table." onclick="generate_table()"></div>
     </div>
-
-    <!--<div>
-        <form>
-            <div class="form-group"><label>UUT</label><input type="text" id="UUT"></div>
-            <div class="form-group"><label>Notes</label><input type="text" id="Notes"></div>
-            <div class="form-group"><label>Temperature</label><input type="text" id="Temperature"></div>
-            <div class="form-group"><label>Date</label></div>
-            <div class="checkbox"><label><input type="checkbox">Match Whole Words</label></div>
-        </form>
-    </div>    -->    
     
     <div class="container">
-        <form class="form-horizontal" action={{url_for('getJSONResult')}} method="POST">
+       
+        <form class="form-horizontal" method="POST" id="result_query_form">
             <div class="form-group">
                 <label class="col-sm-2 control-label">UUT</label>
                 <div class="col-sm-8">
@@ -151,7 +153,7 @@
             <div class="form-group">
                 <label class="col-sm-2 control-label">Date</label>
             </div>
-            <div><button type="submit" class="btn btn-default">Submit</button></div>
+            <div><button type="submit" class="btn btn-default" id='submit'>Submit</button></div>
         </form>
     </div>
 
