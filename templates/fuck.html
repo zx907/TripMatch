@@ -37,6 +37,9 @@
         </div>
 
         <div class="container"><input type="button" value="Generate a table." onclick="generate_table()"></div>
+        <div>
+            <table class="table" id="table2"></table>
+        </div>
     </div>
 
    
@@ -95,17 +98,42 @@
     </script>
 
     <script>
-        // $("form").submit(function (event) {
-        //     event.preventDefault();
-        //     alert ("enter ajax");
-        // });
-
-        $( "form" ).submit(function( event ) {
-        alert( "Handler for .submit() called." );
-        // event.preventDefault();
-        return false;
-});
+        function generateResultTable(data) {
+            var tb2 = document.getElementById('table2');
+            var data_length = Object.keys(data).length;
+            var tbbody = document.createElement("tbody");
+            var row = document.createElement("tr");
+            Object.keys(data).forEach(function(key) {
+                var cell = document.createElement("td");
+                var cell_text = document.createTextNode(data[key]);
+                cell.appendChild(cell_text);
+                row.appendChild(cell);
+            });
+            tbbody.appendChild(row);
+            tb2.appendChild(tbbody);
+        }
     </script>
+
+    <script>
+        $("form").submit(function (event) {
+                // alert( "Handler for .submit() called." );
+                event.preventDefault();
+                // $.post('/getJSONResult', $("form").serialize(), generateResultTable(this.data), 'json');
+                    console.log("post to ajax")
+                $.ajax({
+                    url: "/getJSONResult",
+                    type: 'POST',
+                    data: $("form").serialize(),
+                    timeout: 4000,
+                    dataType: 'json',
+                    statusCode: {500: function() { alert('error occur');}},
+                    success: function(data) {
+                        console.log('successfully get result from server')
+                        generateResultTable(data);
+                    }
+                });
+            });
+    </script>    
 
 
 </body>
