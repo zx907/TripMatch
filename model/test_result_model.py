@@ -101,12 +101,14 @@ class LTE_RESULT(Base, TEST_RESULT_BASE):
 
     @property
     def serialize(self):
-        return {
+        dict_a = super().serialize
+        dict_b = {
             'id': self.id,
             'uut_test_id': self.uut_test_id,
             'eutra_low': self.eutra_low,
             'eutra_high': self.eutra_high,
         }
+        return {**dict_a, **dict_b}
 
 class WCDMA_RESULT(Base, TEST_RESULT_BASE):
     __tablename__ = "WCDMA_RESULT"
@@ -116,11 +118,14 @@ class WCDMA_RESULT(Base, TEST_RESULT_BASE):
 
     @property
     def serialize(self):
-        return {
+
+        dict_a = super().serialize
+        dict_b = {
             'id': self.id,
             'uut_test_id': self.uut_test_id,
             'chip_rate_error':self.chip_rate_error
         }
+        return {**dict_a, **dict_b}
 
 class TDSCDMA_RESULT(Base, TEST_RESULT_BASE):
     __tablename__ = "TDSCDMA_RESULT"
@@ -130,11 +135,13 @@ class TDSCDMA_RESULT(Base, TEST_RESULT_BASE):
 
     @property
     def serialize(self):
-        return {
+        dict_a = super().serialize
+        dict_b = {
             'id': self.id,
             'uut_test_id': self.uut_test_id,
             'chip_rate_error': self.chip_rate_error
         }
+        return {**dict_a, **dict_b}
     
 class CDMA2K_RESULT(Base, TEST_RESULT_BASE):
     __tablename__ = "CDMA2K_RESULT"
@@ -144,8 +151,10 @@ class CDMA2K_RESULT(Base, TEST_RESULT_BASE):
 
     @property
     def serialize(self):
-        return {
+        dict_a = super().serialize
+        dict_b = {
             'id': self.id,
             'uut_test_id': self.uut_test_id,
             'chip_rate_error': self.chip_rate_error
         }
+        return {**dict_a, **dict_b}

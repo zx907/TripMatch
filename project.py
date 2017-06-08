@@ -29,7 +29,7 @@ CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())[
     'web']['client_id']
 APPLICATION_NAME = "Restaurant Menu App"
 
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 
 # Homepage
 @app.route('/')
@@ -463,13 +463,17 @@ def getJSONResult():
         temperature = request.form['temperature']
 
         logging.info("Enter getJSONResult")
+        print("Enter getJSONResult")
 
         filter_by_query = {k: v for k, v in {
             'uut': uut, 'notes': notes, 'temperature': temperature}.items() if v != ""}
-        print(filter_by_query)
+
         s = session.query(UUT_TEST_INFO).filter_by(**filter_by_query).first()
         # s = {'a':1, 'b':2, 'c':3, 'd':4, 'e':5, 'f':6, 'g':7}
         return jsonify(s.serialize)
+
+
+
 
 if __name__ == '__main__':
     app.secret_key = ''.join(random.choice(
