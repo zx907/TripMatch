@@ -29,7 +29,7 @@ CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())[
     'web']['client_id']
 APPLICATION_NAME = "Restaurant Menu App"
 
-# logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.WARNING)
 
 # Homepage
 @app.route('/')
@@ -49,8 +49,6 @@ def showLogin():
     return render_template('login.html', STATE=state)
 
 # Facebook login page
-
-
 @app.route('/fblogin')
 def showFBLogin():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
@@ -451,7 +449,7 @@ def getUserID(user_email):
 
 @app.route('/qyer', methods=['GET', 'POST'])
 def qyer():
-    return render_template('fuck.html')
+    return render_template('WTF.html')
 
 
 @app.route('/getJSONResult', methods=['GET', 'POST'])
@@ -462,7 +460,7 @@ def getJSONResult():
         notes = request.form['notes']
         temperature = request.form['temperature']
 
-        logging.info("Enter getJSONResult")
+        # logging.info("Enter getJSONResult")
         print("Enter getJSONResult")
 
         filter_by_query = {k: v for k, v in {
@@ -473,6 +471,24 @@ def getJSONResult():
         return jsonify(s.serialize)
 
 
+@app.route('/getUUTRecord', methods=['GET', 'POST'])
+def getUUTRecord():
+    if request.method == 'POST':
+        uut = request.form['uut']
+        notes = request.form['notes']
+        temperature = request.form['temperature']
+
+        print('Enter getUUTRecord')
+
+        filter_by_query = {k: v for k, v in {
+            'uut': uut, 'notes': notes, 'temperature': temperature}.items() if v != ""}
+
+        records = session.query(UUT_TEST_INFO).filter_by(**filter_by_query).all()    # return a record list
+        record_list = list(record.serialize for record in records)
+        print(record_list)
+        print(type(jsonify(record_list)))
+
+        return jsonify(record_list)
 
 
 if __name__ == '__main__':
