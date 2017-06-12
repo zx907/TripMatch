@@ -40,12 +40,12 @@ function generateResultTable(data) {
     // Itinerate data array object
     for (let obj of data) {
         var row = document.createElement("tr");
-        Object.keys(obj).forEach(function (key) {
+        for (let item of UUT_INFO_KEYS) {
             var cell = document.createElement("td");
-            var cell_text = document.createTextNode(obj[key]);
+            var cell_text = document.createTextNode(obj[item]);
             cell.appendChild(cell_text);
-            row.appendChild(cell);
-        });
+            row.appendChild(cell); 
+        }
         tbbody.appendChild(row);
     }
     tb2.appendChild(tbbody);
