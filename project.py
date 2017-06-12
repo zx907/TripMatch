@@ -452,25 +452,6 @@ def qyer():
     return render_template('WTF.html')
 
 
-@app.route('/getJSONResult', methods=['GET', 'POST'])
-def getJSONResult():
-
-    if request.method == 'POST':
-        uut = request.form['uut']
-        notes = request.form['notes']
-        temperature = request.form['temperature']
-
-        # logging.info("Enter getJSONResult")
-        print("Enter getJSONResult")
-
-        filter_by_query = {k: v for k, v in {
-            'uut': uut, 'notes': notes, 'temperature': temperature}.items() if v != ""}
-
-        s = session.query(UUT_TEST_INFO).filter_by(**filter_by_query).first()
-        # s = {'a':1, 'b':2, 'c':3, 'd':4, 'e':5, 'f':6, 'g':7}
-        return jsonify(s.serialize)
-
-
 @app.route('/getUUTRecord', methods=['GET', 'POST'])
 def getUUTRecord():
     if request.method == 'POST':
@@ -485,10 +466,24 @@ def getUUTRecord():
 
         records = session.query(UUT_TEST_INFO).filter_by(**filter_by_query).all()    # return a record list
         record_list = list(record.serialize for record in records)
-        print(record_list)
-        print(type(jsonify(record_list)))
+        # print(record_list)
+        # print(type(jsonify(record_list)))
 
         return jsonify(record_list)
+
+
+@app.route('/getTestResult/')
+def getTestResult():
+    print('Enter getTestResult')
+    uut_test_id = request.args.get('uut_test_id')
+    print(uut_test_id)
+    results = session.query(LTE_RESULT).filter(LTE_RESULT.uut_test_id==uut_test_id).all()
+    results_list = list(result.serialize for result in results)
+
+    # print(results_list)
+    # print(type(jsonify(results_list)))
+
+    return jsonify(results_list)
 
 
 if __name__ == '__main__':
