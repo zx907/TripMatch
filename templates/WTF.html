@@ -128,7 +128,8 @@
                     dataType: 'json',
                     statusCode: {500: function() { alert('error occur');}},
                     success: function(data) {
-                        console.log('successfully get result from server')
+                        console.log('successfully get result from server')  // returned an array object
+                        console.log(data.length);
                         generateResultTable(data);
                     }
                 });
