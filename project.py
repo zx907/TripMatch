@@ -477,13 +477,19 @@ def getTestResult():
     print('Enter getTestResult')
     uut_test_id = request.args.get('uut_test_id')
     print(uut_test_id)
-    results = session.query(LTE_RESULT).filter(LTE_RESULT.uut_test_id==uut_test_id).all()
+    # results = session.query(LTE_RESULT).filter(LTE_RESULT.uut_test_id==uut_test_id).all()
+    results = session.query(LTE_RESULT).filter(LTE_RESULT.uut_test_id==uut_test_id).limit(100)
     results_list = list(result.serialize for result in results)
 
     # print(results_list)
     # print(type(jsonify(results_list)))
 
     return jsonify(results_list)
+
+@app.route('exportcsv')
+def exportCSV():
+    data = session.query(UUT_TEST_INFO, LTE_RESULT).filter(UUT_TEST_INFO.id==LTE_RESULT.uut_test_id).all()
+    
 
 
 if __name__ == '__main__':

@@ -83,7 +83,7 @@ $("form").submit(function (event) {
 
 
 $("#query_id_btn").click(function (event) {
-    event.preventDefault();
+    // event.preventDefault();
     var uut_test_id = document.getElementById("query_id").value
     console.log("post to ajax (test result)");
     $.get("/getTestResult", { 'uut_test_id': uut_test_id }, function (data) {
@@ -93,12 +93,43 @@ $("#query_id_btn").click(function (event) {
 });
 
 
+$("#query_checked_records_btn").click(function (event) {
+    var records_id_arr = getRecordIDs();
+    for (var value of records_id_arr) {        
+        $.get("/getTestResult", { 'uut_test_id': value }, function (data) {
+            console.log('successfully get result from server');
+            generateTestResultTable(data);
+        });
+    }
+});
+
+
+$("#export_checked_records_btn").click(function(event) {
+    var records_id_arr = getRecordIDs();
+    
+});
+
+function getRecordIDs() {
+    var table = document.getElementById("table2");
+    var chkbox_records_arr = [];
+    var inputs = table.getElementsByTagName("input");
+    for (var i=0; i<inputs.length;i++) {
+        if ((inputs[i].type==='checkbox') && (inputs[i].checked==true))
+            chkbox_records_arr.push(inputs[i].value);
+    }
+    console.log(chkbox_records_arr);
+    return chkbox_records_arr
+}
+
+
 function generateUUTTable(data) {
     var tb2 = document.getElementById('table2');
     var data_length = Object.keys(data).length;
     var tbbody = document.createElement("tbody");
 
     var header = document.createElement("tr");
+    var cell = document.createElement("th");
+    header.appendChild(cell);   // empty position for checkbox
     for (let item of UUT_INFO_KEYS) {
         let cell = document.createElement("th");
         let cell_text = document.createTextNode(item);
@@ -110,6 +141,12 @@ function generateUUTTable(data) {
     // Itinerate data array object
     for (let obj of data) {
         var row = document.createElement("tr");
+        var cell = document.createElement("td");
+        var chkbox = document.createElement("input")
+        chkbox.setAttribute("type", "checkbox");
+        chkbox.setAttribute("value", obj['id']);
+        cell.appendChild(chkbox);
+        row.appendChild(cell);
         for (let item of UUT_INFO_KEYS) {
             var cell = document.createElement("td");
             var cell_text = document.createTextNode(obj[item]);

@@ -19,7 +19,7 @@ l = [LTE_RESULT]
 filter_by_query = {'uut': '6440'}
 # s = session.query(UUT_TEST_INFO).filter_by(**filter_by_query).first()
 mod = 'LTE_RESULT'
-# q = session.query(UUT_TEST_INFO, LTE_RESULT).filter(UUT_TEST_INFO.id==LTE_RESULT.uut_test_id).filter(UUT_TEST_INFO.uut=="6440").first()
+q = session.query(UUT_TEST_INFO, LTE_RESULT).filter(UUT_TEST_INFO.id==LTE_RESULT.uut_test_id).filter(UUT_TEST_INFO.uut=="6440").first()
 c = session.query(UUT_TEST_INFO, l[0]).filter(UUT_TEST_INFO.id==LTE_RESULT.uut_test_id).filter(UUT_TEST_INFO.uut=="6440").count()
 print(c)
 # print(q[1].serialize)
