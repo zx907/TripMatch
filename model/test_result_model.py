@@ -11,7 +11,7 @@ class UUT_TEST_INFO(Base):
     uut_serial_number = Column(String(255), nullable=True)
     start_date_time = Column(DateTime, nullable=True)
     execution_time = Column(Float, nullable=True)
-    notes = Column(String(1024), nullable=True)
+    general_notes = Column(String(1024), nullable=True)
     temperature = Column(Float, nullable=True)
     result_file = Column(String(511), nullable=True)
 
@@ -23,7 +23,7 @@ class UUT_TEST_INFO(Base):
             'uut_serial_number': self.uut_serial_number,
             'start_date_time': self.start_date_time,
             'execution_time': self.execution_time,
-            'notes': self.notes,
+            'general_notes': self.notes,
             'temperature': self.temperature,
             'result_file': self.result_file
         }

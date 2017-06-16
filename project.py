@@ -15,6 +15,7 @@ import httplib2
 import requests
 import pymssql
 import logging
+import pandas as pd
 
 app = Flask(__name__)
 
@@ -488,7 +489,19 @@ def getTestResult():
 
 @app.route('exportcsv')
 def exportCSV():
-    data = session.query(UUT_TEST_INFO, LTE_RESULT).filter(UUT_TEST_INFO.id==LTE_RESULT.uut_test_id).all()
+    uut_test_id = request.args.get('uut_test_id')
+    modulations = request.args.get('modulation')
+
+    generateCsvFile(uut_test_id, modulations)
+
+
+    # EXCLUDE_KEYS = ('id' ,'execution_time', 'result_file', 'uut_test_id')
+    # id = request.args.get('id')
+    # data_select = select([UUT_TEST_INFO, LTE_RESULT]).where(and_(UUT_TEST_INFO.id==LTE_RESULT.uut_test_id, UUT_TEST_INFO.id==102))
+    # df = pd.read_from_sql(data, engine)
+    # df.drop((key for key in EXCLUDE_KEYS), axis=1, inplace=True)
+    # df.to_csv('result.csv')
+    
     
 
 
