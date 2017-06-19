@@ -3,11 +3,12 @@ import string
 import json
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql import select, and_
 from database_setup import Base, Restaurant, MenuItem, User
 from model.test_result_model import UUT_TEST_INFO, LTE_RESULT
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask import session as login_session
-from flask import make_response
+from flask import make_response, Response
 from flask import json, jsonify
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
@@ -16,6 +17,7 @@ import requests
 import pymssql
 import logging
 import pandas as pd
+from model import sql_query
 
 app = Flask(__name__)
 
@@ -487,22 +489,26 @@ def getTestResult():
 
     return jsonify(results_list)
 
-@app.route('exportcsv')
+
+@app.route('/exportCSV')
 def exportCSV():
-    uut_test_id = request.args.get('uut_test_id')
-    modulations = request.args.get('modulation')
+    EXCLUDE_KEYS = ('id' ,'execution_time', 'result_file', 'uut_test_id')
 
-    generateCsvFile(uut_test_id, modulations)
-
-
-    # EXCLUDE_KEYS = ('id' ,'execution_time', 'result_file', 'uut_test_id')
-    # id = request.args.get('id')
-    # data_select = select([UUT_TEST_INFO, LTE_RESULT]).where(and_(UUT_TEST_INFO.id==LTE_RESULT.uut_test_id, UUT_TEST_INFO.id==102))
-    # df = pd.read_from_sql(data, engine)
-    # df.drop((key for key in EXCLUDE_KEYS), axis=1, inplace=True)
-    # df.to_csv('result.csv')
+    uut_test_id = request.args.get('uut_test_id[]')
+    print("Enter exportCSV")
+    print(uut_test_id)
     
-    
+    for _id in uut_test_id:
+        
+        data_select = select([UUT_TEST_INFO, LTE_RESULT]).where(and_(UUT_TEST_INFO.id==LTE_RESULT.uut_test_id, UUT_TEST_INFO.id==_id))
+        df = pd.read_sql(data_select, engine)
+        df.drop((key for key in EXCLUDE_KEYS), axis=1, inplace=True)
+
+        def gen():
+            for line in df.shape[0]:
+                yield ','.join(line) + '\n'
+
+        return Response(gen, mimetype="csv", headers={"Content-Disposition": "attachment; filename=test.csv"})
 
 
 if __name__ == '__main__':

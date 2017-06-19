@@ -1,4 +1,4 @@
-const UUT_INFO_KEYS = ['id', 'uut', 'start_date_time', 'notes', 'temperature', 'uut_serial_number'];
+const UUT_INFO_KEYS = ['id', 'uut', 'start_date_time', 'general_notes', 'temperature', 'uut_serial_number'];
 const RESULT_BASE_KEYS = ['freq', 'vbatt_voltage', 'vbatt_current', 'vbatt_power',
     'vcc_voltage', 'vcc_current', 'vcc_power',
     'pae', 'pout', 'pin', 'gain',
@@ -106,8 +106,9 @@ $("#query_checked_records_btn").click(function (event) {
 
 $("#export_checked_records_btn").click(function(event) {
     var records_id_arr = getRecordIDs();
-    
+    $.get('/exportCSV', {uut_test_id: records_id_arr});
 });
+
 
 function getRecordIDs() {
     var table = document.getElementById("table2");

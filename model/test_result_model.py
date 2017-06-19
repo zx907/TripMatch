@@ -23,7 +23,7 @@ class UUT_TEST_INFO(Base):
             'uut_serial_number': self.uut_serial_number,
             'start_date_time': self.start_date_time,
             'execution_time': self.execution_time,
-            'general_notes': self.notes,
+            'general_notes': self.general_notes,
             'temperature': self.temperature,
             'result_file': self.result_file
         }
