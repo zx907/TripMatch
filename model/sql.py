@@ -25,7 +25,8 @@ session = Session()
 # c = session.query(UUT_TEST_INFO, l[0]).filter(UUT_TEST_INFO.id==LTE_RESULT.uut_test_id).filter(UUT_TEST_INFO.uut=="6440").count()
 
 # data_select = select(UUT_TEST_INFO, LTE_RESULT).filter(UUT_TEST_INFO.id==LTE_RESULT.uut_test_id).filter(UUT_TEST_INFO.id==102)
-data_select = select([UUT_TEST_INFO, LTE_RESULT]).where(and_(UUT_TEST_INFO.id==LTE_RESULT.uut_test_id, UUT_TEST_INFO.id==112))
+mod = LTE_RESULT
+data_select = select([UUT_TEST_INFO, mod]).where(and_(UUT_TEST_INFO.id==mod.uut_test_id, UUT_TEST_INFO.id==112))
 df = pd.read_sql(data_select, engine)
 print(df.columns)
 EXCLUDE_KEYS = ('id' ,'execution_time', 'result_file', 'uut_test_id')

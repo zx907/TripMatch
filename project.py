@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import select, and_
 from database_setup import Base, Restaurant, MenuItem, User
 from model.test_result_model import UUT_TEST_INFO, LTE_RESULT
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
 from flask import session as login_session
 from flask import make_response, Response
 from flask import json, jsonify
@@ -18,12 +18,14 @@ import pymssql
 import logging
 import pandas as pd
 from model import sql_query
+import zipfile
 
 app = Flask(__name__)
 
 # Create database session
 # engine = create_engine('sqlite:///restaurantmenuwithusers.db')
-engine = create_engine("mssql+pymssql://pash_user:123456789@10.105.56.131/TESTSTAND")
+engine = create_engine(
+    "mssql+pymssql://pash_user:123456789@10.105.56.131/TESTSTAND")
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
@@ -35,6 +37,8 @@ APPLICATION_NAME = "Restaurant Menu App"
 # logging.basicConfig(level=logging.WARNING)
 
 # Homepage
+
+
 @app.route('/')
 @app.route('/catalog')
 def homepage():
@@ -52,6 +56,8 @@ def showLogin():
     return render_template('login.html', STATE=state)
 
 # Facebook login page
+
+
 @app.route('/fblogin')
 def showFBLogin():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
@@ -196,12 +202,12 @@ def gconnect():
     print('Start Verification')
     # Add shadowsocks proxy for httplib2
     h = httplib2.Http(proxy_info=httplib2.ProxyInfo(
-            proxy_type='PROXY_TYPE_SOCKS5', proxy_host='127.0.0.1', proxy_port=1080))
+        proxy_type='PROXY_TYPE_SOCKS5', proxy_host='127.0.0.1', proxy_port=1080))
     url = ('https://www.googleapis.com/oauth2/v3/userinfo?access_token=%s' %
            access_token)
     # x = h.request(url, 'GET')[1]
     resp_json = h.request(url, 'GET')
-    print(resp_json) 
+    print(resp_json)
     # print('============')
     result = json.loads(str(x, 'utf8'))
     # print(type(result))
@@ -450,6 +456,7 @@ def getUserID(user_email):
     except:
         return None
 
+
 @app.route('/qyer', methods=['GET', 'POST'])
 def qyer():
     return render_template('WTF.html')
@@ -467,7 +474,8 @@ def getUUTRecord():
         filter_by_query = {k: v for k, v in {
             'uut': uut, 'notes': notes, 'temperature': temperature}.items() if v != ""}
 
-        records = session.query(UUT_TEST_INFO).filter_by(**filter_by_query).all()    # return a record list
+        records = session.query(UUT_TEST_INFO).filter_by(
+            **filter_by_query).all()    # return a record list
         record_list = list(record.serialize for record in records)
         # print(record_list)
         # print(type(jsonify(record_list)))
@@ -481,7 +489,8 @@ def getTestResult():
     uut_test_id = request.args.get('uut_test_id')
     print(uut_test_id)
     # results = session.query(LTE_RESULT).filter(LTE_RESULT.uut_test_id==uut_test_id).all()
-    results = session.query(LTE_RESULT).filter(LTE_RESULT.uut_test_id==uut_test_id).limit(100)
+    results = session.query(LTE_RESULT).filter(
+        LTE_RESULT.uut_test_id == uut_test_id).limit(100)
     results_list = list(result.serialize for result in results)
 
     # print(results_list)
@@ -490,25 +499,35 @@ def getTestResult():
     return jsonify(results_list)
 
 
+def generateCsvFile(uut_test_id, modulation):
+    print('generating zip file')
+    EXCLUDE_KEYS = ('id', 'execution_time', 'result_file', 'uut_test_id')
+    files_to_download = []
+    modulation = LTE_RESULT
+
+    for _id in uut_test_id:
+        for mod in modulation:
+            data_select = select([UUT_TEST_INFO, mod]).where(
+                and_(UUT_TEST_INFO.id == mod.uut_test_id, UUT_TEST_INFO.id == _id))
+            df = pd.read_sql(data_select, engine)
+            df.drop((key for key in EXCLUDE_KEYS), axis=1, inplace=True)
+            filename = '{}_{}_{}.csv'.format(
+                df.uut[0], mod.split('-')[0], df.start_date_time)
+            df.to_csv('/files//' + filename)
+            files_to_download.append(filename)
+
+    with zipfile.ZipFile('/files/results.zip', 'w') as myzip:
+        print('Zipping up files')
+        myzip.write(f for f in files_to_download)
+
+
 @app.route('/exportCSV')
 def exportCSV():
-    EXCLUDE_KEYS = ('id' ,'execution_time', 'result_file', 'uut_test_id')
-
-    uut_test_id = request.args.get('uut_test_id[]')
+    # uut_test_id = request.args.get('uut_test_id[]')
+    # modulations = 'LTE_RESULT'
     print("Enter exportCSV")
-    print(uut_test_id)
-    
-    for _id in uut_test_id:
-        
-        data_select = select([UUT_TEST_INFO, LTE_RESULT]).where(and_(UUT_TEST_INFO.id==LTE_RESULT.uut_test_id, UUT_TEST_INFO.id==_id))
-        df = pd.read_sql(data_select, engine)
-        df.drop((key for key in EXCLUDE_KEYS), axis=1, inplace=True)
-
-        def gen():
-            for line in df.shape[0]:
-                yield ','.join(line) + '\n'
-
-        return Response(gen, mimetype="csv", headers={"Content-Disposition": "attachment; filename=test.csv"})
+    # generateCsvFile(uut_test_id, modulations)
+    return send_from_directory('static/files/', 'results.zip', as_attachment=True)
 
 
 if __name__ == '__main__':

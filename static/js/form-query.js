@@ -106,7 +106,9 @@ $("#query_checked_records_btn").click(function (event) {
 
 $("#export_checked_records_btn").click(function(event) {
     var records_id_arr = getRecordIDs();
-    $.get('/exportCSV', {uut_test_id: records_id_arr});
+    $.get('/exportCSV', {uut_test_id: records_id_arr},  function(data) {        
+            window.open($SCRIPT_ROOT+"static/files/results.zip");
+    });
 });
 
 
