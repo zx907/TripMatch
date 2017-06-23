@@ -106,11 +106,10 @@ $("#query_checked_records_btn").click(function (event) {
 
 $("#export_checked_records_btn").click(function(event) {
     var records_id_arr = getRecordIDs();
-    $.get('/exportCSV', {uut_test_id: records_id_arr},  function(data) {        
+    $.get('/exportCSV', {uut_test_id: records_id_arr.toString()}, function(data) {        
             window.open($SCRIPT_ROOT+"static/files/results.zip");
     });
 });
-
 
 function getRecordIDs() {
     var table = document.getElementById("table2");

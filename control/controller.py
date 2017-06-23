@@ -2,7 +2,6 @@ import pandas as pd
 from sqlalchemy.sql import select, and_
 from model.test_result_model import UUT_TEST_INFO, LTE_RESULT, WCDMA_RESULT, TDSCDMA_RESULT, CDMA2K_RESULT
 import zipfile
-from ... import project
 
 def generateCsvFile(uut_test_id, modulation):
     EXCLUDE_KEYS = ('id' ,'execution_time', 'result_file', 'uut_test_id')

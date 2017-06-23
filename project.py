@@ -19,6 +19,7 @@ import logging
 import pandas as pd
 from model import sql_query
 import zipfile
+import sys
 
 app = Flask(__name__)
 
@@ -56,8 +57,6 @@ def showLogin():
     return render_template('login.html', STATE=state)
 
 # Facebook login page
-
-
 @app.route('/fblogin')
 def showFBLogin():
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
@@ -499,35 +498,42 @@ def getTestResult():
     return jsonify(results_list)
 
 
-def generateCsvFile(uut_test_id, modulation):
-    print('generating zip file')
+def generateCsvFile(uut_test_id, modulations=['LTE_RESULT']):
     EXCLUDE_KEYS = ('id', 'execution_time', 'result_file', 'uut_test_id')
+    print('Enter generateCsvFile')
+    print(uut_test_id)
     files_to_download = []
-    modulation = LTE_RESULT
+    if (len(modulations)==1 or len(modulations)==0):
+        modulations = ['LTE_RESULT']
 
+    # with open('static/files/acd.txt', 'w') as myfile:
+    #     print('writing files')
+    #     myfile.write('abc')
+    
     for _id in uut_test_id:
-        for mod in modulation:
-            data_select = select([UUT_TEST_INFO, mod]).where(
-                and_(UUT_TEST_INFO.id == mod.uut_test_id, UUT_TEST_INFO.id == _id))
-            df = pd.read_sql(data_select, engine)
-            df.drop((key for key in EXCLUDE_KEYS), axis=1, inplace=True)
-            filename = '{}_{}_{}.csv'.format(
-                df.uut[0], mod.split('-')[0], df.start_date_time)
-            df.to_csv('/files//' + filename)
-            files_to_download.append(filename)
+        for mod in modulations:
+            query = "SELECT * FROM UUT_TEST_INFO LEFT JOIN {} ON UUT_TEST_INFO.id={}.uut_test_id WHERE UUT_TEST_INFO.id={}".format(mod, mod, _id)
+            df = pd.read_sql(query, engine)
+            if not df.empty: 
+                df.drop((key for key in EXCLUDE_KEYS), axis=1, inplace=True)
+                filename = '{}_{}_{}.csv'.format(df['UUT'][0], mod.split('-')[0], str(df['START_DATE_TIME'][0]).replace(':','-'))
+                df.to_csv('static/files/' + filename)
+                files_to_download.append(filename)
 
-    with zipfile.ZipFile('/files/results.zip', 'w') as myzip:
+    with zipfile.ZipFile('static/files/results.zip', 'w') as myzip:
         print('Zipping up files')
-        myzip.write(f for f in files_to_download)
+        for f in files_to_download:
+            myzip.write('static/files/' + f)
 
 
 @app.route('/exportCSV')
 def exportCSV():
-    # uut_test_id = request.args.get('uut_test_id[]')
-    # modulations = 'LTE_RESULT'
-    print("Enter exportCSV")
-    # generateCsvFile(uut_test_id, modulations)
-    return send_from_directory('static/files/', 'results.zip', as_attachment=True)
+    print("Enter exportCSV", file=sys.stdout)
+    # logging.info("enter exportCSV")
+    uut_test_id = request.args.get('uut_test_id')
+    generateCsvFile([int(i) for i in uut_test_id.split(',')])
+    return "I donno what's happening"
+    # return send_from_directory('static/files/', 'results.zip', as_attachment=True)
 
 
 if __name__ == '__main__':
