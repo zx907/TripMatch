@@ -1,13 +1,13 @@
 <html>
 
 <head>
-    <meta charset="uft-8">
+    <meta charset=uft-8>
     <title>Framwork</title>
     <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
     <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap.min.css')}}" />
     <script src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
     <script type=text/javascript>
-    $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     </script>
 
 </head>

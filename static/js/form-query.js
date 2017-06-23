@@ -98,7 +98,8 @@ $("#query_checked_records_btn").click(function (event) {
     for (var value of records_id_arr) {        
         $.get("/getTestResult", { 'uut_test_id': value }, function (data) {
             console.log('successfully get result from server');
-            generateTestResultTable(data);
+            // generateTestResultTable(data);
+            generateTestResultTableInNewWindow(data);
         });
     }
 });
@@ -192,6 +193,41 @@ function generateTestResultTable(data) {
         tbbody.appendChild(row);
     }
     tb3.appendChild(tbbody);
+}
+
+function generateTestResultTableInNewWindow(data) {
+    var wd = window.open($SCRIPT_ROOT+"templates/display_results.html", "new window")
+
+    var tb = wd.document.getElementById('results-table');
+    var data_length = Object.keys(data).length;
+    console.log('data_length :' + data_length);
+    var tbbody = wd.document.createElement("tbody");
+
+    var header = wd.document.createElement("tr");
+    for (let item of LTE_RESULT_KEYS) {
+        let cell = wd.document.createElement("th");
+        let cell_text = wd.document.createTextNode(item);
+        cell.appendChild(cell_text);
+        header.appendChild(cell);
+    }
+    tbbody.appendChild(header);
+
+    // Itinerate data array object
+    for (let obj of data) {
+        var row = wd.document.createElement("tr");
+        for (let item of LTE_RESULT_KEYS) {
+            var cell = wd.document.createElement("td");
+            if (isFloat(obj[item]))
+                x = obj[item].toPrecision(6);
+            else
+                x = obj[item];
+            var cell_text = wd.document.createTextNode(x);
+            cell.appendChild(cell_text);
+            row.appendChild(cell);
+        }
+        tbbody.appendChild(row);
+    }
+    tb.appendChild(tbbody);
 }
 
 

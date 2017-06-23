@@ -536,6 +536,11 @@ def exportCSV():
     # return send_from_directory('static/files/', 'results.zip', as_attachment=True)
 
 
+@app.route('/displayResultsInNewWindow')
+def displayResultsInNewWindow():
+    render_template('display_results.html')
+    
+
 if __name__ == '__main__':
     app.secret_key = ''.join(random.choice(
         string.ascii_uppercase + string.digits) for x in range(32))
