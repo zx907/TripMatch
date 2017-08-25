@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+(% block title %)Sign Up{% endblock %}
+{% block body %}
+    <h2>Sign Up</h2>
+    {% if error %}<div class="error">Error:{{ error }}</div>{% endif %}
+    <form action="" method="post">
+        Username: <input type="text" name="username"><br>
+        Email Address: <input type="text" name="email"><br>
+        Password:<input type="password" name="password"><br>
+        Repeat Password:<input type="password" name="password2"> <br>
+        <input type="submit" value="Submit">
+    </form>
+{% endblock %}

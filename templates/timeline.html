@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block title %}
+Public Timeline
+{% endblock %}
+{% block body %}
+    <h2>{{ self.title()</h2>
+    <ul class="messages">
+    {% for message in messages %}
+        <li>
+            <p><a href="">message.text</a></p>
+        </li>
+    {% endfor %}
+    </ul>    
+{% endblock %}
