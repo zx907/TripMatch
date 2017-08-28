@@ -17,7 +17,7 @@ PER_PAGE = 30
 DEBUG = True
 
 # database engine and session
-engine = create_engine("sqlite://testdb.db")
+engine = create_engine("sqlite:////D:\VagrantWorkspace\Code\RMA\testdb.db")
 Base.metadata.bind = engine
 db_session = sessionmaker(bind=engine)()
 
@@ -27,10 +27,16 @@ app = Flask(__name__)
 app.config.from_object(__name__)
 app.config.from_envvar('TRIPMATCH_SETTINGS', silent=True)
 
-@app.route('/')
-def timeline():
-    return render_template('tripmatch.html')
+@app.before_request
+def before_request():
+    g.user = None
+    if 'username' in login_session:
+        g.user = db_session.query(User).filter(User.username==login_session['username']).first()
 
+
+@app.route('/')
+def timeline(): 
+    return render_template('timeline.html')
 
 
 @app.route('/public')
@@ -46,42 +52,52 @@ def add_trip():
         flash('Your trip info was saved')
     return redirect(url_for('timeline'))
 
-@app.route('/login', methods=['GET','POST'])
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if g.user:
-        redirect(url_for('timeline')) 
+        redirect(url_for('timeline'))
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if g.user:
+        print(g.user)
         return redirect(url_for('timeline'))
     error = None
-    if request.methond == 'POST':
+    if request.method == 'POST':
         if not request.form['username']:
             error = 'Please enter a username'
         elif not request.form['email']:
             error = 'Please enter an email address'
         elif not request.form['password']:
             error = 'Please enter a password'
-        elif getUserId(request.form['username']) is not None:
+        elif request.form['password']!=request.form['password2']:
+            error = 'Passwords are not matched'
+        elif UsernameExists(request.form['username']) is not None:
             error = 'The username is already taken'
-        elif checkEmailExist(request.form['email']):
+        elif EmailExists(request.form['email']):
             error = 'The email address is already taken'
         else:
-            new_user = User(username=request.form['username'], email=request.form['email'], password=request.form['password'])
+            new_user = User(
+                username=request.form['username'], email=request.form['email'], password=request.form['password'])
             db_session.add(new_user)
             db_session.commit()
             flash('Register successfully')
             return redirect(url_for('login'))
-    
-    return render_template('register.html', error=error)
 
-def checkEmailExist(email):
-    exists = session.query(User.email).filter(User.email = email).scalar()
+    return render_template('register.html')
 
+
+def EmailExists(email):
+    return db_session.query(User.email).filter(User.email == email).scalar()
+
+
+def UsernameExists(username):
+    return db_session.query(User.email).filter(User.username == username).scalar()
 
 
 if __name__ == '__main__':
-    app.secret_key = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
+    app.secret_key = ''.join(random.choice(
+        string.ascii_uppercase + string.digits) for x in range(32))
     app.run(host='127.0.0.1', port=5000, debug=True)
-

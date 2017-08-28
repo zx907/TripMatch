@@ -8,7 +8,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     username = Column(String, nullable=False)
     email = Column(String, nullable=False)
-    password = Column(String)
+    password = Column(String, nullable=False)
 
     def __repr__(self):
         return "<User(username='%s', email='%s', password='%s')>" % (self.name, self.fullname, self.password)

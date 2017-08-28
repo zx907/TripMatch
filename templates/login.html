@@ -1,69 +1,11 @@
-<!DOCTYPE html>
-<html>
-<head>
-<!--LOAD PRE-REQUISITES FOR GOOGLE SIGN IN -->
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-<script src="//apis.google.com/js/platform.js?onload=start"> </script>
-<script src="https://apis.google.com/js/platform.js" async defer></script>
-<!-- END PRE-REQUISITES FOR GOOGLE SIGN IN -->
-</head>
-
-
-<body>  
-
-<!-- GOOGLE PLUS SIGN IN-->          
-<div id="signInButton">
-    <span class="g-signin"
-        data-scope="openid email"
-        data-clientid="166756471529-ed1uj2f9bpoefhmlvm08t3nqpvupuff3.apps.googleusercontent.com"
-        data-redirecturi="postmessage"
-        data-accesstype="offline"
-        data-cookiepolicy="single_host_origin"
-        data-callback="signInCallback"
-        data-approvalprompt="force">
-    </span>
-</div>
-
-<div id="result"></div>
-
-<script>
-function signInCallback(authResult) {
-  if (authResult['code']) {
-
-    // Hide the sign-in button now that the user is authorized
-    $('#signinButton').attr('style', 'display: none');
-		console.log('Got code, ready to POST');
-		console.log('code: ', authResult['code']);
-		console.log('state: ', '{{STATE}}');
-    // Send the one-time-use code to the server, if the server responds, write a 'login successful' message to the web page and then redirect back to the main restaurants page
-    $.ajax({
-      type: 'POST',
-      url: '/gconnect?state={{STATE}}',
-      processData: false,
-      data: authResult['code'],
-      contentType: 'application/octet-stream; charset=utf-8',
-      success: function(result) {
-        // Handle or verify the server response if necessary.
-        if (result) {
-					console.log('gconnect post successfully');
-          $('#result').html('Login Successful!</br>'+ result + '</br>Redirecting...')
-         setTimeout(function() {
-          window.location.href = "/";
-         }, 4000);
-      } else if (authResult['error']) {
-        console.log('There was an error: ' + authResult['error']);
-      } else {
-        $('#result').html('Failed to make a server-side call. Check your configuration and console.');
-      }}
-    });
-  }}
-</script>
-
-
-
-<!--END GOOGLE PLUS SIGN IN -->
-<div><a href={{url_for('showFBLogin')}}>Switch to Facebook Login</a></div>
-
-</body>
-
-</html>
+{% extends "layout.html" %}
+(% block title %)Sign In{% endblock %}
+{% block body %}
+    <h2>Sign In</h2>
+    {% if error %}<div class="error">Error:{{ error }}</div>{% endif %}
+    <form action="" method="post">
+        Username: <input type="text" name="username"><br>
+        Password:<input type="password" name="password"><br>
+        <input type="submit" value="Submit">
+    </form>
+{% endblock %}
