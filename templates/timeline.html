@@ -2,10 +2,10 @@
 {% block title %}Public Timeline{% endblock %}
 {% block body %}
     <h2>{{ self.title() }}</h2>
-    <ul class="messages">
-    {% for message in messages %}
+    <ul class="trips">
+    {% for trip in trips %}
         <li>
-            <p><a href="">message.text</a></p>
+            <p><a href="">trip.destination</a></p>
         </li>
     {% endfor %}
     </ul>    

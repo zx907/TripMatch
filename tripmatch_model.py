@@ -15,16 +15,7 @@ class User(Base):
 
 
 class TripDetails(Base):
-    """
-        username
-        country
-        state
-        city
-        duration
-        date_start
-        companions
-        city_takeoff
-    """
+    """username, country, state, city, duration, date_start, companions, city_takeoff"""
     __tablename__ = 'trip_details'
     id = Column(Integer, primary_key=True)
     username = Column(String, nullable=False)

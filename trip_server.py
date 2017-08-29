@@ -6,8 +6,9 @@ from flask import json, jsonify
 from flask import abort
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from tripmatch_model import Base, User
+from tripmatch_model import Base, User, TripDetails
 from datetime import datetime
+from werkzeug.security import check_password_hash, generate_password_hash, gen_salt
 import requests
 import random
 import string
@@ -17,15 +18,19 @@ PER_PAGE = 30
 DEBUG = True
 
 # database engine and session
-engine = create_engine("sqlite:////D:\VagrantWorkspace\Code\RMA\testdb.db")
-Base.metadata.bind = engine
-db_session = sessionmaker(bind=engine)()
+engine = create_engine("sqlite:////testdb.db")
+# create tables
+Base.metadata.create_all(engine)
+Session = sessionmaker()
+Session.configure(bind=engine)
+db_session = Session()
+
 
 # configuration
 APPLICATION_NAME = "Trip Match"
 app = Flask(__name__)
 app.config.from_object(__name__)
-app.config.from_envvar('TRIPMATCH_SETTINGS', silent=True)
+# app.config.from_envvar('TRIPMATCH_SETTINGS', silent=True)
 
 @app.before_request
 def before_request():
@@ -41,6 +46,7 @@ def timeline():
 
 @app.route('/public')
 def public_timeline():
+    trips = db_session.query(TripDetails).all()    
     return render_template('timeline.html')
 
 
@@ -56,7 +62,19 @@ def add_trip():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if g.user:
-        redirect(url_for('timeline'))
+        return redirect(url_for('timeline'))
+    error = None
+    if request.method == 'POST':
+        user = db_session.query(User).filter_by(username==request.form['username']).one()
+        if user is None:
+            error = 'invalid username'
+        elif not check_password_hash(user.password, request.form['password']):
+            error = 'invalid password'
+        else:
+            flash ('you were logged in')
+            login_session['username'] = user.username
+            return redirect(url_for('timeline'))
+    return render_template('login.html')
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -80,7 +98,8 @@ def register():
             error = 'The email address is already taken'
         else:
             new_user = User(
-                username=request.form['username'], email=request.form['email'], password=request.form['password'])
+                username=request.form['username'], email=request.form['email'], password=
+                generate_password_hash(request.form['password']))
             db_session.add(new_user)
             db_session.commit()
             flash('Register successfully')
