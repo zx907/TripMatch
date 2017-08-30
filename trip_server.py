@@ -65,7 +65,7 @@ def login():
         return redirect(url_for('timeline'))
     error = None
     if request.method == 'POST':
-        user = db_session.query(User).filter_by(username==request.form['username']).one()
+        user = db_session.query(User).filter(User.username==request.form['username']).first()
         if user is None:
             error = 'invalid username'
         elif not check_password_hash(user.password, request.form['password']):

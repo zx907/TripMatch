@@ -2,7 +2,7 @@ from sqlalchemy.orm import sessionmaker
 from tripmatch_model import Base,User, TripDetails
 from sqlalchemy import create_engine
 
-engine = create_engine('sqlite:///testdb.db', echo=False)
+engine = create_engine('sqlite:///testdb.db', echo=True)
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 session = Session()
@@ -22,3 +22,6 @@ session.add(u3)
 session.commit()
 session.add(t1)
 session.commit()
+
+for name in session.query(User).all():
+    print(name.username)
