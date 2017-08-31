@@ -41,21 +41,35 @@ def before_request():
 
 @app.route('/')
 def timeline(): 
-    return render_template('timeline.html')
+    trips = db_session.query(TripDetails).all()    
+    return render_template('timeline.html', trips=trips)
+
 
 
 @app.route('/public')
 def public_timeline():
     trips = db_session.query(TripDetails).all()    
-    return render_template('timeline.html')
+    return render_template('timeline.html', trips=trips)
 
 
 @app.route('/add_trip', methods=['POST'])
 def add_trip():
-    if 'user_id' not in login_session:
+    print("hello")
+    if 'username' not in login_session:
         abort(401)
-    if request.form['text']:
-        flash('Your trip info was saved')
+
+    new_trip = TripDetails( username=login_session['username'],
+                            country=request.form['country'],
+                            state=request.form['state'],
+                            city=request.form['city'],
+                            duration=request.form['duration'],                                         
+                            date_start=request.form['date_start'],
+                            companions=request.form['companions'],
+                            city_takeoff=request.form['city_takeoff'])
+    db_session.add(new_trip)
+    db_session.commit()
+    flash('Your trip is posted')
+
     return redirect(url_for('timeline'))
 
 

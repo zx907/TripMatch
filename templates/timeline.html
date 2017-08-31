@@ -1,11 +1,26 @@
 {% extends "layout.html" %}
 {% block title %}Public Timeline{% endblock %}
 {% block body %}
-    <h2>{{ self.title() }}</h2>
+    <h2>{{ self.title() }}</h2>    
+    {% if g.user %}
+        <div>
+            <form action="{{url_for('add_trip')}}" method="post">
+                Country: <input type="text" name="country" id=""><br> 
+                State: <input type="text" name="state" id=""><br> 
+                City: <input type="text" name="city" id=""><br> 
+                Duration: <input type="text" name="duration" id=""><br> 
+                Trip Start Date: <input type="date" name="date_start" id=""><br> 
+                Companions: <input type="number" name="companions" id=""><br> 
+                Leave From: <input type="text" name="city_takeoff" id=""><br>
+                <input type="submit" value="Submit">
+            </form>
+        </div>
+    {% endif %}   
+    
     <ul class="trips">
     {% for trip in trips %}
         <li>
-            <p><a href="">trip.destination</a></p>
+            <p><a href="">{{trip.country}}</a></p>
         </li>
     {% endfor %}
     </ul>    
