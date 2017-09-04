@@ -1,4 +1,4 @@
-from flask import Flask, g
+from flask import Flask, g, app
 from flask import render_template, url_for, redirect, flash
 from flask import session as login_session
 from flask import make_response, Response, request
@@ -17,38 +17,46 @@ import time
 PER_PAGE = 30
 DEBUG = True
 
+# configuration
+APPLICATION_NAME = 'Trip Match'
+TRIPMATCH_SETTINGS = 'settings.txt'
+app = Flask(__name__)
+app.config.from_object(__name__)
+# app.config.from_envvar('TRIPMATCH_SETTINGS', silent=True)
+
 # database engine and session
 engine = create_engine("sqlite:////testdb.db")
 # create tables
 Base.metadata.create_all(engine)
-Session = sessionmaker()
-Session.configure(bind=engine)
-db_session = Session()
 
+def get_db_session():
+    return sessionmaker(bind=engine)()
 
-# configuration
-APPLICATION_NAME = "Trip Match"
-app = Flask(__name__)
-app.config.from_object(__name__)
-# app.config.from_envvar('TRIPMATCH_SETTINGS', silent=True)
+# @app.teardown_appcontext
+# def close_db(error):
+#     if hasattr(g, 'db_session'):
+#         g.db_session.close()
+
 
 @app.before_request
 def before_request():
     g.user = None
     if 'username' in login_session:
+        db_session = get_db_session()
         g.user = db_session.query(User).filter(User.username==login_session['username']).first()
 
 
 @app.route('/')
 def timeline(): 
+    db_session = get_db_session()
     trips = db_session.query(TripDetails).all()    
     return render_template('timeline.html', trips=trips)
 
 
-
 @app.route('/public')
 def public_timeline():
-    trips = db_session.query(TripDetails).all()    
+    db_session = get_db_session()
+    trips = g.db_session.query(TripDetails).all()    
     return render_template('timeline.html', trips=trips)
 
 
@@ -66,6 +74,7 @@ def add_trip():
                             date_start=request.form['date_start'],
                             companions=request.form['companions'],
                             city_takeoff=request.form['city_takeoff'])
+    db_session = get_db_session()
     db_session.add(new_trip)
     db_session.commit()
     flash('Your trip is posted')
@@ -79,6 +88,7 @@ def login():
         return redirect(url_for('timeline'))
     error = None
     if request.method == 'POST':
+        db_session = get_db_session()
         user = db_session.query(User).filter(User.username==request.form['username']).first()
         if user is None:
             error = 'invalid username'
@@ -90,6 +100,12 @@ def login():
             return redirect(url_for('timeline'))
     return render_template('login.html')
 
+app.route('/logout')
+def logout():
+    login_session.pop(login_session['username'], None)
+    flash('You were logged out')
+    return redirect(url_for('public_timeline'))
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -98,6 +114,7 @@ def register():
         return redirect(url_for('timeline'))
     error = None
     if request.method == 'POST':
+        db_session = get_db_session()
         if not request.form['username']:
             error = 'Please enter a username'
         elif not request.form['email']:
@@ -123,10 +140,12 @@ def register():
 
 
 def EmailExists(email):
+    db_session = get_db_session()
     return db_session.query(User.email).filter(User.email == email).scalar()
 
 
 def UsernameExists(username):
+    db_session = get_db_session()
     return db_session.query(User.email).filter(User.username == username).scalar()
 
 
