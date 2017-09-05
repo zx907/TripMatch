@@ -19,15 +19,18 @@ DEBUG = True
 
 # configuration
 APPLICATION_NAME = 'Trip Match'
-TRIPMATCH_SETTINGS = 'settings.txt'
+# TRIPMATCH_SETTINGS = 'settings.txt'
 app = Flask(__name__)
-app.config.from_object(__name__)
+# app.config.from_object(__name__)
 # app.config.from_envvar('TRIPMATCH_SETTINGS', silent=True)
 
 # database engine and session
 engine = create_engine("sqlite:////testdb.db")
+
+
 # create tables
-Base.metadata.create_all(engine)
+def init_db():
+    Base.metadata.create_all(engine)
 
 def get_db_session():
     return sessionmaker(bind=engine)()
@@ -49,7 +52,7 @@ def before_request():
 @app.route('/')
 def timeline(): 
     db_session = get_db_session()
-    trips = db_session.query(TripDetails).all()    
+    trips = db_session.query(Messages, TripDetails, Users).order_by(Messages.id).
     return render_template('timeline.html', trips=trips)
 
 
@@ -66,14 +69,16 @@ def add_trip():
     if 'username' not in login_session:
         abort(401)
 
-    new_trip = TripDetails( username=login_session['username'],
-                            country=request.form['country'],
-                            state=request.form['state'],
-                            city=request.form['city'],
+    new_trip = TripDetails (username=login_session['username'],
+                            destination=request.form['destination'],
                             duration=request.form['duration'],                                         
                             date_start=request.form['date_start'],
                             companions=request.form['companions'],
-                            city_takeoff=request.form['city_takeoff'])
+                            city_takeoff=request.form['city_takeoff'],
+                            expected_group_size=request.form['expected_group_size'],
+                            notes=request.form['notes']                          
+                            )
+
     db_session = get_db_session()
     db_session.add(new_trip)
     db_session.commit()
@@ -152,4 +157,5 @@ def UsernameExists(username):
 if __name__ == '__main__':
     app.secret_key = ''.join(random.choice(
         string.ascii_uppercase + string.digits) for x in range(32))
+    init_db()
     app.run(host='127.0.0.1', port=5000, debug=True)

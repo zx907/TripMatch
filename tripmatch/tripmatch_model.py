@@ -1,43 +1,70 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
-class User(Base):
-    __tablename__ = 'user'
+class Users(Base):
+    __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     username = Column(String, nullable=False)
     email = Column(String, nullable=False)
     password = Column(String, nullable=False)
 
+    messages = relationship('Messages', back_populates="users")
+
     def __repr__(self):
         return "<User(username='%s', email='%s', password='%s')>" % (self.name, self.fullname, self.password)
 
 
+class Messages(Base):
+    __tablename__ = 'messages'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    trip_id = Column(Integer, ForeignKey('trip_details.id'))
+    datetime = Column(String, nullable=False)
+
+    users = relationship('Users', back_populates="messages")
+    trips = relationship('trip_details', back_populates="messages")
+
+
 class TripDetails(Base):
-    """username, country, state, city, duration, date_start, companions, city_takeoff"""
+    """username, country, state, destination, duration, date_start, companions, city_takeoff"""
     __tablename__ = 'trip_details'
     id = Column(Integer, primary_key=True)
-    username = Column(String, nullable=False)
-    country = Column(String, nullable=False)
-    state = Column(String, nullable=True)
-    city = Column(String, nullable=True)
+    username = Column(Integer, ForeignKey('users.id'))
+    destination = Column(String, nullable=True)
     duration = Column(String, nullable=True)
     date_start = Column(String, nullable=False)
     companions = Column(Integer, nullable=False)
     city_takeoff = Column(String, nullable=True)
+    expected_group_size = Column(Integer, nullable=True)
+    notes = Column(String, nullable=True)
+
+    users = relationship('Users', back_populates="trip_details")
 
     def __repr__(self):
-        "<TripDetails(username='%s', country='%s', state='%s', city='%s', duration='%s', date_start='%s', companion='%s', city_takeoff='%s')>" \
-        % (self.username, self.country, self.state, self.city, self.duration, self.date_start, self.companions, self.city_takeoff)
-
-
-# class Cities(Base):
-#     __table__ = 'cities'
-#     id = Column(Integer, primary_key=True)
-#     city_name = Column(String, nullable=False)
+        "<TripDetails(username='%s', destination='%s', duration='%s', date_start='%s', companion='%s', city_takeoff='%s', expected_group_size='%s', notes='%s')>" \
+        % (self.username, self.destination, self.duration, self.date_start, self.companions, self.city_takeoff, self.expected_group_size, self.notes)
 
 # class Countries(Base):
-#     __table__ = 'countries'
+#     __tablename__ = 'countries'
 #     id = Column(Integer, primary_key=True)
-#     country_name = Column(String, nullable=False)
+#     country = Column(String, nullable=False)
+
+# class Destinations(Base):
+#     __tablename__ = 'destinations'
+#     id = Column(Integer, primary_key=True)
+#     destination = Column(String, nullable=False)
+
+# class UserToCountry(Base):
+#     __tablename__ = 'user_to_country'
+#     id = Column(Integer, primary_key=True)
+#     user_id = Column(Integer, nullable=False)
+#     country = Column(String, nullable=False)
+
+# class UserToDestination(Base):
+#     __tablename__ = 'user_to_desination'
+#     id = Column(Integer, primary_key=True)
+#     user_id = Column(Integer, nullable=False)
+#     country = Column(String, nullable=False) 
