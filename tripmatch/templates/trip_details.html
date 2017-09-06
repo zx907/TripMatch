@@ -1,0 +1,23 @@
+{% extends layout.html %}
+{% block title %}Trip Details{% endblock %}
+{% block body %}
+<div id="trip-content">
+    <ul>
+        <li>{{trip.destination}}</li>
+        <li>{{trip.date_start}}</li>
+        <li>{{trip.duration}}</li>
+        <li>{{trip.companios}}</li>
+        <li>{{trip.expected_group_size}}</li>
+        <li>{{trip.notes}}</li>
+    </ul>
+</div>
+
+<div id="join-waitinglist">
+    <ul>
+        {% for post in posts_waitinglist %}
+        <li>{{post.text}}</li>
+        <li>{{post.post_date}}</li>
+        <li>{{post.user_id}}</li>
+    </ul>
+</div>
+{% endblock %}

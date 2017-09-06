@@ -47,6 +47,17 @@ class TripDetails(Base):
         "<TripDetails(username='%s', destination='%s', duration='%s', date_start='%s', companion='%s', city_takeoff='%s', expected_group_size='%s', notes='%s')>" \
         % (self.username, self.destination, self.duration, self.date_start, self.companions, self.city_takeoff, self.expected_group_size, self.notes)
 
+
+class Waitinglist(Base):
+    __tablename__ = 'waitinglist'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    text = Column(String, nullable=False)
+    post_date = Column(String, nullable=False)
+
+    users = relationship('Users', back_populates="waitinglist")
+
+
 # class Countries(Base):
 #     __tablename__ = 'countries'
 #     id = Column(Integer, primary_key=True)

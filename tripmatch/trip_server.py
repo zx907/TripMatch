@@ -6,7 +6,7 @@ from flask import json, jsonify
 from flask import abort
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from tripmatch_model import Base, User, TripDetails
+from tripmatch_model import Base, Users, TripDetails, Messages
 from datetime import datetime
 from werkzeug.security import check_password_hash, generate_password_hash, gen_salt
 import requests
@@ -46,13 +46,13 @@ def before_request():
     g.user = None
     if 'username' in login_session:
         db_session = get_db_session()
-        g.user = db_session.query(User).filter(User.username==login_session['username']).first()
+        g.user = db_session.query(Users).filter(Users.username==login_session['username']).first()
 
 
 @app.route('/')
 def timeline(): 
     db_session = get_db_session()
-    trips = db_session.query(Messages, TripDetails, Users).order_by(Messages.id).
+    trips = db_session.query(Messages, TripDetails, Users).order_by(Messages.id).all()
     return render_template('timeline.html', trips=trips)
 
 
@@ -61,6 +61,13 @@ def public_timeline():
     db_session = get_db_session()
     trips = g.db_session.query(TripDetails).all()    
     return render_template('timeline.html', trips=trips)
+
+@app.route('/display_trip')
+def display_trip(trip_id):
+    db_session = get_db_session()
+    trip = g.db_session.query(TripDetails).filter_by(id=trip_id).one()
+    return render_template('trip_detail.html', trip=trip)
+
 
 
 @app.route('/add_trip', methods=['POST'])
@@ -94,7 +101,7 @@ def login():
     error = None
     if request.method == 'POST':
         db_session = get_db_session()
-        user = db_session.query(User).filter(User.username==request.form['username']).first()
+        user = db_session.query(Users).filter(Users.username==request.form['username']).first()
         if user is None:
             error = 'invalid username'
         elif not check_password_hash(user.password, request.form['password']):
@@ -133,7 +140,7 @@ def register():
         elif EmailExists(request.form['email']):
             error = 'The email address is already taken'
         else:
-            new_user = User(
+            new_user = Users(
                 username=request.form['username'], email=request.form['email'], password=
                 generate_password_hash(request.form['password']))
             db_session.add(new_user)
@@ -146,12 +153,12 @@ def register():
 
 def EmailExists(email):
     db_session = get_db_session()
-    return db_session.query(User.email).filter(User.email == email).scalar()
+    return db_session.query(Users.email).filter(Users.email == email).scalar()
 
 
 def UsernameExists(username):
     db_session = get_db_session()
-    return db_session.query(User.email).filter(User.username == username).scalar()
+    return db_session.query(Users.email).filter(Users.username == username).scalar()
 
 
 if __name__ == '__main__':
