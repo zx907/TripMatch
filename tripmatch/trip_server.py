@@ -59,13 +59,13 @@ def timeline():
 @app.route('/public')
 def public_timeline():
     db_session = get_db_session()
-    trips = g.db_session.query(TripDetails).all()    
+    trips = db_session.query(TripDetails).all()    
     return render_template('timeline.html', trips=trips)
 
 @app.route('/display_trip')
 def display_trip(trip_id):
     db_session = get_db_session()
-    trip = g.db_session.query(TripDetails).filter_by(id=trip_id).one()
+    trip = db_session.query(TripDetails).filter_by(id=trip_id).one()
     return render_template('trip_detail.html', trip=trip)
 
 
