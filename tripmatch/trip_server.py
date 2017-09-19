@@ -41,12 +41,12 @@ def get_db_session():
 #         g.db_session.close()
 
 
-@app.before_request
-def before_request():
-    g.user = None
-    if 'username' in login_session:
-        db_session = get_db_session()
-        g.user = db_session.query(Users).filter(Users.username==login_session['username']).first()
+# @app.before_request
+# def before_request():
+#     g.user = None
+#     if 'username' in login_session:
+#         db_session = get_db_session()
+#         g.user = db_session.query(Users).filter(Users.username==login_session['username']).first()
 
 
 @app.route('/')
@@ -68,6 +68,12 @@ def display_trip(trip_id):
     trip = db_session.query(TripDetails).filter_by(id=trip_id).one()
     return render_template('trip_detail.html', trip=trip)
 
+
+@app.route('/new_trip')
+def new_trip():
+    if 'username' not in login_session:
+        abort(401)
+    return render_template('new_trip.html')
 
 
 @app.route('/add_trip', methods=['POST'])
@@ -96,7 +102,7 @@ def add_trip():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if g.user:
+    if g.get('user', None) != None:
         return redirect(url_for('timeline'))
     error = None
     if request.method == 'POST':
@@ -121,8 +127,7 @@ def logout():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    if g.user:
-        print(g.user)
+    if g.get('user', None) != None:
         return redirect(url_for('timeline'))
     error = None
     if request.method == 'POST':
