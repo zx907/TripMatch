@@ -24,7 +24,7 @@ class TripDetails(Base):
     __tablename__ = 'trip_details'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
-    destination = Column(String, nullable=True)
+    destination_id = Column(Integer, ForeignKey('destinations.id'))
     duration = Column(String, nullable=True)
     date_start = Column(String, nullable=False)
     companions = Column(Integer, nullable=False)
@@ -60,24 +60,14 @@ class Waitinglist(Base):
     users = relationship('Users', back_populates="waitinglist")
 
 
-# class Countries(Base):
-#     __tablename__ = 'countries'
-#     id = Column(Integer, primary_key=True)
-#     country = Column(String, nullable=False)
+class Destinations(Base):
+    __tablename__ = 'destinations'
+    id = Column(Integer, primary_key=True)
+    destination = Column(String, nullable=False)
 
-# class Destinations(Base):
-#     __tablename__ = 'destinations'
-#     id = Column(Integer, primary_key=True)
-#     destination = Column(String, nullable=False)
 
-# class UserToCountry(Base):
-#     __tablename__ = 'user_to_country'
-#     id = Column(Integer, primary_key=True)
-#     user_id = Column(Integer, nullable=False)
-#     country = Column(String, nullable=False)
-
-# class UserToDestination(Base):
-#     __tablename__ = 'user_to_desination'
-#     id = Column(Integer, primary_key=True)
-#     user_id = Column(Integer, nullable=False)
-#     country = Column(String, nullable=False) 
+class TripToDestination(Base):
+    __tablename__ = 'user_to_desination'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    destination = Column(String, ForeignKey('destinations.id')) 
