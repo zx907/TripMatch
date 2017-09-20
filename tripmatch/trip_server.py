@@ -6,13 +6,13 @@ from flask import json, jsonify
 from flask import abort
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from tripmatch_model import Base, Users, TripDetails, Messages
-from datetime import datetime
+from sqlalchemy.sql import ClauseElement
+from tripmatch_model import Base, Users, TripDetails, Messages, Waitinglist, Destinations, TripToDestination
 from werkzeug.security import check_password_hash, generate_password_hash, gen_salt
+from datetime import datetime
 import requests
 import random
 import string
-import time
 
 PER_PAGE = 30
 DEBUG = True
@@ -32,6 +32,7 @@ engine = create_engine("sqlite:////testdb.db")
 def init_db():
     Base.metadata.create_all(engine)
 
+
 def get_db_session():
     return sessionmaker(bind=engine)()
 
@@ -50,17 +51,19 @@ def get_db_session():
 
 
 @app.route('/')
-def timeline(): 
+def timeline():
     db_session = get_db_session()
-    trips = db_session.query(Messages, TripDetails, Users).order_by(Messages.id).all()
+    trips = db_session.query(Messages, TripDetails,
+                             Users).order_by(Messages.id).all()
     return render_template('timeline.html', trips=trips)
 
 
 @app.route('/public')
 def public_timeline():
     db_session = get_db_session()
-    trips = db_session.query(TripDetails).all()    
+    trips = db_session.query(TripDetails).all()
     return render_template('timeline.html', trips=trips)
+
 
 @app.route('/display_trip')
 def display_trip(trip_id):
@@ -69,33 +72,36 @@ def display_trip(trip_id):
     return render_template('trip_detail.html', trip=trip)
 
 
-@app.route('/new_trip')
+@app.route('/new_trip', methods=['GET', 'POST'])
 def new_trip():
-    if 'username' not in login_session:
-        abort(401)
-    return render_template('new_trip.html')
-
-
-@app.route('/add_trip', methods=['POST'])
-def add_trip():
-    print("hello")
-    if 'username' not in login_session:
+    if 'user_id' not in login_session:
         abort(401)
 
-    new_trip = TripDetails (username=login_session['username'],
-                            destination=request.form['destination'],
-                            duration=request.form['duration'],                                         
-                            date_start=request.form['date_start'],
-                            companions=request.form['companions'],
-                            city_takeoff=request.form['city_takeoff'],
-                            expected_group_size=request.form['expected_group_size'],
-                            notes=request.form['notes']                          
-                            )
+    try:
+        db_session = get_db_session()
+        destination_id = get_or_create(db_session, Destinations, {'destination':request.form['destination']})[0]
+        # destination_query = db_session.query(Destinations).filter_by(destination=request.form['destination']).first()
+        # if destination_query == None:
+        #     new_destination = Destinations(destination=request.form['destination'])
+        # else:
+        #     destination_id = destination_query.id
 
-    db_session = get_db_session()
-    db_session.add(new_trip)
-    db_session.commit()
-    flash('Your trip is posted')
+        new_trip = TripDetails(user_id=login_session['user_id'],
+                               destination_id=destination_id,
+                               duration=request.form['duration'],
+                               date_start=request.form['date_start'],
+                               companions=request.form['companions'],
+                               city_takeoff=request.form['city_takeoff'],
+                               expected_group_size=request.form['expected_group_size'],
+                               notes=request.form['notes']
+                               )
+
+        db_session.add(new_trip)
+        db_session.commit()
+        flash('Your trip is posted')
+    except:
+        db_session.rollback()
+        flash('Your trip is posted unsuccessfully')
 
     return redirect(url_for('timeline'))
 
@@ -107,18 +113,22 @@ def login():
     error = None
     if request.method == 'POST':
         db_session = get_db_session()
-        user = db_session.query(Users).filter(Users.username==request.form['username']).first()
+        user = db_session.query(Users).filter(
+            Users.username == request.form['username']).first()
         if user is None:
             error = 'invalid username'
         elif not check_password_hash(user.password, request.form['password']):
             error = 'invalid password'
         else:
-            flash ('you were logged in')
+            flash('you were logged in')
             login_session['username'] = user.username
             return redirect(url_for('timeline'))
     return render_template('login.html')
 
+
 app.route('/logout')
+
+
 def logout():
     login_session.pop(login_session['username'], None)
     flash('You were logged out')
@@ -138,7 +148,7 @@ def register():
             error = 'Please enter an email address'
         elif not request.form['password']:
             error = 'Please enter a password'
-        elif request.form['password']!=request.form['password2']:
+        elif request.form['password'] != request.form['password2']:
             error = 'Passwords are not matched'
         elif UsernameExists(request.form['username']) is not None:
             error = 'The username is already taken'
@@ -146,8 +156,7 @@ def register():
             error = 'The email address is already taken'
         else:
             new_user = Users(
-                username=request.form['username'], email=request.form['email'], password=
-                generate_password_hash(request.form['password']))
+                username=request.form['username'], email=request.form['email'], password=generate_password_hash(request.form['password']))
             db_session.add(new_user)
             db_session.commit()
             flash('Register successfully')
@@ -165,6 +174,16 @@ def UsernameExists(username):
     db_session = get_db_session()
     return db_session.query(Users.email).filter(Users.username == username).scalar()
 
+def get_or_create(session, model, defaults=None, **kwargs):
+    instance = session.query(model).filter_by(**kwargs).first()
+    if instance:
+        return instance, False
+    else:
+        params = dict((k, v) for k, v in kwargs.items() if not isinstance(v, ClauseElement))
+        params.update(defaults or {})
+        instance = model(**params)
+        session.add(instance)
+        return instance, True
 
 if __name__ == '__main__':
     app.secret_key = ''.join(random.choice(

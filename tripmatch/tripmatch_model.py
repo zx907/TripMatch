@@ -61,6 +61,7 @@ class Waitinglist(Base):
 
 
 class Destinations(Base):
+    """destination: String"""
     __tablename__ = 'destinations'
     id = Column(Integer, primary_key=True)
     destination = Column(String, nullable=False)
