@@ -25,7 +25,7 @@ app = Flask(__name__)
 # app.config.from_envvar('TRIPMATCH_SETTINGS', silent=True)
 
 # database engine and session
-engine = create_engine("sqlite:////testdb.db")
+engine = create_engine("sqlite:////testdb.db", connect_args={'check_same_thread': False})
 
 
 # create tables
@@ -35,6 +35,7 @@ def init_db():
 
 def get_db_session():
     return sessionmaker(bind=engine)()
+
 
 # @app.teardown_appcontext
 # def close_db(error):
@@ -77,102 +78,116 @@ def new_trip():
     if 'user_id' not in login_session:
         abort(401)
 
-    try:
+    if request.method == 'POST':
+
         db_session = get_db_session()
-        destination_id = get_or_create(db_session, Destinations, {'destination':request.form['destination']})[0]
-        # destination_query = db_session.query(Destinations).filter_by(destination=request.form['destination']).first()
-        # if destination_query == None:
-        #     new_destination = Destinations(destination=request.form['destination'])
-        # else:
-        #     destination_id = destination_query.id
+        try:
+            destination = get_or_create(
+                db_session,
+                Destinations,
+                destination=request.form['destination']
+            )[0]
+            print(destination.id)
+            print(destination.destination)
 
-        new_trip = TripDetails(user_id=login_session['user_id'],
-                               destination_id=destination_id,
-                               duration=request.form['duration'],
-                               date_start=request.form['date_start'],
-                               companions=request.form['companions'],
-                               city_takeoff=request.form['city_takeoff'],
-                               expected_group_size=request.form['expected_group_size'],
-                               notes=request.form['notes']
-                               )
+            # destination_query = db_session.query(Destinations).filter_by(destination=request.form['destination']).first()
+            # if destination_query == None:
+            #     new_destination = Destinations(destination=request.form['destination'])
+            # else:
+            #     destination_id = destination_query.id
 
-        db_session.add(new_trip)
-        db_session.commit()
-        flash('Your trip is posted')
-    except:
-        db_session.rollback()
-        flash('Your trip is posted unsuccessfully')
+            new_trip = TripDetails(user_id=login_session['user_id'],
+                                destination_id=destination.id,
+                                duration=request.form['duration'],
+                                date_start=request.form['date_start'],
+                                companions=request.form['companions'],
+                                city_takeoff=request.form['city_takeoff'],
+                                expected_group_size=request.form['expected_group_size'],
+                                notes=request.form['notes']
+                                )
+            db_session.add(new_trip)
+            db_session.commit()
+            flash('Your trip is posted')
+        except:
+            db_session.rollback()
+            flash('Your trip is posted unsuccessfully')
 
-    return redirect(url_for('timeline'))
+    return render_template('new_trip.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if g.get('user', None) != None:
+    if login_session.get('user_id', None) != None:
         return redirect(url_for('timeline'))
     error = None
     if request.method == 'POST':
         db_session = get_db_session()
         user = db_session.query(Users).filter(
-            Users.username == request.form['username']).first()
-        if user is None:
+            Users.username==request.form['username']).first()
+        if user == None:
             error = 'invalid username'
+            flash('invalid username')
         elif not check_password_hash(user.password, request.form['password']):
             error = 'invalid password'
+            flash('invalid password')
         else:
             flash('you were logged in')
-            login_session['username'] = user.username
+            login_session['user_id'] = user.id
             return redirect(url_for('timeline'))
     return render_template('login.html')
 
 
 app.route('/logout')
-
-
 def logout():
-    login_session.pop(login_session['username'], None)
+    login_session.pop(login_session['user_id'], None)
     flash('You were logged out')
     return redirect(url_for('public_timeline'))
 
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    if g.get('user', None) != None:
+    if login_session.get('user_id', None) != None:
         return redirect(url_for('timeline'))
     error = None
     if request.method == 'POST':
-        db_session = get_db_session()
         if not request.form['username']:
             error = 'Please enter a username'
+        elif UsernameExists(request.form['username']):
+            error = 'The username is already taken'
         elif not request.form['email']:
             error = 'Please enter an email address'
+        elif EmailExists(request.form['email']):
+            error = 'The email address is already taken'
         elif not request.form['password']:
             error = 'Please enter a password'
         elif request.form['password'] != request.form['password2']:
             error = 'Passwords are not matched'
-        elif UsernameExists(request.form['username']) is not None:
-            error = 'The username is already taken'
-        elif EmailExists(request.form['email']):
-            error = 'The email address is already taken'
         else:
-            new_user = Users(
-                username=request.form['username'], email=request.form['email'], password=generate_password_hash(request.form['password']))
-            db_session.add(new_user)
-            db_session.commit()
-            flash('Register successfully')
-            return redirect(url_for('login'))
+            db_session = get_db_session()
+            try:
+                new_user = Users(
+                    username=request.form['username'], email=request.form['email'], password=generate_password_hash(request.form['password']))
+                db_session.add(new_user)
+                db_session.commit()
+                flash('Register successfully')  
+                return redirect(url_for('timeline'))      
+            except :
+                db_session.rollback()
+                flash('Registion failed') 
+                return redirect(url_for('timeline'))
 
     return render_template('register.html')
 
 
 def EmailExists(email):
     db_session = get_db_session()
-    return db_session.query(Users.email).filter(Users.email == email).scalar()
+    return db_session.query(Users).filter(Users.email == email).first()
 
 
 def UsernameExists(username):
     db_session = get_db_session()
-    return db_session.query(Users.email).filter(Users.username == username).scalar()
+    return db_session.query(Users).filter(Users.username == username).first()
+
 
 def get_or_create(session, model, defaults=None, **kwargs):
     instance = session.query(model).filter_by(**kwargs).first()
@@ -183,6 +198,7 @@ def get_or_create(session, model, defaults=None, **kwargs):
         params.update(defaults or {})
         instance = model(**params)
         session.add(instance)
+        session.commit()
         return instance, True
 
 if __name__ == '__main__':

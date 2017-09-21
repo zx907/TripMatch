@@ -33,6 +33,7 @@ class TripDetails(Base):
     notes = Column(String, nullable=True)
 
     users = relationship('Users', back_populates='trip_details')
+    destinations = relationship('Destinations', back_populates='trip_details')
     messages = relationship('Messages', back_populates='trip_details')
 
     def __repr__(self):
@@ -65,6 +66,8 @@ class Destinations(Base):
     __tablename__ = 'destinations'
     id = Column(Integer, primary_key=True)
     destination = Column(String, nullable=False)
+
+    trip_details = relationship('TripDetails', back_populates='destinations')
 
 
 class TripToDestination(Base):
