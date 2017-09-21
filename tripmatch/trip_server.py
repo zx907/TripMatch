@@ -66,11 +66,12 @@ def public_timeline():
     return render_template('timeline.html', trips=trips)
 
 
-@app.route('/display_trip')
+@app.route('/trip_detail')
 def display_trip(trip_id):
     db_session = get_db_session()
     trip = db_session.query(TripDetails).filter_by(id=trip_id).one()
-    return render_template('trip_detail.html', trip=trip)
+    waitinglist = db_session.query(Waitinglist).filter_by(trip_id=trip_id).all()
+    return render_template('trip_detail.html', trip=trip, waitinglist=waitinglist)
 
 
 @app.route('/new_trip', methods=['GET', 'POST'])

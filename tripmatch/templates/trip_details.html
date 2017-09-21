@@ -3,7 +3,7 @@
 {% block body %}
 <div id="trip-content">
     <ul>
-        <li>{{trip.destination}}</li>
+        <li>{{trip.destinations.destination}}</li>
         <li>{{trip.date_start}}</li>
         <li>{{trip.duration}}</li>
         <li>{{trip.companios}}</li>
@@ -12,12 +12,21 @@
     </ul>
 </div>
 
-<div id="join-waitinglist">
+<div id="join-trip">
+    <form action="" method="post">
+        Message: <input type="text" name="message"><br>
+        <input type="submit" value="Submit">
+    </form>
+</div>
+
+
+<div id="waitinglist">
     <ul>
-        {% for post in posts_waitinglist %}
+        {% for post in waitinglist %}
         <li>{{post.text}}</li>
         <li>{{post.post_date}}</li>
         <li>{{post.user_id}}</li>
+        {% endfor %}
     </ul>
 </div>
 {% endblock %}

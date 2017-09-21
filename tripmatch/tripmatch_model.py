@@ -55,10 +55,12 @@ class Waitinglist(Base):
     __tablename__ = 'waitinglist'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
+    trip_id = Column(Integer, ForeignKey('TripDetails.id'))
     text = Column(String, nullable=False)
     post_date = Column(String, nullable=False)
 
     users = relationship('Users', back_populates="waitinglist")
+    trip_details = relationship('TripDetails', back_populates="waitinglist")
 
 
 class Destinations(Base):
