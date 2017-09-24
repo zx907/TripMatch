@@ -7,7 +7,7 @@ from flask import abort
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import ClauseElement
-from tripmatch_model import Base, Users, TripDetails, Messages, Waitinglist, Destinations, TripToDestination
+from tripmatch_model import Base, Users, TripDetails, Waitinglist, Destinations
 from werkzeug.security import check_password_hash, generate_password_hash, gen_salt
 from datetime import datetime
 import requests
@@ -54,8 +54,7 @@ def get_db_session():
 @app.route('/')
 def timeline():
     db_session = get_db_session()
-    trips = db_session.query(Messages, TripDetails,
-                             Users).order_by(Messages.id).all()
+    trips = db_session.query(TripDetails).all()
     return render_template('timeline.html', trips=trips)
 
 
