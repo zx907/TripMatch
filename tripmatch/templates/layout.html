@@ -1,27 +1,39 @@
-<title>{% block titile %}Welcome{% endblock %} | TripMatch</title>
-<!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}"> -->
-<div>
-    <h1>TripMatch</h1>
-        <div class="navigation">
-            <a href="{{ url_for('public_timeline') }}">public timeline</a> |
-            <a href="{{ url_for('new_trip') }}">new trip</a> |
-            <a href="{{ url_for('register')  }}">sign up</a> |
-            <a href="{{ url_for('login') }}">sign in</a>
-        </div>
-        {% with flashes = get_flashed_messages()  %}
-            {% if flashes %}
-                <ul class="flashes">
-                {% for message in flashes %}
-                    <li>{{ message }}
-                {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0-beta/css/bootstrap.css" crossorigin="anonymous">
+</head>
+<body>
+    <title>{% block titile %}Welcome{% endblock %} | TripMatch</title>
+    <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}"> -->
+    <div>
+        <h1>TripMatch</h1>
+            <div class="navigation">
+                <a href="{{ url_for('public_timeline') }}">public timeline</a> |
+                <a href="{{ url_for('new_trip') }}">new trip</a> |
+                <a href="{{ url_for('register')  }}">sign up</a> |
+                <a href="{{ url_for('login') }}">sign in</a>
+            </div>
+            {% with flashes = get_flashed_messages()  %}
+                {% if flashes %}
+                    <ul class="flashes">
+                    {% for message in flashes %}
+                        <li>{{ message }}
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
 
-        <div class="body">
-            {% block body %}{% endblock %}
-        </div>
-        <div class="footer">
-            TripMatch &mdash; A Flask Application
-        </div>
-</div>
+            <div class="body">
+                {% block body %}{% endblock %}
+            </div>
+            <div class="footer">
+                TripMatch &mdash; A Flask Application
+            </div>
+    </div>
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"  crossorigin="anonymous"></script>
+    <script src="https://cdn.bootcss.com/popper.js/1.11.0/umd/popper.js"  crossorigin="anonymous"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/4.0.0-beta/js/bootstrap.js"  crossorigin="anonymous"></script>
+</body>
+</html>

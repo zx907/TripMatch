@@ -1,6 +1,7 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
+from sqlalchemy import Table
 
 Base = declarative_base()
 
@@ -18,10 +19,10 @@ class Users(Base):
         return "<User(username='%s', email='%s', password='%s')>" % (self.name, self.fullname, self.password)
 
 
-# user_dest_association_tbl = Table('association', Base.metadata,
-#     Column('user_id', Integer, ForeignKey('users.id')),
-#     Column('destination_id', Integer, ForeignKey('destination_id'))
-# )
+user_dest_association_tbl = Table('usr_dest_as_tbl', Base.metadata,
+    Column('user_id', Integer, ForeignKey('users.id')),
+    Column('destination_id', Integer, ForeignKey('destinations.id'))
+)
 
 class TripDetails(Base):
     """username, country, state, destination, duration, date_start, companions, city_takeoff"""
