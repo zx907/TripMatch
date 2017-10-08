@@ -1,27 +1,80 @@
-<title>{% block titile %}Welcome{% endblock %} | TripMatch</title>
-<!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}"> -->
-<div>
-    <h1>TripMatch</h1>
-        <div class="navigation">
-            <a href="{{ url_for('public_timeline') }}">public timeline</a> |
-            <a href="{{ url_for('new_trip') }}">new trip</a> |
-            <a href="{{ url_for('register')  }}">sign up</a> |
-            <a href="{{ url_for('login') }}">sign in</a>
-        </div>
-        {% with flashes = get_flashed_messages()  %}
-            {% if flashes %}
-                <ul class="flashes">
-                {% for message in flashes %}
-                    <li>{{ message }}
-                {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
+<!DOCTYPE html>
+<html lang="zh-CN">
 
-        <div class="body">
-            {% block body %}{% endblock %}
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name- "author" content="caveman">
+    <title>Trip Match</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
+    
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">TripMatch</a>
+            </div>
+            <div id="navbar" class="navbar-collapse">
+                <form action="" class="navbar-form navbar-right">
+                    <div class="form-group">
+                        <input type="email" placeholder="email" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" placeholder="password" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-success">Sign In</button>
+                </form>
+            </div>
         </div>
-        <div class="footer">
-            TripMatch &mdash; A Flask Application
+    </nav>
+
+    <div class="container">
+        
+        <title>{% block titile %}Welcome{% endblock %} | TripMatch</title>
+        
+        <div>
+            <h1>TripMatch</h1>
+
+            <div class="navigation">
+                <a href="{{ url_for('public_timeline') }}">public timeline</a> |
+                <a href="{{ url_for('new_trip') }}">new trip</a> |
+                <a href="{{ url_for('register')  }}">sign up</a> |
+                <a href="{{ url_for('login') }}">sign in</a>
+            </div>
+
+            {% with flashes = get_flashed_messages() %} {% if flashes %}
+            <ul class="flashes">
+                {% for message in flashes %}
+                <li>{{ message }} {% endfor %}
+            </ul>
+            {% endif %} {% endwith %}
+    
+            <div class="body">
+                {% block body %}{% endblock %}
+            </div>
+            
+            <footer class="footer">
+                <div class="container">
+                    <p>TripMatch &mdash; A Flask Application</p>
+                </div>
+            </footer>
         </div>
-</div>
+
+    </div>
+
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.js"></script>
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
+</body>
+
+</html>

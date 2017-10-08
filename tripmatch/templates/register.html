@@ -3,11 +3,23 @@
 {% block body %}
     <h2>Sign Up</h2>
     {% if error %}<div class="error"><strong>Error:</strong> {{ error }}</div>{% endif %}
-    <form action="" method="post">
-        Username: <input type="text" name="username"><br>
-        Email Address: <input type="text" name="email"><br>
-        Password:<input type="password" name="password"><br>
-        Repeat Password:<input type="password" name="password2"> <br>
-        <input type="submit" value="Submit">
+    <form method="post">
+        <div class="form-group">
+            <label for="username">Username</label><br>
+            <input type="text" name="username" placeholder="Username">
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label><br>
+            <input type="email" name="email" placeholder="Email">
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label><br>
+            <input type="password" name="password" placeholder="Password">
+        </div>
+        <div class="form-group">
+            <label for="password2">Repeat Password</label><br>
+            <input type="password" name="password2" placeholder="Repeat password">
+        </div>
+        <button type="submit" class="btn btn-default">Submit</button>
     </form>
 {% endblock %}
