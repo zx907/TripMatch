@@ -87,14 +87,16 @@ def new_trip():
                 Destinations,
                 destination=request.form['destination']
             )[0]
-            print(destination.id)
-            print(destination.destination)
+            # print(destination.id)
+            # print(destination.destination)
 
             # destination_query = db_session.query(Destinations).filter_by(destination=request.form['destination']).first()
             # if destination_query == None:
             #     new_destination = Destinations(destination=request.form['destination'])
             # else:
             #     destination_id = destination_query.id
+
+            date_create = datetime.now().isoformat(' ')
 
             new_trip = TripDetails(user_id=login_session['user_id'],
                                 destination_id=destination.id,
@@ -103,13 +105,17 @@ def new_trip():
                                 companions=request.form['companions'],
                                 city_takeoff=request.form['city_takeoff'],
                                 expected_group_size=request.form['expected_group_size'],
-                                notes=request.form['notes']
+                                notes=request.form['notes'],
+                                date_create=date_create
                                 )
+
+
             db_session.add(new_trip)
             db_session.commit()
             flash('Your trip is posted')
-        except:
+        except Exception as e:
             db_session.rollback()
+            print(e)
             flash('Your trip is posted unsuccessfully')
 
     return render_template('new_trip.html')
