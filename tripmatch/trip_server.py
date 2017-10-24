@@ -13,6 +13,7 @@ from datetime import datetime
 import requests
 import random
 import string
+import os
 
 PER_PAGE = 30
 DEBUG = True
@@ -25,7 +26,8 @@ app = Flask(__name__)
 # app.config.from_envvar('TRIPMATCH_SETTINGS', silent=True)
 
 # database engine and session
-engine = create_engine("sqlite:////testdb.db", connect_args={'check_same_thread': False})
+cwd = os.getcwd()
+engine = create_engine("sqlite:///"+cwd+"/testdb.db", connect_args={'check_same_thread': False})
 
 
 # create tables
