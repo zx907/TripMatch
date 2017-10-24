@@ -65,12 +65,12 @@ def public_timeline():
     return render_template('timeline.html', trips=trips)
 
 
-@app.route('/trip_detail')
+@app.route('/trip_detail/<int:trip_id>')
 def display_trip(trip_id):
     db_session = get_db_session()
     trip = db_session.query(TripDetails).filter_by(id=trip_id).one()
     waitinglist = db_session.query(Waitinglist).filter_by(trip_id=trip_id).all()
-    return render_template('trip_detail.html', trip=trip, waitinglist=waitinglist)
+    return render_template('trip_details.html', trip=trip, waitinglist=waitinglist)
 
 
 @app.route('/new_trip', methods=['GET', 'POST'])
@@ -155,7 +155,7 @@ def register():
     if login_session.get('user_id', None) != None:
         return redirect(url_for('timeline'))
     error = None
-    if request.method == 'POST':
+    if request.method=='POST':
         if not request.form['username']:
             error = 'Please enter a username'
         elif UsernameExists(request.form['username']):
@@ -184,6 +184,26 @@ def register():
 
     return render_template('register.html')
 
+
+@app.route('/join_waitinglist', methods=['POST'])
+def join_waitinglist():
+    if login_session.get('user_id', None) == None:
+        return redirect(url_for('login'))
+    if request.method=='POST':
+        text = request.form['message']
+        user_id = login_session['user_id']
+        trip_id = request.form['trip_id']
+        post_date = date_create = datetime.now().isoformat(' ')
+
+        db_session = get_db_session()
+        try:
+            new_wtl_entry = Waitinglist(
+                user_id=user_id, trip_id=trip_id, text=text, post_Date=post_date)
+            db_session.add(new_wtl_entry)
+            db_session.commit() 
+        except:
+            db_session.rollback()
+            
 
 def EmailExists(email):
     db_session = get_db_session()

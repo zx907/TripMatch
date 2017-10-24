@@ -1,20 +1,21 @@
-{% extends layout.html %}
+{% extends "layout.html" %}
 {% block title %}Trip Details{% endblock %}
 {% block body %}
 <div id="trip-content">
     <ul>
-        <li>{{trip.destinations.destination}}</li>
-        <li>{{trip.date_start}}</li>
-        <li>{{trip.duration}}</li>
-        <li>{{trip.companios}}</li>
-        <li>{{trip.expected_group_size}}</li>
-        <li>{{trip.notes}}</li>
+        <li>Destination: {{trip.destinations.destination}}</li>
+        <li>Start Date: {{trip.date_start}}</li>
+        <li>Duration: {{trip.duration}}</li>
+        <li>Companions: {{trip.companios}}</li>
+        <li>Expected Group Size: {{trip.expected_group_size}}</li>
+        <li>Notes: {{trip.notes}}</li>
     </ul>
 </div>
 
 <div id="join-trip">
     <form action="" method="post">
         Message: <input type="text" name="message"><br>
+        <input style="display:none" type="text" name="trip_id" value="{{trip.id}}"><br>
         <input type="submit" value="Submit">
     </form>
 </div>
