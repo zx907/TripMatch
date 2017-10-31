@@ -37,6 +37,7 @@ class TripDetails(Base):
     expected_group_size = Column(Integer, nullable=True)
     notes = Column(String, nullable=True)
     date_create = Column(String, nullable=False)
+    contact = Column(String, nullable=True)
 
     users = relationship('Users', back_populates='trip_details')
     destinations = relationship('Destinations', back_populates='trip_details')
