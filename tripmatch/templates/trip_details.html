@@ -26,7 +26,7 @@
         {% for post in waitinglist %}
         <li>{{post.text}}</li>
         <li>{{post.post_date}}</li>
-        <li>{{post.user_id}}</li>
+        <li>{{post.users.username}}</li>
         {% endfor %}
     </ul>
 </div>
