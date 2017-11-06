@@ -1,15 +1,51 @@
 {% extends "layout.html" %}
 {% block title%}Add Trip{% endblock %}
 {% block body %}
-    <form action="" method="post">
-        Destination: <input type="text" name="destination" id=""><br>
-        Duration: <input type="text" name="duration" id=""><br>
-        Trip Start Date: <input type="date" name="date_start" id=""><br>
-        Companions: <input type="number" name="companions" id=""><br>
-        Leave From: <input type="text" name="city_takeoff" id=""><br>
-        Expected Group Size: <input type="text" name="expected_group_size" id=""><br>
-        Notes: <input type="text" name="notes" id=""><br>
-        <input type="submit" value="Submit">
-    </form>
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <form action="" method="post">
+                <div>
+                    <label for="form-destination">Destination</label>
+                    <input type="text" class="form-control" name="destination" id="form-destination">
+                    <br>
+                </div>
+                <div>
+                    <label for="form-duration">Duration</label>
+                    <input type="text" class="form-control" name="duration" id="form-duration">
+                    <br>
+                </div>
+                <div>
+                    <label for="form-date-start">Trip Start Date</label>
+                    <input type="date" class="form-control" name="date_start" id="form-date-start">
+                    <br>
+                </div>
+                <div>
+                    <label for="form-companions">Companions</label>
+                    <input type="number" class="form-control" name="companions" id="form-companions">
+                    <br>
+                </div>
+                <div>
+                    <label for="form-city-takeoff">Leave From</label>
+                    <input type="text" class="form-control" name="city_takeoff" id="form-city-takeoff">
+                    <br>
+                </div>
+                <div>
+                    <label for="form-expected-group-size">Expected Group Size</label>
+                    <input type="text" class="form-control" name="expected_group_size" id="form-expected-group-size">
+                    <br>
+                </div>
+                <div>
+                    <label for="form-notes">Notes</label>
+                    <div>
+                        <input type="text" class="form-control" name="notes" id="form-notes">
+                        <br>
+                    </div>
+                    <button type="submit" class="btn btn-default" value="Submit">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 {% endblock %}

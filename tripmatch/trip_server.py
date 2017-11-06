@@ -162,10 +162,12 @@ def login():
     return render_template('login.html')
 
 
-app.route('/logout')
+@app.route('/logout', methods=['GET', 'POST'])
 def logout():
-    login_session.pop(login_session['user_id'], None)
+    # login_session.pop(login_session['user_id'], None)
+    del login_session['user_id']
     flash('You were logged out')
+    print('logout successful')
     return redirect(url_for('public_timeline'))
 
 

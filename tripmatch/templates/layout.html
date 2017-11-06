@@ -28,12 +28,13 @@
             <div id="navbar" class="navbar-collapse">
                 <form action="" class="navbar-form navbar-right">
                     <div class="form-group">
-                        <input type="email" placeholder="email" class="form-control">
+                        <input type="text" placeholder="text" class="form-control">
                     </div>
                     <div class="form-group">
                         <input type="password" placeholder="password" class="form-control">
                     </div>
                     <button type="submit" class="btn btn-success">Sign In</button>
+                    <button type="submit" class="btn" onclick="logout">Sign Out</button>
                 </form>
             </div>
         </div>
@@ -64,17 +65,24 @@
                 {% block body %}{% endblock %}
             </div>
             
-            <footer class="footer">
+            <!-- <footer class="footer">
                 <div class="container">
                     <p>TripMatch &mdash; A Flask Application</p>
                 </div>
-            </footer>
+            </footer> -->
         </div>
 
     </div>
-
     <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.js"></script>
     <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
+    <script>
+        function logout() {
+            event.preventDefault();
+            console.log('logout 1')
+            location.href="{{ url_for('logout') }}";
+            console.log('logout 2')
+            return false;
+        };
+    </script>
 </body>
-
 </html>
