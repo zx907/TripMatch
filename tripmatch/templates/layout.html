@@ -14,6 +14,7 @@
 </head>
 
 <body>
+    <!-- nav -->
     <nav class="navbar navbar-inverse">
         <div class="container">
             <div class="navbar-header">
@@ -54,6 +55,12 @@
                 <a href="{{ url_for('login') }}">sign in</a>
             </div>
 
+            <div class="jumbotron">
+                <div class="container">
+                    
+                </div>
+            </div>
+
             {% with flashes = get_flashed_messages() %} {% if flashes %}
             <ul class="flashes">
                 {% for message in flashes %}
@@ -65,11 +72,11 @@
                 {% block body %}{% endblock %}
             </div>
             
-            <!-- <footer class="footer">
+            <footer class="footer">
                 <div class="container">
                     <p>TripMatch &mdash; A Flask Application</p>
                 </div>
-            </footer> -->
+            </footer>
         </div>
 
     </div>
