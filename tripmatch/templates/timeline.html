@@ -1,23 +1,29 @@
-{% extends "layout.html" %}
-{% block title %}Public Timeline{% endblock %}
+{% extends "layout.html" %} 
+{% block title %}Public Timeline{% endblock %} 
 {% block body %}
-    <h2>{{ self.title() }}</h2>    
+<h2>{{ self.title() }}</h2>
 
-    <div class="row  trips">
-        {% for trip in trips %}
-        <div class="col-md-3">            
-            <div class="destionation-card">
-                <div class="upper-card">
-                    <!-- <img src="{{url_for('static', filename='NZ.jpg')}}", id="card-location-img"> -->
-                    <h3><p><a href="{{url_for('display_trip', trip_id=trip.id)}}">{{trip.destinations.destination}}</a></p></h3>
-                    <p><a href="">{{trip.date_start}}</a></p>
+<div class="row  trips">
+    {% for trip in trips %}
+    <div class="col-md-3">
+        <div class="destionation-card">
+            <div class="upper-card">
+                <div style="height:100px; overflow:hidden">
+                    <img src="{{url_for('static', filename='NZ.jpg')}}" , alt='default' class="card-location-img" style="min_width:100%">
                 </div>
-                <div class="lower-card">
-                    <p><a href="">{{trip.users.username}}</a></p>
-                    <p>{{trip.notes}}</p>
-                </div>
+                <h3>
+                    <p style="text-align-last:right">
+                        <a href="{{url_for('display_trip', trip_id=trip.id)}}">{{trip.destinations.destination}}</a>
+                    </p>
+                </h3>
+                <p style="text-align-last:right">{{trip.date_start}}</p>
+            </div>
+            <div class="lower-card">
+                <p><a href="">{{trip.users.username}}</a></p>
+                <p>{{trip.notes}}</p>
             </div>
         </div>
-        {% endfor %}
     </div>
+    {% endfor %}
+</div>
 {% endblock %}

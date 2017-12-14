@@ -56,14 +56,17 @@
                 <a href="{{ url_for('login') }}">sign in</a>
             </div>
         </div>
+    </div>
 
-        <!-- Jumbotron -->
-        <div class="jumbotron">
-            <div class="container">
-                
-            </div>
+    <!-- Jumbotron
+    <div class="jumbotron">
+        <div class="container">
+            
         </div>
+    </div> -->
 
+
+    <div class="notification">
         <!-- Notification -->
         {% with flashes = get_flashed_messages() %} {% if flashes %}
         <ul class="flashes">
@@ -71,22 +74,21 @@
             <li>{{ message }} {% endfor %}
         </ul>
         {% endif %} {% endwith %}
-
-        <!-- Cards-grid -->
-        <div class="cards-grid">
-            {% block body %}{% endblock %}
-        </div>
-        
-        <!-- Footer -->
-        <div>
-            <footer class="footer">
-                <div class="container">
-                    <p>TripMatch &mdash; A Flask Application</p>
-                </div>
-            </footer>
-        </div>
-
     </div>
+
+    <!-- Cards-grid -->
+    <div class="container cards-grid">
+        {% block body %}{% endblock %}
+    </div>
+        
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>TripMatch &mdash; A Flask Application</p>
+        </div>
+    </footer>
+
+
     <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.js"></script>
     <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
     <script>
