@@ -1,0 +1,2 @@
+resize image with css
+image without height and only width will keep aspect ratio

@@ -14,7 +14,7 @@
 </head>
 
 <body>
-    <!-- nav -->
+    <!-- Nav -->
     <nav class="navbar navbar-inverse">
         <div class="container">
             <div class="navbar-header">
@@ -45,6 +45,7 @@
         
         <title>{% block titile %}Welcome{% endblock %} | TripMatch</title>
         
+        <!-- Quick Nav -->
         <div>
             <h1>TripMatch</h1>
 
@@ -54,24 +55,30 @@
                 <a href="{{ url_for('register')  }}">sign up</a> |
                 <a href="{{ url_for('login') }}">sign in</a>
             </div>
+        </div>
 
-            <div class="jumbotron">
-                <div class="container">
-                    
-                </div>
+        <!-- Jumbotron -->
+        <div class="jumbotron">
+            <div class="container">
+                
             </div>
+        </div>
 
-            {% with flashes = get_flashed_messages() %} {% if flashes %}
-            <ul class="flashes">
-                {% for message in flashes %}
-                <li>{{ message }} {% endfor %}
-            </ul>
-            {% endif %} {% endwith %}
-    
-            <div class="body">
-                {% block body %}{% endblock %}
-            </div>
-            
+        <!-- Notification -->
+        {% with flashes = get_flashed_messages() %} {% if flashes %}
+        <ul class="flashes">
+            {% for message in flashes %}
+            <li>{{ message }} {% endfor %}
+        </ul>
+        {% endif %} {% endwith %}
+
+        <!-- Cards-grid -->
+        <div class="cards-grid">
+            {% block body %}{% endblock %}
+        </div>
+        
+        <!-- Footer -->
+        <div>
             <footer class="footer">
                 <div class="container">
                     <p>TripMatch &mdash; A Flask Application</p>

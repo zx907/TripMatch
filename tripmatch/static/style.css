@@ -8,7 +8,7 @@
 
 .jumbotron {
     background-image: url('/static/Jumbo.jpg');
-    width: 80%;
+    width: 100%;
     height: inherit; 
 }
 
@@ -23,4 +23,9 @@
 
 .lower-card {
 
+}
+
+#card-location-img {
+    width : 100px;
+    height: auto;
 }
