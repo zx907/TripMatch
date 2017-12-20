@@ -1,9 +1,16 @@
-{% extends "layout.html" %} 
-{% block title %}Public Timeline{% endblock %} 
-{% block body %}
-<h2>{{ self.title() }}</h2>
+{% extends "layout.html" %} {% block title %}Public Timeline{% endblock %} {% block body %}
+<div>
+    <h2>{{ self.title() }}</h2>
+    <span class="sort-card pull-right">
+        <b>Sort trip by:
+            <button>Post Date</button>
+            <button>Trip Date</button>
+        </b>
+    </span>
+</div>
 
-<div class="row  trips">
+<div class="trip-card">
+
     {% for trip in trips %}
     <div class="col-md-3">
         <div class="destionation-card">
@@ -12,14 +19,22 @@
                     <img src="{{url_for('static', filename='NZ.jpg')}}" , alt='default' class="card-location-img" style="min_width:100%">
                 </div>
                 <h3>
-                    <p style="text-align-last:right">
-                        <a href="{{url_for('display_trip', trip_id=trip.id)}}">{{trip.destinations.destination}}</a>
+                    <p style="text-align:right">
+                        <a href="{{url_for('display_trip', trip_id=trip.id)}}">
+                            <b>{{trip.destinations.destination}}</b>
+                        </a>
                     </p>
                 </h3>
-                <p style="text-align-last:right">{{trip.date_start}}</p>
+                <p style="text-align:right">
+                    <b>{{trip.date_start}}</b>
+                </p>
             </div>
             <div class="lower-card">
-                <p><a href="">{{trip.users.username}}</a></p>
+                <p style="text-align:left">
+                    <a href="">
+                        <em>{{trip.users.username}}</em>
+                    </a>
+                </p>
                 <p>{{trip.notes}}</p>
             </div>
         </div>
