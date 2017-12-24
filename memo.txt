@@ -1,2 +1,6 @@
 resize image with css
 image without height and only width will keep aspect ratio
+
+make the login form on the navbar working
+
+ahh, now i can remove signup and signin links in the main page
