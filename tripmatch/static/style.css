@@ -15,18 +15,34 @@
 .jumbo-text {
     position: relative;
     top: 40%;
+    padding-bottom: 10px;
+    font-style: italic;
+    font-weight: bold;
+}
+
+.sorting {
+    padding: 15px;
 }
 
 .destionation-card {
-    height:350px;
+    height:300px;
 }
 
 .upper-card {
     height:200px;
     overflow: hidden;
+    color: white;
+}
+
+.upper-card-text {
+    position: absolute;
+    top: 120px;
+    right: 15px;
+    font-style: white；
 }
 
 .lower-card {
+    padding-top: 5px;
     height:150px;
     overflow: hidden;
 }

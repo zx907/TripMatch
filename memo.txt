@@ -9,3 +9,7 @@ en...how to vertically center text and button in Jumbo part...
 hah, solved it.
 
 remove quick nav link? remove it. Wait, hide it?
+
+how to place text on graphic card? absolute position
+
+why is the text color in the div changed with css? it seems that i have add color attr to specific line

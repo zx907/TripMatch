@@ -3,17 +3,17 @@
 <!-- Jumbotron -->
 <div class="jumbotron">
     <div class="container text-center jumbo-text">
-        <div class="total"><b>We have XXX trip plans</b></div>
+        <div class="jumbo-text">Where is your next destination?</div>
         <a href="{{url_for('new_trip')}}" class="btn btn-lg btn-primary">Post Your Trip</a>
     </div>
 </div>
 
-<div style="padding:15px">
+<div class="sorting">
     <h2 style="display:inline">{{ self.title() }}</h2>
     <span class="sort-card pull-right">
-        <b>Sort trip by:
-            <button>Post Date</button>
-            <button>Trip Date</button>
+        <b>sort trip by:
+            <button class="sort-btn btn btn-default btn-sm">Post Date</button>
+            <button class="sort-btn btn btn-default btn-sm">Trip Date</button>
         </b>
     </span>
 </div>
@@ -24,19 +24,21 @@
     <div class="col-md-3">
         <div class="destionation-card">
             <div class="upper-card">
-                <div style="height:100px; overflow:hidden">
+                <div style="height:200px; overflow:hidden">
                     <img src="{{url_for('static', filename='NZ.jpg')}}" , alt='default' class="card-location-img" style="min_width:100%">
                 </div>
-                <h3>
+                <div class="upper-card-text">
+                    <h3>
+                        <p style="text-align:right">
+                            <a href="{{url_for('display_trip', trip_id=trip.id)}}" style="color:white">
+                                <b>{{trip.destinations.destination}}</b>
+                            </a>
+                        </p>
+                    </h3>
                     <p style="text-align:right">
-                        <a href="{{url_for('display_trip', trip_id=trip.id)}}">
-                            <b>{{trip.destinations.destination}}</b>
-                        </a>
+                        <b>{{trip.date_start}}</b>
                     </p>
-                </h3>
-                <p style="text-align:right">
-                    <b>{{trip.date_start}}</b>
-                </p>
+                </div>
             </div>
             <div class="lower-card">
                 <p style="text-align:left">
