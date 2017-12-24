@@ -4,3 +4,8 @@ image without height and only width will keep aspect ratio
 make the login form on the navbar working
 
 ahh, now i can remove signup and signin links in the main page
+
+en...how to vertically center text and button in Jumbo part...
+hah, solved it.
+
+remove quick nav link? remove it. Wait, hide it?

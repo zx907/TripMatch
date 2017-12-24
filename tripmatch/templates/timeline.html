@@ -1,4 +1,13 @@
 {% extends "layout.html" %} {% block title %}Public Timeline{% endblock %} {% block body %}
+
+<!-- Jumbotron -->
+<div class="jumbotron">
+    <div class="container text-center jumbo-text">
+        <div class="total"><b>We have XXX trip plans</b></div>
+        <a href="{{url_for('new_trip')}}" class="btn btn-lg btn-primary">Post Your Trip</a>
+    </div>
+</div>
+
 <div style="padding:15px">
     <h2 style="display:inline">{{ self.title() }}</h2>
     <span class="sort-card pull-right">

@@ -7,9 +7,14 @@
 }
 
 .jumbotron {
-    background-image: url('/static/Jumbo.jpg');
+    background-image: url('/static/banner/banner.jpg');
     width: 100%;
-    height: inherit; 
+    height: 270px; 
+}
+
+.jumbo-text {
+    position: relative;
+    top: 40%;
 }
 
 .destionation-card {
