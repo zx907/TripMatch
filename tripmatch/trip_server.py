@@ -7,9 +7,10 @@ from flask import abort
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import ClauseElement
-from tripmatch_model import Base, Users, TripDetails, Waitinglist, Destinations
+from tripmatch.model.tripmatch_model import Base, Users, TripDetails, Waitinglist, Destinations
 from werkzeug.security import check_password_hash, generate_password_hash, gen_salt
 from datetime import datetime
+from functools import wraps
 import requests
 import random
 import string
@@ -26,32 +27,23 @@ app = Flask(__name__)
 # app.config.from_envvar('TRIPMATCH_SETTINGS', silent=True)
 
 # database engine and session
-cwd = os.getcwd()
-engine = create_engine("sqlite:///"+cwd+"/testdb.db", connect_args={'check_same_thread': False})
+engine = create_engine("sqlite:///"+ os.getcwd() +"/testdb.db", connect_args={'check_same_thread': False})
 
 
 # create tables
 def init_db():
     Base.metadata.create_all(engine)
 
-
 def get_db_session():
     return sessionmaker(bind=engine)()
 
-
-# @app.teardown_appcontext
-# def close_db(error):
-#     if hasattr(g, 'db_session'):
-#         g.db_session.close()
-
-
-# @app.before_request
-# def before_request():
-#     g.user = None
-#     if 'username' in login_session:
-#         db_session = get_db_session()
-#         g.user = db_session.query(Users).filter(Users.username==login_session['username']).first()
-
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if g.user is None:
+            return redirect(url_for('login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
 
 @app.route('/')
 def timeline():
@@ -59,13 +51,11 @@ def timeline():
     trips = db_session.query(TripDetails).all()
     return render_template('timeline.html', trips=trips)
 
-
 @app.route('/public')
 def public_timeline():
     db_session = get_db_session()
     trips = db_session.query(TripDetails).all()
     return render_template('timeline.html', trips=trips)
-
 
 @app.route('/trip_detail/<int:trip_id>', methods=['GET', 'POST'])
 def display_trip(trip_id):
@@ -106,14 +96,6 @@ def new_trip():
                 Destinations,
                 destination=request.form['destination']
             )[0]
-            # print(destination.id)
-            # print(destination.destination)
-
-            # destination_query = db_session.query(Destinations).filter_by(destination=request.form['destination']).first()
-            # if destination_query == None:
-            #     new_destination = Destinations(destination=request.form['destination'])
-            # else:
-            #     destination_id = destination_query.id
 
             date_create = datetime.now().isoformat(' ')
 
@@ -142,6 +124,7 @@ def new_trip():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # Log user in and save logged-in username in login_session dict
     if login_session.get('user_id', None) != None:
         return redirect(url_for('timeline'))
     error = None
@@ -164,7 +147,6 @@ def login():
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
-    # login_session.pop(login_session['user_id'], None)
     del login_session['user_id']
     flash('You were logged out')
     print('logout successful')
@@ -176,6 +158,9 @@ def register():
     if login_session.get('user_id', None) != None:
         return redirect(url_for('timeline'))
     error = None
+
+    #Todo: hashtable replace if-else
+
     if request.method=='POST':
         if not request.form['username']:
             error = 'Please enter a username'
@@ -205,16 +190,13 @@ def register():
 
     return render_template('register.html')
 
-
 def EmailExists(email):
     db_session = get_db_session()
     return db_session.query(Users).filter(Users.email == email).first()
 
-
 def UsernameExists(username):
     db_session = get_db_session()
     return db_session.query(Users).filter(Users.username == username).first()
-
 
 def get_or_create(session, model, defaults=None, **kwargs):
     instance = session.query(model).filter_by(**kwargs).first()
