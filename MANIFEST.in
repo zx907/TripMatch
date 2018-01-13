@@ -1,2 +1,3 @@
 graft RMA/templates
 graft RMA/static
+include RMA/testdb.db

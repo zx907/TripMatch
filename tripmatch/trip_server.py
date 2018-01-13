@@ -7,7 +7,7 @@ from flask import abort
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import ClauseElement
-from tripmatch.model.tripmatch_model import Base, Users, TripDetails, Waitinglist, Destinations
+from model.tripmatch_model import Base, Users, TripDetails, Waitinglist, Destinations
 from werkzeug.security import check_password_hash, generate_password_hash, gen_salt
 from datetime import datetime
 from functools import wraps
@@ -16,7 +16,9 @@ import random
 import string
 import os
 
-PER_PAGE = 30
+
+
+PER_PAGE = 16
 DEBUG = True
 
 # configuration
