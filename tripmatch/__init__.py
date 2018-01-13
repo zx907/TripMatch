@@ -1,1 +1,1 @@
-from tripmatch import app
+from tripmatch.trip_server import app
