@@ -4,7 +4,7 @@ setup(
     version='0.1',
     description='A flask website',
     author='caveman2015',
-    packages=['model'],
+    packages=['tripmatch'],
     include_package_data=True,
     install_requires=['flask', 'SQLAlchemy'],
 )
