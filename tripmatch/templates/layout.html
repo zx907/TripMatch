@@ -37,24 +37,13 @@
         </div>
     </nav>
 
-    <!-- <div class="container">
-        
-        <title>{% block titile %}Welcome{% endblock %} | TripMatch</title> -->
-        
-        <!-- Quick Nav -->
-        <!-- <div>
-            <h1>TripMatch</h1>
-
-            <div class="navigation">
-                <a href="{{ url_for('public_timeline') }}">public timeline</a> |
-                <a href="{{ url_for('new_trip') }}">new trip</a> |
-                <a href="{{ url_for('register')  }}">sign up</a> |
-                <a href="{{ url_for('login') }}">sign in</a>
-            </div>
+    <!-- Jumbotron -->
+    <div class="jumbotron">
+        <div class="container text-center jumbo-text">
+            <div class="jumbo-text">Where is your next destination?</div>
+            <a href="{{url_for('new_trip')}}" class="btn btn-lg btn-primary">Post Your Trip</a>
         </div>
-    </div> -->
-
-    
+    </div>    
 
 
     <div class="notification">

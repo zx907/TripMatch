@@ -1,33 +1,35 @@
 {% extends "layout.html" %}
 {% block title %}Trip Details{% endblock %}
 {% block body %}
-<div id="trip-content">
-    <ul>
-        <li>Destination: {{trip.destinations.destination}}</li>
-        <li>Start Date: {{trip.date_start}}</li>
-        <li>Duration: {{trip.duration}}</li>
-        <li>Companions: {{trip.companios}}</li>
-        <li>Expected Group Size: {{trip.expected_group_size}}</li>
-        <li>Notes: {{trip.notes}}</li>
-    </ul>
-</div>
+<section class="col-md-9">
+    <div id="trip-details">
+        <h2><strong>{{trip.destinations.destination}}</strong></h2>
+        <ul class="list-unstyled">
+            <li>Start Date: {{trip.date_start}}</li>
+            <li>Duration: {{trip.duration}}</li>
+            <li>Companions: {{trip.companios}}</li>
+            <li>Expected Group Size: {{trip.expected_group_size}}</li>
+            <li>Notes: {{trip.notes}}</li>
+        </ul>
+    </div>
 
-<div id="join-trip">
-    <form action="" method="post">
-        Message: <input type="text" name="message"><br>
-        <input style="display:none" type="text" name="trip_id" value="{{trip.id}}"><br>
-        <input type="submit" value="Submit">
-    </form>
-</div>
+    <div id="join-trip">
+        <form action="" method="post">
+            Message: <input type="text" name="message"><br>
+            <input style="display:none" type="text" name="trip_id" value="{{trip.id}}"><br>
+            <input type="submit" value="Submit">
+        </form>
+    </div>
 
 
-<div id="waitinglist">
-    <ul>
-        {% for post in waitinglist %}
-        <li>{{post.text}}</li>
-        <li>{{post.post_date}}</li>
-        <li>{{post.users.username}}</li>
-        {% endfor %}
-    </ul>
-</div>
+    <div id="waitinglist">
+        <ul class="list-unstyled">
+            {% for post in waitinglist %}
+            <li>{{post.text}}</li>
+            <li>{{post.post_date}}</li>
+            <li>{{post.users.username}}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</section>
 {% endblock %}
