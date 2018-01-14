@@ -1,10 +1,12 @@
 {% extends "layout.html" %} {% block title %}Public Timeline{% endblock %} {% block body %}
 <div class="sorting">
-    <h2 style="display:inline">{{ self.title() }}</h2>
+    <h2 style="display:inline">Timeline</h2>
     <span class="sort-card pull-right">
         <b>sort trip by:
-            <button class="sort-btn btn btn-default btn-sm">Post Date</button>
-            <button class="sort-btn btn btn-default btn-sm">Trip Date</button>
+            <div class="btn-group">
+                <button class="sort-btn btn btn-default btn-sm">Post Date</button>
+                <button class="sort-btn btn btn-default btn-sm">Trip Date</button>
+            </div>
         </b>
     </span>
 </div>

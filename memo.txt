@@ -16,3 +16,6 @@ why is the text color in the div changed with css? it seems that i have add colo
 
 why wsgi throw out an error indicating that cannot find data model py file? 
 Use relative import...waited a lot of time...
+
+add a search box in layout.html, havn't realize its functionality. 
+TODO, add a search function

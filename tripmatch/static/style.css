@@ -13,11 +13,28 @@
 }
 
 .jumbo-text {
+    width:fit-content;
+    max-width: 100%;
+}
+
+.jumbo-text-left {
     position: relative;
     top: 40%;
     padding-bottom: 10px;
     font-style: italic;
     font-weight: bold;
+    float:left;
+    min-width: 500px;
+}
+
+.jumbo-text-right {
+    position: relative;
+    top: 40%;
+    padding-bottom: 10px;
+    font-style: italic;
+    font-weight: bold;
+    float:left;
+    min-width: 500px;
 }
 
 .sorting {
@@ -46,3 +63,22 @@
     height:150px;
     overflow: hidden;
 }
+
+.trip-details {
+
+}
+
+.dl-horizontal>dd {
+    margin-left: 150px;
+    font-size: 16px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.dl-horizontal>dt {
+    text-align: left;
+    font-size: 16px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+

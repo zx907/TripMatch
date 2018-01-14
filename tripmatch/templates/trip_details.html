@@ -1,8 +1,6 @@
-{% extends "layout.html" %}
-{% block title %}Trip Details{% endblock %}
-{% block body %}
-<section class="col-md-9">
-    <div id="trip-details">
+{% extends "layout.html" %} {% block title %}Trip Details{% endblock %} {% block body %}
+<section class="col-md-12">
+    <!-- <div id="trip-details">
         <h2><strong>{{trip.destinations.destination}}</strong></h2>
         <ul class="list-unstyled">
             <li>Start Date: {{trip.date_start}}</li>
@@ -11,12 +9,37 @@
             <li>Expected Group Size: {{trip.expected_group_size}}</li>
             <li>Notes: {{trip.notes}}</li>
         </ul>
+    </div> -->
+
+    <div class="trip-details">
+        <div class="trip-details-left-col col-md-6">
+            <dl class="dl-horizontal">
+                <dt>Start Date</dt>
+                <dd>{{trip.date_start}}</dd>
+                <dt>Duration</dt>
+                <dd>{{trip.duration}}</dd>
+                <dt>Companions</dt>
+                <dd>{{trip.companios}}</dd>
+                <dt>Expect Group Size</dt>
+                <dd>{{trip.expected_group_size}}</dd>
+                <dt>Leaving From</dt>
+                <dd>{{trip.city_takeoff}}</dd>
+            </dl>
+        </div>
+
+        <div class="trip-details-right-col col-md-6">
+            <h2>About this trip</h2>
+            <p>{{trip.notes}}</p>
+        </div>
     </div>
 
     <div id="join-trip">
         <form action="" method="post">
-            Message: <input type="text" name="message"><br>
-            <input style="display:none" type="text" name="trip_id" value="{{trip.id}}"><br>
+            Message:
+            <input type="text" name="message">
+            <br>
+            <input style="display:none" type="text" name="trip_id" value="{{trip.id}}">
+            <br>
             <input type="submit" value="Submit">
         </form>
     </div>

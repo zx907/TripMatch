@@ -83,7 +83,6 @@ def display_trip(trip_id):
     waitinglist = db_session.query(Waitinglist).filter_by(trip_id=trip_id).all()
     return render_template('trip_details.html', trip=trip, waitinglist=waitinglist)
 
-
 @app.route('/new_trip', methods=['GET', 'POST'])
 def new_trip():
     if 'user_id' not in login_session:
@@ -123,7 +122,6 @@ def new_trip():
 
     return render_template('new_trip.html')
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     # Log user in and save logged-in username in login_session dict
@@ -146,14 +144,12 @@ def login():
             return redirect(url_for('timeline'))
     return render_template('login.html')
 
-
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
     del login_session['user_id']
     flash('You were logged out')
     print('logout successful')
     return redirect(url_for('public_timeline'))
-
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
