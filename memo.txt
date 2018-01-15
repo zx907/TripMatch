@@ -19,3 +19,5 @@ Use relative import...waited a lot of time...
 
 add a search box in layout.html, havn't realize its functionality. 
 TODO, add a search function
+
+try to add image upload functiont to new_trip page

@@ -9,6 +9,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import ClauseElement
 from model.tripmatch_model import Base, Users, TripDetails, Waitinglist, Destinations
 from werkzeug.security import check_password_hash, generate_password_hash, gen_salt
+from werkzeug.utils import secure_filename
 from datetime import datetime
 from functools import wraps
 import requests
@@ -17,14 +18,16 @@ import string
 import os
 
 
-
 PER_PAGE = 16
+UPLOAD_FOLDER = os.path.join(os.getcwd(), 'tripmatch', 'user_uploaded_photos')
+ALLOWED_EXTENSIONS = set(['bmp', 'jpeg', 'png'])
 DEBUG = True
 
 # configuration
 APPLICATION_NAME = 'Trip Match'
-# TRIPMATCH_SETTINGS = 'settings.txt'
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# TRIPMATCH_SETTINGS = 'settings.txt'
 # app.config.from_object(__name__)
 # app.config.from_envvar('TRIPMATCH_SETTINGS', silent=True)
 
@@ -111,9 +114,20 @@ def new_trip():
                                 date_create=date_create
                                 )
 
-
             db_session.add(new_trip)
             db_session.commit()
+
+            # if 'file' not in request.files:
+            #     flash('No file part')
+                
+            file = request.files['file']
+            # if file.filename=='':
+            #     flash('No selected file')
+                
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
             flash('Your trip is posted')
         except Exception as e:
             db_session.rollback()
@@ -207,6 +221,25 @@ def get_or_create(session, model, defaults=None, **kwargs):
         session.add(instance)
         session.commit()
         return instance, True
+
+def allowed_file(filename):
+    return '.' in filename and filename.split('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/upload_trip_img', methods=['GET', 'POST'])
+def upload_trip_img():
+    if request.method=='POST':
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        if file.filename=='':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return redirect(url_for('uploaded file', filename=filename))
+
 
 if __name__ == '__main__':
     app.secret_key = ''.join(random.choice(
