@@ -139,7 +139,7 @@ def new_trip():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     # Log user in and save logged-in username in login_session dict
-    if login_session.get('user_id', None) != None:
+    if login_session.get('user_id', None):
         return redirect(url_for('timeline'))
     error = None
     if request.method == 'POST':
@@ -152,6 +152,12 @@ def login():
         elif not check_password_hash(user.password, request.form['password']):
             error = 'invalid password'
             flash('invalid password')
+        # Add a cookie to response obj
+        elif request.form['remember_me']:   
+            resp = make_response(redirect(url_for('timeline')))
+            resp.set_cookie('tripmatch_user_id', user.id, 3600)
+            login_session['user_id'] = user.id
+            return resp
         else:
             flash('you were logged in')
             login_session['user_id'] = user.id
@@ -161,9 +167,16 @@ def login():
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
     del login_session['user_id']
-    flash('You were logged out')
-    print('logout successful')
-    return redirect(url_for('public_timeline'))
+    if request.cookie.get('user_id'):
+        resp = make_response(redirect(url_for('public_timeline')))
+        resp.set_cookie('tripmatch_user_id', user.id, 0)
+        flash('You were logged out')
+        print('logout successful')
+        return resp
+    else:
+        flash('You were logged out')
+        print('logout successful')
+        return redirect(url_for('public_timeline'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
