@@ -29,6 +29,7 @@
                         <input type="password" name="password" placeholder="Password" class="form-control">
                     </div>
                     <button type="submit" class="btn btn-success">Sign In</button>
+                    <!-- <input type="hidden" name="remember_me" value=1/> -->
                     <!-- <button type="submit" class="btn" onclick="logout">Sign Out</button> -->
                     <a href="{{url_for('register')}}" class="btn btn-default">Sign Up</a>
                 </form>
@@ -71,7 +72,7 @@
     </div>
         
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="footer" style="margin-top: 10px">
         <div class="container" style="text-align:center">
             <p>caveman2015@qq.com</p>
             <p>TripMatch &mdash; A Flask Application</p>
