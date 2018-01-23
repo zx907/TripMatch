@@ -16,6 +16,7 @@ import requests
 import random
 import string
 import os
+import logging
 
 
 PER_PAGE = 16
@@ -99,7 +100,7 @@ def display_trip(trip_id):
 @app.route('/new_trip', methods=['GET', 'POST'])
 def new_trip():
     if 'user_id' not in login_session:
-        abort(401)
+        redirect(url_for('login'))
 
     if request.method == 'POST':
 
@@ -121,28 +122,30 @@ def new_trip():
                                    city_takeoff=request.form['city_takeoff'],
                                    expected_group_size=request.form['expected_group_size'],
                                    notes=request.form['notes'],
-                                   date_create=date_create
-                                   )
-
-            db_session.add(new_trip)
-            db_session.commit()
+                                   date_create=date_create)
 
             # if 'file' not in request.files:
             #     flash('No file part')
 
             file = request.files['file']
+            # print(file)
             # if file.filename=='':
             #     flash('No selected file')
 
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
+                print(filename)
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                new_trip.img_name = filename
+                print('3')
 
+            db_session.add(new_trip)
+            db_session.commit()
             flash('Your trip is posted')
         except Exception as e:
             db_session.rollback()
             print(e)
-            flash('Your trip is posted unsuccessfully')
+            flash('Failed to post your trip')
 
     return render_template('new_trip.html')
 

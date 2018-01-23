@@ -38,6 +38,7 @@ class TripDetails(Base):
     notes = Column(String, nullable=True)
     date_create = Column(String, nullable=False)
     contact = Column(String, nullable=True)
+    img_name = Column(String, nullable=True)
 
     users = relationship('Users', back_populates='trip_details')
     destinations = relationship('Destinations', back_populates='trip_details')
