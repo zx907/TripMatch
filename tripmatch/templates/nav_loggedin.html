@@ -1,0 +1,12 @@
+{% block nav %}
+<nav class="navbar navbar-inverse">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">TripMatch</a>
+        </div>
+        <div id="navbar" class="navbar-collapse">
+            <a href="{{url_for('logout')}}" class="btn btn-default">Log Out</a>
+        </div>
+    </div>
+</nav>
+{% endblock %}
