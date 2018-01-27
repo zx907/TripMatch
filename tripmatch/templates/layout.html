@@ -11,6 +11,8 @@
         crossorigin="anonymous">
     <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
     <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
+    {% block head %} {% endblock %}
+
 </head>
 
 <body>
@@ -18,21 +20,7 @@
     {% include "nav.html" %}
 
     <!-- Jumbotron -->
-    <div class="jumbotron">
-        <div class="container text-center jumbo-text">
-            <div class="jumbo-text-left">
-                <div><h2>Where is your next destination?</h2></div>
-                <a href="{{url_for('new_trip')}}" class="btn btn-lg btn-primary" style="width:200px">Post Your Trip</a>
-            </div>
-            <div class="jumbo-text-right">
-                <h2>Out There</h2>
-                <form method="get" action="/search" class="hypersearchform">
-                      <input class='input-lg' type="text" name="jumbosearch" placeholder="I want to travel to...">
-                      <button type="submit" class="btn btn-lg btn-primary">Search</button>
-                  </form>
-            </div>
-        </div>
-    </div>    
+    {% include "jumbotron.html" %} 
 
 
     <div class="notification">
@@ -45,18 +33,13 @@
         {% endif %} {% endwith %}
     </div>
 
-    <!-- Cards-grid -->
-    <div class="container cards-grid">
-        {% block body %}{% endblock %}
-    </div>
+    <!-- Cards-grid -->    
+    {% block body %}{% endblock %}
+
         
     <!-- Footer -->
-    <footer class="footer" style="margin-top: 10px">
-        <div class="container" style="text-align:center">
-            <p>caveman2015@qq.com</p>
-            <p>TripMatch &mdash; A Flask Application</p>
-        </div>
-    </footer>
+    {% include "footer.html" %} 
+    
 
 
     <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.js"></script>

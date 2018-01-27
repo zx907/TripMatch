@@ -1,0 +1,17 @@
+{% block jumbotron %}
+<div class="jumbotron">
+  <div class="container text-center jumbo-text">
+      <div class="jumbo-text-left">
+          <div><h2>Where is your next destination?</h2></div>
+          <a href="{{url_for('new_trip')}}" class="btn btn-lg btn-primary" style="width:200px">Post Your Trip</a>
+      </div>
+      <div class="jumbo-text-right">
+          <h2>Out There</h2>
+          <form method="get" action="/search" class="hypersearchform">
+                <input class='input-lg' type="text" name="jumbosearch" placeholder="I want to travel to...">
+                <button type="submit" class="btn btn-lg btn-primary">Search</button>
+            </form>
+      </div>
+  </div>
+</div>   
+{% endblock %}
