@@ -4,6 +4,7 @@ from flask import session as login_session
 from flask import make_response, Response, request
 from flask import json, jsonify
 from flask import abort
+from flask_restful import Resource, Api
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import ClauseElement
@@ -33,6 +34,8 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # TRIPMATCH_SETTINGS = 'settings.txt'
 # app.config.from_object(__name__)
 # app.config.from_envvar('TRIPMATCH_SETTINGS', silent=True)
+
+api = Api(app)
 
 # database engine and session
 engine = create_engine("sqlite:///" + os.getcwd() +
@@ -276,6 +279,52 @@ def upload_trip_img():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             return redirect(url_for('uploaded file', filename=filename))
 
+# Restful api part
+class UserAPI(Resource):
+    def get(self, user_id) :
+        user = db_session.query(Users).filter_by(id=user_id).one()
+        return user
+
+    def put(self, user_id):
+        user = db_session.query(Users).filter_by(id=user_id).one()
+        return user
+
+    def delete(self, user_id):
+        user = db_session.query(Users).filter_by(id=user_id).one()
+        if not user:
+            session.delete(user)
+
+class TripAPI(Resource):
+    def get(self, trip_id) :
+        trip = db_session.query(TripsDetails).filter_by(id=trip_id).one()
+        return trip
+
+    def put(self, trip_id):
+        trip = db_session.query(TripsDetails).filter_by(id=trip_id).one()
+        return trip
+
+    def delete(self, trip_id):
+        trip = db_session.query(TripsDetails).filter_by(id=trip_id).one()
+        if not trip:
+            session.delete(trip)
+
+class DestinationAPI(Resource):
+    def get(self, destination_id) :
+        destination = db_session.query(TripsDetails).filter_by(id=destination_id).one()
+        return destination
+
+    def put(self, destination_id):
+        destination = db_session.query(TripsDetails).filter_by(id=destination_id).one()
+        return destination
+
+    def delete(self, destination_id):
+        destination = db_session.query(TripsDetails).filter_by(id=destination_id).one()
+        if not destination:
+            session.delete(destination)
+
+api.add_resource(UserAPI, '/user_api/<int:user_id>')
+api.add_resource(TripAPI, '/trip_api/<int:trip_id>')
+api.add_resource(DestinationAPI, '/destination_api/<int:destination_id>')
 
 if __name__ == '__main__':
     init_db()

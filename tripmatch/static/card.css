@@ -1,0 +1,31 @@
+.card {
+    position: relative;
+    display: block;
+    min-width: 0;
+    max-width:100%;
+    background-color: white;
+    background-clip: border-box;
+    border: 1px solid #eee;
+    border-radius: 0.25rem;
+    margin-bottom: 1rem;
+    box-shadow: 5px 5px 3px #888888;
+}
+
+.card-body {
+    padding: 5px;
+}
+
+.card-img-top {
+    width: 100%;
+    max-height: 250px;
+    height:auto;
+}
+
+.card-title {
+    margin-bottom: 0.75rem;
+}
+
+.card-subtitle {
+    margin-top: -0.375rem;
+    margin-bottom: 0;
+}
