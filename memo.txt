@@ -21,3 +21,7 @@ add a search box in layout.html, havn't realize its functionality.
 TODO, add a search function
 
 try to add image upload functiont to new_trip page
+
+restylish from page for cards div
+
+update less variable to set min-width property

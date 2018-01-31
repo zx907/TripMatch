@@ -1,58 +1,57 @@
 {% extends "layout.html" %} {% block title %}Trip Details{% endblock %} {% block body %}
-<section class="col-md-12">
-    <!-- <div id="trip-details">
-        <h2><strong>{{trip.destinations.destination}}</strong></h2>
-        <ul class="list-unstyled">
-            <li>Start Date: {{trip.date_start}}</li>
-            <li>Duration: {{trip.duration}}</li>
-            <li>Companions: {{trip.companios}}</li>
-            <li>Expected Group Size: {{trip.expected_group_size}}</li>
-            <li>Notes: {{trip.notes}}</li>
-        </ul>
-    </div> -->
+<div class="container">
 
-    <div class="trip-details">
-        <div class="trip-details-left-col col-md-6">
-            <dl class="dl-horizontal">
-                <dt>Start Date</dt>
-                <dd>{{trip.date_start}}</dd>
-                <dt>Duration</dt>
-                <dd>{{trip.duration}}</dd>
-                <dt>Companions</dt>
-                <dd>{{trip.companios}}</dd>
-                <dt>Expect Group Size</dt>
-                <dd>{{trip.expected_group_size}}</dd>
-                <dt>Leaving From</dt>
-                <dd>{{trip.city_takeoff}}</dd>
-            </dl>
-        </div>
-
-        <div class="trip-details-right-col col-md-6">
-            <h2>About this trip</h2>
-            <p>{{trip.notes}}</p>
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="trip-details-left-col col-md-6" style="float: center">
+                <dl class="dl-horizontal">
+                    <dt>Start Date</dt>
+                    <dd>{{trip.date_start}}</dd>
+                    <dt>Duration</dt>
+                    <dd>{{trip.duration}}</dd>
+                    <dt>Companions</dt>
+                    <dd>{{trip.companios}}</dd>
+                    <dt>Expect Group Size</dt>
+                    <dd>{{trip.expected_group_size}}</dd>
+                    <dt>Leaving From</dt>
+                    <dd>{{trip.city_takeoff}}</dd>
+                </dl>
+            </div>
+            
+            <div class="trip-details-right-col col-md-6" style="float: center">
+                <h2>About this trip</h2>
+                <p>{{trip.notes}}</p>
+            </div>
         </div>
     </div>
 
-    <div id="join-trip">
-        <form action="" method="post">
-            Message:
-            <input type="text" name="message">
-            <br>
-            <input style="display:none" type="text" name="trip_id" value="{{trip.id}}">
-            <br>
-            <input type="submit" value="Submit">
-        </form>
+    <div class="row">
+        <div class="join-trip col-md-8 col-md-offset-2">
+            <form action="" method="post">
+                Message:
+                <!-- <input type="text" class="form-control" placeholder="Leave a message here"> -->
+                <textarea class="form-control" rows="5"></textarea>
+                <br>
+                <input style="display:none" type="text" name="trip_id" value="{{trip.id}}">
+                <br>
+                <input type="submit" value="Submit">
+            </form>
+        </div>
     </div>
 
 
-    <div id="waitinglist">
-        <ul class="list-unstyled">
-            {% for post in waitinglist %}
-            <li>{{post.text}}</li>
-            <li>{{post.post_date}}</li>
-            <li>{{post.users.username}}</li>
-            {% endfor %}
-        </ul>
+    <div class="row">
+        <div class="waitinglist col-md-8 col-md-offset-2">
+            <ul class="list-unstyled">
+                {% for post in waitinglist %}
+                <li>{{post.text}}</li>
+                <li>{{post.post_date}}</li>
+                <li>{{post.users.username}}</li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
-</section>
+
+</div>
+
 {% endblock %}
