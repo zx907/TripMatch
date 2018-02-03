@@ -12,12 +12,12 @@ remove quick nav link? remove it. Wait, hide it?
 
 how to place text on graphic card? absolute position
 
-why is the text color in the div changed with css? it seems that i have add color attr to specific line
+why is the text color in the div changed with css? it seems that i have to add color attr to specific line
 
 why wsgi throw out an error indicating that cannot find data model py file? 
-Use relative import...waited a lot of time...
+Use relative import...wasted a lot of time on it...
 
-add a search box in layout.html, havn't realize its functionality. 
+added a search box in layout.html, havn't realize its functionality. 
 TODO, add a search function
 
 try to add image upload functiont to new_trip page
@@ -25,3 +25,8 @@ try to add image upload functiont to new_trip page
 restylish from page for cards div
 
 update less variable to set min-width property
+
+why is logout button not aligned to right end? wrap it with p tag
+update layout.html to swith navbar based on user login_status
+
+How to update sqlite schema in sqlalchemy? Anyway, insert an img column with sql terminal

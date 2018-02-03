@@ -19,6 +19,10 @@ import string
 import os
 import logging
 
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger('applogger')
+logger.setLevel(logging.INFO)
+
 
 PER_PAGE = 16
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'tripmatch', 'user_uploaded_photos')
@@ -62,9 +66,15 @@ def login_required(f):
 
 @app.route('/')
 def timeline():
+    logger.info('timeline function')
+    if login_session.get('user_id', None):
+        login_status = True
+    else:
+        login_status = False
+    logger.info('login_status: {0}'.format(login_status))
     db_session = get_db_session()
     trips = db_session.query(TripDetails).all()
-    return render_template('timeline.html', trips=trips)
+    return render_template('timeline.html', trips=trips, login_status=login_status)
 
 
 @app.route('/public')
@@ -102,6 +112,7 @@ def display_trip(trip_id):
 
 @app.route('/new_trip', methods=['GET', 'POST'])
 def new_trip():
+    logger.info('new_trip function')
     if 'user_id' not in login_session:
         redirect(url_for('login'))
 
@@ -141,6 +152,9 @@ def new_trip():
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 new_trip.img_name = filename
                 print('3')
+            else:
+                new_trip.img_name = None
+                print('4')
 
             db_session.add(new_trip)
             db_session.commit()
@@ -149,7 +163,7 @@ def new_trip():
             db_session.rollback()
             print(e)
             flash('Failed to post your trip')
-
+        
     return render_template('new_trip.html')
 
 

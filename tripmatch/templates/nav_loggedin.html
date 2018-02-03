@@ -4,8 +4,13 @@
         <div class="navbar-header">
             <a class="navbar-brand" href="/">TripMatch</a>
         </div>
-        <div id="navbar" class="navbar-collapse">
-            <a href="{{url_for('logout')}}" class="btn btn-default">Log Out</a>
+        <div class="nav navbar-nav navbar-right">
+            <ul class="nav navbar-nav">
+                <p class="navbar-btn">
+                    <a href="{{url_for('new_trip')}}" class="btn btn-default btn-success">Post New Trip</a>
+                    <a href="{{url_for('logout')}}" class="btn btn-default">Log Out</a>
+                </p>
+            </ul>
         </div>
     </div>
 </nav>
