@@ -15,31 +15,32 @@
 </head>
 
 <body>
-    <!-- Nav -->
-    {% if login_status %}
-    {% include "nav_loggedin.html" %}
-    {% else %}
-    {% include "nav.html" %}
-    {% endif %}
+    <div id="wrapper">
+        <!-- Nav -->
+        {% if login_status %}
+        {% include "nav_loggedin.html" %}
+        {% else %}
+        {% include "nav.html" %}
+        {% endif %}
 
-    <!-- Jumbotron -->
-    {% include "jumbotron.html" %} 
+        <!-- Jumbotron -->
+        {% include "jumbotron.html" %} 
 
 
-    <div class="notification">
-        <!-- Notification -->
-        {% with flashes = get_flashed_messages() %} {% if flashes %}
-        <ul class="flashes">
-            {% for message in flashes %}
-            <li>{{ message }} {% endfor %}
-        </ul>
-        {% endif %} {% endwith %}
-    </div>
+        <div class="notification">
+            <!-- Notification -->
+            {% with flashes = get_flashed_messages() %} {% if flashes %}
+            <ul class="flashes">
+                {% for message in flashes %}
+                <li>{{ message }} {% endfor %}
+            </ul>
+            {% endif %} {% endwith %}
+        </div>
 
-    <!-- main content -->    
-    {% block body scoped %}{% endblock %}
+        <!-- main content -->    
+        {% block body scoped %}{% endblock %}
 
-        
+    </div>    
     <!-- Footer -->
     {% include "footer.html" %}    
 

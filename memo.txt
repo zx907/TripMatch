@@ -30,3 +30,5 @@ why is logout button not aligned to right end? wrap it with p tag
 update layout.html to swith navbar based on user login_status
 
 How to update sqlite schema in sqlalchemy? Anyway, insert an img column with sql terminal
+
+Still has some issues with upload, but it basically works now

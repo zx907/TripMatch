@@ -18,6 +18,7 @@ import random
 import string
 import os
 import logging
+import sys
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('applogger')
@@ -112,7 +113,7 @@ def display_trip(trip_id):
 
 @app.route('/new_trip', methods=['GET', 'POST'])
 def new_trip():
-    logger.info('new_trip function')
+    app.logger.info('new_trip function')
     if 'user_id' not in login_session:
         redirect(url_for('login'))
 
@@ -137,31 +138,30 @@ def new_trip():
                                    expected_group_size=request.form['expected_group_size'],
                                    notes=request.form['notes'],
                                    date_create=date_create)
+            if 'new_trip_img_file' not in request.files:
+             app.logger.info('No file')
 
-            # if 'file' not in request.files:
-            #     flash('No file part')
-
-            file = request.files['file']
+            file = request.files['new_trip_img_file']
+            app.logger.info('original filename: {}'.format(file.filename))
             # print(file)
             # if file.filename=='':
             #     flash('No selected file')
 
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                print(filename)
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 new_trip.img_name = filename
-                print('3')
+                app.logger.info('uploaded filename in new_trip: {}'.format(new_trip.img_name))
             else:
                 new_trip.img_name = None
-                print('4')
+                app.logger.info('should be empty filename: {}'.format(new_trip.img_name))
 
             db_session.add(new_trip)
             db_session.commit()
             flash('Your trip is posted')
         except Exception as e:
             db_session.rollback()
-            print(e)
+            app.logger.debug(e)
             flash('Failed to post your trip')
         
     return render_template('new_trip.html')
