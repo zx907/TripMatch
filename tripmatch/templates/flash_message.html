@@ -1,0 +1,16 @@
+{% block flash_message %}
+{% with flashes = get_flashed_messages() %} 
+  {% if flashes %}
+    <div class="container">
+      <div class="alert alert-info " role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <ul class="flashes">
+              {% for message in flashes %}
+              <li>{{ message }} 
+              {% endfor %}
+          </ul>
+      </div>
+  </div>
+  {% endif %} 
+{% endwith %}
+{% endblock %}

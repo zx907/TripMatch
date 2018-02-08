@@ -32,3 +32,14 @@ update layout.html to swith navbar based on user login_status
 How to update sqlite schema in sqlalchemy? Anyway, insert an img column with sql terminal
 
 Still has some issues with upload, but it basically works now
+
+there are some issues with seesion..
+todo add add set_cookie to login
+
+stylish flash message bar
+
+update from page to load user cover images on trip cards
+
+design html pages is BORING
+
+todo: considering use blueprint to seperate manage page from main page
