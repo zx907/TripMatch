@@ -1,0 +1,23 @@
+{% extends 'manage.html' %}
+
+{% block manage_content %}
+<div class="container">
+  <div class="row">
+
+    {% include 'sidebar.html' %}     
+
+    <div class="col-md-10 col-sm-9 manage_profile">
+        <ul class="inbox-list">
+            {% for message in messages %}
+            <div class="message-item">
+                <p>trip destination</p>
+                <p>from:</p>
+                <p>date:</p>
+            </div>
+            {% endfor %}
+        </ul>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

@@ -1,29 +1,48 @@
-{% extends "layout.html" %}
+<!DOCTYPE html>
+<html lang="zh-CN">
 
-{% block head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/manage.css') }}">
-{% endblock %}
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name-"author" content="caveman">
+    <title>Trip Match</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap3/css/bootstrap.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/manage.css') }}">
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
+    {% block head %} {% endblock %}
 
-{% block body %}
+</head>
 
-<div class="container">
-  <div class="row">
+<body>
+    <div id="wrapper">
+        <!-- Nav -->
+        {% if login_status %}
+        {% include "nav_loggedin.html" %}
+        {% else %}
+        {% include "nav.html" %}
+        {% endif %}               
+
+        <!-- main content -->    
+        {% block manage_content %}{% endblock %}
+
+    </div>    
+    <!-- Footer -->
+    {% include "footer.html" %}    
+
+
+    <script src="{{url_for('static', filename='css/bootstrap3/js/bootstrap.js')}}"></script>
     
-    <div class="col-md-2 col-sm-3 sidebar">
-      <ul class="nav nav-sidebar">
-        <li><a href="{{url_for('manage_account')}}">Account</a></li>
-        <li><a href="{{url_for('manage_settings')}}">Settings</a></li>
-        <li><a href="{{url_for('manage_trips')}}">My Trips</a></li>
-      </ul>
-    </div>
-
-    <div class="col-md-10 col-md-offset-2 col-sm-9 col-sm-offset-3 main">
-      {% block manage_content %}
-      {% endblock %}
-
-    </div>
-
-  </div>
-</div>
-
-{% endblock %}
+    <script>
+        function logout() {
+            event.preventDefault();
+            console.log('logout 1')
+            location.href="{{ url_for('logout') }}";
+            console.log('logout 2')
+            return false;
+        };
+    </script>
+   
+</body>
+</html>
