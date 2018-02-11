@@ -43,3 +43,8 @@ update from page to load user cover images on trip cards
 design html pages is BORING
 
 todo: considering use blueprint to seperate manage page from main page
+
+it seems that Jinja2 doesn't support multiple inheritance. Pity...
+
+Joined query with SQLAlchemy is painful..
+Join query entity can be accessed with: Table1.relations_member.related_table_member

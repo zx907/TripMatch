@@ -22,7 +22,6 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('applogger')
-logger.setLevel(logging.INFO)
 
 PER_PAGE = 16
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'tripmatch', 'static', 'user_uploaded_photos')
@@ -61,12 +60,12 @@ def login_required(f):
 
 @app.route('/')
 def timeline():
-    logger.info('timeline function')
+    logger.debug('timeline function')
     if login_session.get('user_id', None):
         login_status = True
     else:
         login_status = False
-    logger.info('login_status: {0}'.format(login_status))
+    logger.debug('login_status: {0}'.format(login_status))
     db_session = Session()
     trips = db_session.query(TripDetails).all()
     return render_template('timeline.html', trips=trips, login_status=login_status)
@@ -107,7 +106,7 @@ def display_trip(trip_id):
 
 @app.route('/new_trip', methods=['GET', 'POST'])
 def new_trip():
-    app.logger.info('new_trip function')
+    app.logger.debug('new_trip function')
     if 'user_id' not in login_session:
         redirect(url_for('login'))
 
@@ -136,20 +135,19 @@ def new_trip():
 
             # if no image is to upload, new_trip.ima_name = None
             if 'new_trip_img_file' not in request.files:
-                app.logger.info('No file')
+                app.logger.debug('No file')
 
             file = request.files['new_trip_img_file']
-            app.logger.info('original filename: {}'.format(file.filename))
-
+            app.logger.debug('original filename: {}'.format(file.filename))
 
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 new_trip.img_name = filename
-                app.logger.info('uploaded filename in new_trip: {}'.format(new_trip.img_name))
+                app.logger.debug('uploaded filename in new_trip: {}'.format(new_trip.img_name))
             else:
                 new_trip.img_name = None
-                app.logger.info('should be empty filename: {}'.format(new_trip.img_name))
+                app.logger.debug('should be empty filename: {}'.format(new_trip.img_name))
 
             db_session.add(new_trip)
             db_session.commit()
@@ -169,7 +167,7 @@ def login():
 
     # redirect to home page if user has already been logged in
     if login_session.get('user_id', None):
-        app.logger.info(login_session['user_id'])
+        app.logger.debug(login_session['user_id'])
         return redirect(url_for('timeline'))
     error = None
     # Log user in
@@ -303,25 +301,33 @@ def upload_trip_img():
             return redirect(url_for('uploaded file', filename=filename))
 
 
-
+@app.route('/manage')
 @app.route('/manage/profile')
 def manage_profile():
-    session = Session()
-    user = session.query(Users).filter(Users.id==login_session['user_id']).first()
-    return render_template('manage_profile.html', user=user) 
+    # if login_session.get('user_id', None):
+    #     app.logger.debug('login_session user_id: {}'.format(login_session['user_id']))
+    #     return redirect(url_for('timeline'))
+    db_session = Session()
+    user = db_session.query(Users).filter(Users.id == login_session['user_id']).first()
+    return render_template('manage_profile.html', user=user)
 
 
+# @app.context_processor
 @app.route('/manage/trips')
 def manage_trips():
     session = Session()
-    trips = session.query(TripDetails).join(Users).filter(Users.id==login_session['user_id']).all()
+    trips = session.query(TripDetails).filter(TripDetails.user_id == login_session['user_id']).all()
+
+    # def calc_end_date(start_date, duration):
+    #     return (datetime.strptime(start_date, '%Y-%m-%d') + datetime.timedelta(days=duration)).strftime('%Y-%m-%d')
+    app.logger.debug(trips)
     return render_template('manage_trips.html', trips=trips)
 
 
 @app.route('/manage/inbox')
 def manage_inbox():
     session = Session()
-    messages = session.query(Messages).join(Users).filter(Users.id==login_session['user_id']).all()
+    messages = session.query(Messages).join(Users).filter(Users.id == login_session['user_id']).all()
     return render_template('manage_inbox.html', messages=messages)
 
 
