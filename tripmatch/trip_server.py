@@ -13,7 +13,7 @@ from model.tripmatch_model import Base, Users, TripDetails, Waitinglist, Destina
 from werkzeug.security import check_password_hash, generate_password_hash, gen_salt
 from werkzeug.utils import secure_filename
 from jinja2 import TemplateNotFound
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import wraps
 import random
 import string
@@ -106,7 +106,7 @@ def display_trip(trip_id):
 
 @app.route('/new_trip', methods=['GET', 'POST'])
 def new_trip():
-    app.logger.debug('new_trip function')
+    app.logger.info('new_trip function')
     if 'user_id' not in login_session:
         redirect(url_for('login'))
 
@@ -121,7 +121,7 @@ def new_trip():
                 destination=request.form['destination']
             )[0]
 
-            date_create = datetime.now().isoformat(' ')
+            date_create = datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')
 
             new_trip = TripDetails(user_id=login_session['user_id'],
                                    destination_id=destination.id,
@@ -135,19 +135,19 @@ def new_trip():
 
             # if no image is to upload, new_trip.ima_name = None
             if 'new_trip_img_file' not in request.files:
-                app.logger.debug('No file')
+                app.logger.info('No file')
 
             file = request.files['new_trip_img_file']
-            app.logger.debug('original filename: {}'.format(file.filename))
+            app.logger.info('original filename: {}'.format(file.filename))
 
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 new_trip.img_name = filename
-                app.logger.debug('uploaded filename in new_trip: {}'.format(new_trip.img_name))
+                app.logger.info('uploaded filename in new_trip: {}'.format(new_trip.img_name))
             else:
                 new_trip.img_name = None
-                app.logger.debug('should be empty filename: {}'.format(new_trip.img_name))
+                app.logger.info('should be empty filename: {}'.format(new_trip.img_name))
 
             db_session.add(new_trip)
             db_session.commit()
@@ -155,10 +155,15 @@ def new_trip():
         # todo, specify what exception is expected here
         except Exception as e:
             db_session.rollback()
-            app.logger.debug(e)
+            app.logger.info(e)
             flash('Failed to post your trip')
 
     return render_template('new_trip.html')
+
+
+@app.route('/edit_trip/<int:trip_id>')
+def edit_trip(trip_id):
+    return "skip"
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -167,7 +172,7 @@ def login():
 
     # redirect to home page if user has already been logged in
     if login_session.get('user_id', None):
-        app.logger.debug(login_session['user_id'])
+        app.logger.info(login_session['user_id'])
         return redirect(url_for('timeline'))
     error = None
     # Log user in
@@ -305,7 +310,7 @@ def upload_trip_img():
 @app.route('/manage/profile')
 def manage_profile():
     # if login_session.get('user_id', None):
-    #     app.logger.debug('login_session user_id: {}'.format(login_session['user_id']))
+    #     app.logger.info('login_session user_id: {}'.format(login_session['user_id']))
     #     return redirect(url_for('timeline'))
     db_session = Session()
     user = db_session.query(Users).filter(Users.id == login_session['user_id']).first()
@@ -317,10 +322,7 @@ def manage_profile():
 def manage_trips():
     session = Session()
     trips = session.query(TripDetails).filter(TripDetails.user_id == login_session['user_id']).all()
-
-    # def calc_end_date(start_date, duration):
-    #     return (datetime.strptime(start_date, '%Y-%m-%d') + datetime.timedelta(days=duration)).strftime('%Y-%m-%d')
-    app.logger.debug(trips)
+    app.logger.info(trips)
     return render_template('manage_trips.html', trips=trips)
 
 
@@ -330,6 +332,12 @@ def manage_inbox():
     messages = session.query(Messages).join(Users).filter(Users.id == login_session['user_id']).all()
     return render_template('manage_inbox.html', messages=messages)
 
+
+@app.context_processor
+def utility_processor():
+    def calc_date_end(start_date, duration):
+        return (datetime.strptime(start_date, '%Y-%m-%d') + timedelta(int(duration))).strftime('%Y-%m-%d')
+    return dict(calc_date_end=calc_date_end)
 
 # Restful api part
 class UserAPI(Resource):
