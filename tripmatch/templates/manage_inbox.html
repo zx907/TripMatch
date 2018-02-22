@@ -6,13 +6,13 @@
 
     {% include 'manage_sidebar.html' %}
     
-    <div class="col-md-10 col-sm-9 manage_profile">
-      <ul class="inbox-list">
-        {% for message in messages %}
-            <div class="message-item">
-                <p>trip destination</p>
-                <p>from:</p>
-                <p>date:</p>
+    <div class="col-md-9 col-sm-9 manage_profile">
+      <ul class="inmails-list">
+        {% for inmail in inmails %}
+            <div class="inmail-item">
+              <p>inmail.title</p>
+              <p>inmail.from_id</p>
+              <p>inmail.send_date</p>
             </div>
         {% endfor %}
       </ul>

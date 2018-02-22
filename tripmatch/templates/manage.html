@@ -22,7 +22,10 @@
         {% include "nav_loggedin.html" %}
         {% else %}
         {% include "nav.html" %}
-        {% endif %}               
+        {% endif %}
+
+        <!-- Notification -->
+        {% include "flash_message.html" %}
 
         <!-- main content -->    
         {% block manage_content %}

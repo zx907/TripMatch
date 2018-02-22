@@ -1,3 +1,5 @@
+li {list-style-type: none;}
+
 .manage-main {
     margin-top: 25px;
     margin-left: 50px;
@@ -34,6 +36,7 @@
 .trip-row {
     position: relative;
     margin: 10px;
+    border-bottom: 1px solid #1b6d85;
 }
 
 .trip-row-thumbnails {
@@ -47,11 +50,17 @@
     vertical-align: top;
 }
 
-.right-middle {
+.rb {
     position: absolute;
     right: 0;
-    top: 25%;
+    top: 60px;
     margin-right: 10px;
     font-style: italic;
+}
+
+.rt {
+    float: right;
+    top : 0;
+    margin-right: 10px;
 }
 

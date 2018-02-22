@@ -48,3 +48,13 @@ it seems that Jinja2 doesn't support multiple inheritance. Pity...
 
 Joined query with SQLAlchemy is painful..
 Join query entity can be accessed with: Table1.relations_member.related_table_member
+
+how about flex layout
+
+so.. ths base exception in SQLAlchemy is SQLAlchemyError
+
+paging
+
+what a shame that sqlalchemy doesn't support serializing to json
+
+API is working now, though it looks awfully ugly

@@ -2,39 +2,46 @@
 
 {% block manage_content %}
   <div class="container">
-    <div class="row">
+    <div class="row manage-main">
 
       {% include 'manage_sidebar.html' %}
 
-      <div class="manage_trips col-md-9 col-sm-9">
-        <ul class="manamge_trips_list">
-          {% for trip in trips %}
-            <li>
-              <div class="trip-row">
+      <div class="manage_trips col-md-8 col-sm-8">
+        <div class="panel-box">
+          <div class="panel-header">
+            Trips
+          </div>
+          <ul class="manamge_trips_list">
+            {% for trip in trips %}
+              <li>
+                <div class="trip-row">
 
-                <div class="crop trip-row-thumbnails">
-                {% if trip.img_name %}
-                <img src="{{ url_for('static', filename='user_uploaded_photos/' + trip.img_name) }}" class="trip-thumbs">
-                {% else %}
-                  <img src="{{ url_for('static', filename='NZ.jpg') }}" class="trip-thumbs">
-                {% endif %}
-                </div>
-
-                <div class="trip-row-content">
-                  <div class="trip-row-titles">
-                    <p style="font-size: x-large;">
-                      <a href="{{ url_for('edit_trip', trip_id=trip.id) }}"><b>{{ trip.destinations.destination }}</b></a>>
-                    </p>
-                    <p>{{ calc_date_end(trip.date_start, trip.duration) }} ~ {{ trip.date_start }}</p>
+                  <div class="crop trip-row-thumbnails">
+                    {% if trip.img_name %}
+                      <img src="{{ url_for('static', filename='user_uploaded_photos/' + trip.img_name) }}"
+                           class="trip-thumbs">
+                    {% else %}
+                      <img src="{{ url_for('static', filename='NZ.jpg') }}" class="trip-thumbs">
+                    {% endif %}
                   </div>
+
+                  <div class="trip-row-content">
+                    <div class="trip-row-titles">
+                      <p style="font-size: x-large;">
+                        <a href="{{ url_for('display_trip', trip_id=trip.id) }}"><b>{{ trip.destinations.destination }}</b></a>
+                      </p>
+                      <p>{{ calc_date_end(trip.date_start, trip.duration) }} ~ {{ trip.date_start }}</p>
+                    </div>
+                  </div>
+                  <div class="rb"><b>created on:</b> {{ trip.date_create }}</div>
+                  <div class="rt"><i><a href="{{ url_for('edit_trip', trip_id=trip.id) }}">Edit</a></i></div>
+
+
                 </div>
-                <div class="right-middle"><b>created on:</b> {{ trip.date_create }}</div>
-
-
-              </div>
-            </li>
-          {% endfor %}
-        </ul>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
       </div>
 
     </div>
