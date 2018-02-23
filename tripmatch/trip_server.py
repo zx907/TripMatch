@@ -161,63 +161,48 @@ def new_trip():
     return render_template('new_trip.html')
 
 
-# Reuse same template as new_trip, but prefill forms with existing infomation
+# prefill forms with existing infomation
 @app.route('/edit_trip/<int:trip_id>', methods=['GET', 'POST'])
 def edit_trip(trip_id):
     app.logger.info('edit_trip function')
     if 'user_id' not in login_session:
         redirect(url_for('login'))
 
-
-    # post new trip
+    # update trip
     if request.method == 'POST':
 
         db_session = Session()
         try:
-            destination = get_or_create(
-                db_session,
-                Destinations,
-                destination=request.form['destination']
-            )[0]
+            cur_trip = db_session.query(TripDetails).filter(id==trip_id).first();
+            cur_trip.duration = request.form['duration']
+            cur_trip.date_start = request.form['date_start']
+            cur_trip.companions = request.form['companions']
+            cur_trip.city_takeoff = request.form['city_takeoff']
+            cur_trip.expected_group_size = request.form['expected_group_size']
+            cur_trip.notes = request.form['notes']
 
-            date_create = datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')
-
-            new_trip = TripDetails(user_id=login_session['user_id'],
-                                   destination_id=destination.id,
-                                   duration=request.form['duration'],
-                                   date_start=request.form['date_start'],
-                                   companions=request.form['companions'],
-                                   city_takeoff=request.form['city_takeoff'],
-                                   expected_group_size=request.form['expected_group_size'],
-                                   notes=request.form['notes'],
-                                   date_create=date_create)
-
-            # if no image is to upload, new_trip.ima_name = None
-            if 'new_trip_img_file' not in request.files:
-                app.logger.info('No file')
-
-            file = request.files['new_trip_img_file']
-            app.logger.info('original filename: {}'.format(file.filename))
+            file = request.files['edited_trip_img_file']
 
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
+                existing_files = [x for x in os.listdir(UPLOAD_FOLDER) if os.path.isfile(os.path.join(UPLOAD_FOLDER, x))]
+                suffix_index = 0
+                while filename in existing_files:
+                    filename = filename.split('.')[0] + '_' + str(suffix_index)
+                    suffix_index += 1
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                new_trip.img_name = filename
-                app.logger.info('uploaded filename in new_trip: {}'.format(new_trip.img_name))
-            else:
-                new_trip.img_name = None
-                app.logger.info('should be empty filename: {}'.format(new_trip.img_name))
+                cur_trip.img_name = filename
+                app.logger.info('uploaded filename in edited_trip: {}'.format(cur_trip.img_name))
 
-            db_session.add(new_trip)
             db_session.commit()
-            flash('Your trip is posted')
-        # todo, specify what exception is expected here
-        except Exception as e:
+            flash('Your trip is updated')
+
+        except SQLAlchemyError as e:
             db_session.rollback()
             app.logger.info(e)
-            flash('Failed to post your trip')
+            flash('Failed to update your trip')
 
-    return render_template('new_trip.html')
+    return render_template('edit_trip.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -404,6 +389,7 @@ def utility_processor():
         return (datetime.strptime(start_date, '%Y-%m-%d') + timedelta(int(duration))).strftime('%Y-%m-%d')
     return dict(calc_date_end=calc_date_end)
 
+
 # Restful api
 class UserAPI(Resource):
     def get(self, user_id):
@@ -444,17 +430,17 @@ class TripAPI(Resource):
 class DestinationAPI(Resource):
     def get(self, destination_id):
         db_session = Session()
-        destination = db_session.query(TripDetails).filter_by(id=destination_id).one()
+        destination = db_session.query(Destinations).filter_by(id=destination_id).one()
         return jsonify(destination.to_dict())
 
     def put(self, destination_id):
         db_session = Session()
-        destination = db_session.query(TripDetails).filter_by(id=destination_id).one()
+        destination = db_session.query(Destinations).filter_by(id=destination_id).one()
         return jsonify(destination.to_dict())
 
     def delete(self, destination_id):
         db_session = Session()
-        destination = db_session.query(TripDetails).filter_by(id=destination_id).one()
+        destination = db_session.query(Destinations).filter_by(id=destination_id).one()
         if not destination:
             db_session.delete(destination)
 

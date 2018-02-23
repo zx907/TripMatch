@@ -58,3 +58,5 @@ paging
 what a shame that sqlalchemy doesn't support serializing to json
 
 API is working now, though it looks awfully ugly
+
+API CORS?

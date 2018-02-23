@@ -7,7 +7,7 @@
           <div class="col-md-3">
             <div>
               <label for="form-destination">Destination</label>
-              <input type="text" class="form-control" name="destination" id="form-destination">
+              <input type="text" class="form-control" name="destination" id="form-destination" readonly>
               <br>
             </div>
             <div>
@@ -51,9 +51,9 @@
 
           <div class="col-md-6">
             <div>
-              <label for="new-trip-img-file"></label>
-              <input type="file" name="new_trip_img_file" id="new-trip-img-file">
-              <p>Upload cover image (optional)</p>
+              <label for="edited-trip-img-file"></label>
+              <input type="file" name="edited_trip_img_file" id="edited-trip-img-file">
+              <p>Change cover image (optional)</p>
             </div>
             <button type="submit" class="btn btn-success" value="Submit" style="width:100px; margin-top:10px;">Post
             </button>
@@ -63,5 +63,32 @@
       </div>
     </div>
   </div>
+
+  <script>
+    $(document).ready(function () {
+      console.log('enter js block');
+      var trip_id = window.location.href.split('/').pop();
+      console.log("127.0.0.1:5000/trip_api/"+trip_id);
+      $.getJSON("http://127.0.0.1:5000/trip_api/"+trip_id, fillForms);
+    });
+
+    function fillForms(trip) {
+      console.log('enter fillForm');
+
+      $('#form-date-start').val(trip.date_start);
+      $('#form-duration').val(trip.duration);
+      $('#form-companions').val(trip.companions);
+      $('#form-city-takeoff').val(trip.city_takeoff);
+      $('#form-expected-group-size').val(trip.expected_group_size);
+      $('#form-notes').val(trip.notes);
+
+
+      $.getJSON('http://127.0.0.1:5000/destination_api/' + trip.destination_id, function(para) {
+          console.log('enter hhhh');
+          $('#form-destination').val(para.destination);
+      });
+    }
+
+  </script>
 
 {% endblock %}

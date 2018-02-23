@@ -5,11 +5,12 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name-"author" content="caveman">
+    <meta name="author" content="caveman">
     <title>Trip Match</title>
     <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap3/css/bootstrap.css')}}">
     <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
-    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
+{#    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>#}
+    <script src="{{url_for('static', filename='js/jquery-3.3.1.js')}}"></script>
     {% block head %} {% endblock %}
 
 </head>
@@ -44,9 +45,8 @@
     <script>
         function logout() {
             event.preventDefault();
-            console.log('logout 1')
+            console.log('logout 1');
             location.href="{{ url_for('logout') }}";
-            console.log('logout 2')
             return false;
         };
     </script>
