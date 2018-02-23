@@ -25,7 +25,7 @@ logger = logging.getLogger('applogger')
 
 PER_PAGE = 16
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'tripmatch', 'static', 'user_uploaded_photos')
-ALLOWED_EXTENSIONS = set(['bmp', 'jpeg', 'png'])
+ALLOWED_EXTENSIONS = {'bmp', 'jpeg', 'png'}
 DEBUG = True
 
 # configuration
@@ -95,7 +95,7 @@ def display_trip(trip_id):
                 user_id=user_id, trip_id=trip_id, text=text, post_date=post_date)
             db_session.add(new_wtl_entry)
             db_session.commit()
-        except:
+        except SQLAlchemyError:
             db_session.rollback()
 
     trip = db_session.query(TripDetails).filter_by(id=trip_id).one()
@@ -173,7 +173,7 @@ def edit_trip(trip_id):
 
         db_session = Session()
         try:
-            cur_trip = db_session.query(TripDetails).filter(id==trip_id).first();
+            cur_trip = db_session.query(TripDetails).filter(id == trip_id).first()
             cur_trip.duration = request.form['duration']
             cur_trip.date_start = request.form['date_start']
             cur_trip.companions = request.form['companions']
@@ -185,11 +185,14 @@ def edit_trip(trip_id):
 
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                existing_files = [x for x in os.listdir(UPLOAD_FOLDER) if os.path.isfile(os.path.join(UPLOAD_FOLDER, x))]
+                # check if filename already exists
+                existing_files = [x for x in os.listdir(UPLOAD_FOLDER) if
+                                  os.path.isfile(os.path.join(UPLOAD_FOLDER, x))]
                 suffix_index = 0
                 while filename in existing_files:
                     filename = filename.split('.')[0] + '_' + str(suffix_index)
                     suffix_index += 1
+
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 cur_trip.img_name = filename
                 app.logger.info('uploaded filename in edited_trip: {}'.format(cur_trip.img_name))
@@ -284,7 +287,7 @@ def register():
                 db_session.commit()
                 flash('Register successfully')
                 return redirect(url_for('timeline'))
-            except:
+            except SQLAlchemyError:
                 db_session.rollback()
                 flash('Registion failure')
                 return redirect(url_for('timeline'))
@@ -303,10 +306,10 @@ def username_exists(username):
 
 
 def item_exists(session, model, item):
-    '''
+    """
     query database with session and model to check if a specific item already exists in database
     :return: item or None
-    '''
+    """
     instance = session.query(model).filter_by(item).first()
     return instance
 
@@ -387,6 +390,7 @@ def manage_inbox():
 def utility_processor():
     def calc_date_end(start_date, duration):
         return (datetime.strptime(start_date, '%Y-%m-%d') + timedelta(int(duration))).strftime('%Y-%m-%d')
+
     return dict(calc_date_end=calc_date_end)
 
 
