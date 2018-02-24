@@ -25,7 +25,7 @@ logger = logging.getLogger('applogger')
 
 PER_PAGE = 16
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'tripmatch', 'static', 'user_uploaded_photos')
-ALLOWED_EXTENSIONS = {'bmp', 'jpeg', 'png'}
+ALLOWED_EXTENSIONS = {'bmp', 'jpg', 'jpeg', 'png'}
 DEBUG = True
 
 # configuration
@@ -170,10 +170,9 @@ def edit_trip(trip_id):
 
     # update trip
     if request.method == 'POST':
-
         db_session = Session()
         try:
-            cur_trip = db_session.query(TripDetails).filter(id == trip_id).first()
+            cur_trip = db_session.query(TripDetails).filter(TripDetails.id == trip_id).one()
             cur_trip.duration = request.form['duration']
             cur_trip.date_start = request.form['date_start']
             cur_trip.companions = request.form['companions']
@@ -182,9 +181,11 @@ def edit_trip(trip_id):
             cur_trip.notes = request.form['notes']
 
             file = request.files['edited_trip_img_file']
+            app.logger.info(file)
 
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
+                app.logger.info(filename)
                 # check if filename already exists
                 existing_files = [x for x in os.listdir(UPLOAD_FOLDER) if
                                   os.path.isfile(os.path.join(UPLOAD_FOLDER, x))]
@@ -192,7 +193,7 @@ def edit_trip(trip_id):
                 while filename in existing_files:
                     filename = filename.split('.')[0] + '_' + str(suffix_index)
                     suffix_index += 1
-
+                app.logger.info(filename)
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 cur_trip.img_name = filename
                 app.logger.info('uploaded filename in edited_trip: {}'.format(cur_trip.img_name))
