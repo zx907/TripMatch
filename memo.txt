@@ -53,10 +53,12 @@ how about flex layout
 
 so.. ths base exception in SQLAlchemy is SQLAlchemyError
 
-paging
+pagination. Do I need yield_per?
 
 what a shame that sqlalchemy doesn't support serializing to json
 
 API is working now, though it looks awfully ugly
 
 API CORS?
+
+Haven't test for cascading deletion

@@ -8,7 +8,7 @@ from flask import abort
 from flask_restful import Resource, Api, marshal
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, subqueryload
 from sqlalchemy.sql import ClauseElement
 from model.tripmatch_model import Base, Users, TripDetails, Waitinglist, Destinations
 from werkzeug.security import check_password_hash, generate_password_hash, gen_salt
@@ -23,7 +23,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('applogger')
 
-PER_PAGE = 16
+PER_PAGE = 12
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'tripmatch', 'static', 'user_uploaded_photos')
 ALLOWED_EXTENSIONS = {'bmp', 'jpg', 'jpeg', 'png'}
 DEBUG = True
@@ -38,8 +38,6 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # app.config.from_object(__name__)
 # app.config.from_envvar('TRIPMATCH_SETTINGS', silent=True)
 
-api = Api(app)
-
 # database engine and session
 engine = create_engine("sqlite:///" + os.getcwd() +
                        "/testdb.db", connect_args={'check_same_thread': False})
@@ -49,10 +47,15 @@ Session = sessionmaker(bind=engine)
 
 
 def login_required(f):
+    """
+    Decorator for pages that requires user login
+    """
+
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if g.user is None:
+        if login_session['user_id'] is None:
             return redirect(url_for('login', next=request.url))
+        g.user = login_session.get('user_id')
         return f(*args, **kwargs)
 
     return decorated_function
@@ -60,28 +63,23 @@ def login_required(f):
 
 @app.route('/')
 def timeline():
-    logger.debug('timeline function')
     if login_session.get('user_id', None):
         login_status = True
     else:
         login_status = False
-    logger.debug('login_status: {0}'.format(login_status))
+    app.logger.info('login_status: {0}'.format(login_status))
+
     db_session = Session()
+
     trips = db_session.query(TripDetails).all()
     return render_template('timeline.html', trips=trips, login_status=login_status)
 
 
-@app.route('/public')
-def public_timeline():
-    db_session = Session()
-    trips = db_session.query(TripDetails).all()
-    return render_template('timeline.html', trips=trips)
-
-
 @app.route('/trip_detail/<int:trip_id>', methods=['GET', 'POST'])
 def display_trip(trip_id):
+
     db_session = Session()
-    if request.method == 'POST':
+    if request.method == 'POST':    # Post to waiting list
         if login_session.get('user_id', None) is None:
             return redirect(url_for('login'))
         text = request.form['message']
@@ -152,8 +150,7 @@ def new_trip():
             db_session.add(new_trip)
             db_session.commit()
             flash('Your trip is posted')
-        # todo, specify what exception is expected here
-        except Exception as e:
+        except SQLAlchemyError as e:
             db_session.rollback()
             app.logger.info(e)
             flash('Failed to post your trip')
@@ -161,7 +158,7 @@ def new_trip():
     return render_template('new_trip.html')
 
 
-# prefill forms with existing infomation
+# Pre-fill forms with existing infomation
 @app.route('/edit_trip/<int:trip_id>', methods=['GET', 'POST'])
 def edit_trip(trip_id):
     app.logger.info('edit_trip function')
@@ -211,23 +208,23 @@ def edit_trip(trip_id):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # Log user in and save logged-in username in login_session dict
-
+    """
+    Log user in and save logged-in username in login_session dict
+    """
+    app.logger.info('enter login')
     # redirect to home page if user has already been logged in
     if login_session.get('user_id', None):
         app.logger.info(login_session['user_id'])
         return redirect(url_for('timeline'))
-    error = None
+
     # Log user in
     if request.method == 'POST':
         db_session = Session()
         user = db_session.query(Users).filter(
             Users.username == request.form['username']).first()
         if user is None:
-            error = 'invalid username'
             flash('invalid username')
         elif not check_password_hash(user.password, request.form['password']):
-            error = 'invalid password'
             flash('invalid password')
         # Add a cookie to response obj
         # elif request.form.get('remember_me', None) :
@@ -239,12 +236,15 @@ def login():
         else:
             flash('you were logged in')
             login_session['user_id'] = user.id
+            app.logger.info(login_session)
             return redirect(url_for('timeline'))
+
     return render_template('login.html')
 
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
+    app.logger.info('enter logout')
     login_session.pop('user_id')
     # if request.cookie.get('user_id', None):
     #     resp = make_response(redirect(url_for('public_timeline')))
@@ -254,30 +254,32 @@ def logout():
     #     return resp
     # else:
     flash('You were logged out')
+    app.logger.info(login_session)
     return redirect(url_for('timeline'))
 
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    app.logger.info('enter register')
     if login_session.get('user_id', None) is not None:
         return redirect(url_for('timeline'))
-    error = None
 
-    # Todo: hashtable replace if-else
+    # todo: considering replace following code with WTForm
+    # todo: characters validation
 
     if request.method == 'POST':
         if not request.form['username']:
-            error = 'Please enter a username'
+            flash('Please enter a username')
         elif username_exists(request.form['username']):
-            error = 'The username is already taken'
+            flash('The username is already taken')
         elif not request.form['email']:
-            error = 'Please enter an email address'
+            flash('Please enter an email address')
         elif email_exists(request.form['email']):
-            error = 'The email address is already taken'
+            flash('The email address is already taken')
         elif not request.form['password']:
-            error = 'Please enter a password'
+            flash('Please enter a password')
         elif request.form['password'] != request.form['password2']:
-            error = 'Passwords are not matched'
+            flash('Passwords are not matched')
         else:
             db_session = Session()
             try:
@@ -287,6 +289,8 @@ def register():
                 db_session.add(new_user)
                 db_session.commit()
                 flash('Register successfully')
+                login_session['user_id'] = request.form['username'] # automatically log user in after registration
+                app.logger.info(login_session)
                 return redirect(url_for('timeline'))
             except SQLAlchemyError:
                 db_session.rollback()
@@ -417,8 +421,8 @@ class UserAPI(Resource):
 class TripAPI(Resource):
     def get(self, trip_id):
         db_session = Session()
-        trip = db_session.query(TripDetails).filter_by(id=trip_id).one()
-        return jsonify(trip.to_dict())
+        trip = db_session.query(TripDetails).options(subqueryload(TripDetails.destinations)).filter_by(id=trip_id).one()
+        return jsonify(trip.to_dict_ex())
 
     def put(self, trip_id):
         db_session = Session()
@@ -450,9 +454,11 @@ class DestinationAPI(Resource):
             db_session.delete(destination)
 
 
+api = Api(app)
 api.add_resource(UserAPI, '/user_api/<int:user_id>')
 api.add_resource(TripAPI, '/trip_api/<int:trip_id>')
 api.add_resource(DestinationAPI, '/destination_api/<int:destination_id>')
+
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000, debug=True)

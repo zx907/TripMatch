@@ -1,18 +1,23 @@
 {% block nav %}
-<nav class="navbar navbar-inverse">
+  <nav class="navbar navbar-inverse">
     <div class="container">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="/">TripMatch</a>
-        </div>
-        <div class="nav navbar-nav navbar-right">
-            <ul class="nav navbar-nav">
-                <p class="navbar-btn">
-                    <a href="{{url_for('new_trip')}}" class="btn btn-default btn-success">Post New Trip</a>
-                    <a href="{{url_for('manage_profile')}}" class="btn btn-default btn-info">Manage</a>
-                    <a href="{{url_for('logout')}}" class="btn btn-default">Log Out</a>
-                </p>
-            </ul>
-        </div>
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/">TripMatch</a>
+      </div>
+      <div class="nav navbar-nav navbar-right">
+        <ul class="nav navbar-nav">
+          <p class="navbar-btn">
+            <a href="{{ url_for('new_trip') }}" class="btn btn-default btn-success">
+              <span class="glyphicon glyphicon-plus"></span> Post New Trip</a>
+            <a href="{{ url_for('manage_profile') }}" class="btn btn-default btn-info">
+              <span class="glyphicon glyphicon-cog"></span> Manage
+            </a>
+            <a href="{{ url_for('logout') }}" class="btn btn-default">
+              <span class="glyphicon glyphicon-log-out"></span>
+            </a>
+          </p>
+        </ul>
+      </div>
     </div>
-</nav>
+  </nav>
 {% endblock %}

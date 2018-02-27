@@ -15,8 +15,8 @@
         <span class="sort-card pull-right">
         <b>sort trip by:
         <div class="btn-group">
-          <button class="sort-btn btn btn-default btn-sm">Post Date</button>
-          <button class="sort-btn btn btn-default btn-sm">Trip Date</button>
+          <button class="sort-btn btn btn-default btn-sm" onclick="orderByPostDate">Post Date</button>
+          <button class="sort-btn btn btn-default btn-sm" onclick="orderByTripDate">Trip Date</button>
         </div>
         </b>
         </span>
@@ -68,8 +68,17 @@
         </ul>
       </nav>
 
-
-
     </div>
   </div>
+
+  <script>
+  function orderByPostDate() {
+      $.getJSON('http://127.0.0.1:5000/trip_api', updateCards);
+  }
+
+  function orderByTripDate() {
+      $.getJSON('http://127.0.0.1:5000/trip_api', updateCards);
+  }
+
+  </script>
 {% endblock %}
