@@ -17,7 +17,8 @@ class Users(Base):
     waitinglist = relationship('Waitinglist', back_populates='users')
 
     def to_dict(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        # return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        return {'id': self.id, 'username': self.username, 'email': self.email}  # don't wanna include password
 
     def __repr__(self):
         return "<User(username='%s', email='%s', password='%s')>" % (self.username, self.email, self.password)
@@ -50,6 +51,12 @@ class TripDetails(Base):
 
     def to_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+    def to_dict_ex(self):
+        d = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        d['username'] = self.users.username
+        d['destination'] = self.destinations.destination
+        return d
 
     def __repr__(self):
         "<TripDetails(username='%s', destination='%s', duration='%s', date_start='%s', companion='%s', city_takeoff='%s', expected_group_size='%s', notes='%s')>" \
