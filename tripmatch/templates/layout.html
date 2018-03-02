@@ -45,10 +45,37 @@
     <script>
         function logout() {
             event.preventDefault();
-            console.log('logout 1');
             location.href="{{ url_for('logout') }}";
             return false;
         };
+
+        function orderByPostDate() {
+            console.log('calling orderByPostDate');
+            $.get('http://127.0.0.1:5000/trips_api/order_by_post_date', function(data) {
+                $('.trip-card.row').text(data);
+            }, 'html');
+        }
+
+        // function orderByTripDate() {
+        //     console.log('calling orderByTripDate');
+        //     $.get('http://127.0.0.1:5000/trips_api/order_by_trip_date', function(data) {
+        //         $('.trip-card.row').val(data);
+        //     }, 'html'); 
+        // }
+
+
+        function orderByTripDate() {
+            console.log('calling orderByTripDate');
+            $.ajax({
+                method: 'GET',
+                url: 'http://127.0.0.1:5000/trips_api/order_by_trip_date',
+                dataType: 'html',
+                success: function(data) {
+                    $('.trip-card.row').text(data);
+                }
+            });
+        }
+
     </script>
    
 </body>

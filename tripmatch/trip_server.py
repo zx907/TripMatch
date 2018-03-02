@@ -431,6 +431,28 @@ class TripAPI(Resource):
         if not trip:
             db_session.delete(trip)
 
+class TripsByDateAPI(Resource):
+    def get(self, offset=0, limit=12):
+        # offset = request.args.get('offset', 0)
+        # limit = request.args.get('limit', 12)
+        # db_session = Session()
+        # trips = db_session.query(TripDetails).offset(offset).limit(limit)
+        # app.logger.info(trips)
+        # trips_list = [x.to_dict() for x in trips] 
+        # return jsonify(trips_list)
+
+        db_session = Session()
+        trips = db_session.query(TripDetails).all()
+        resp = make_response(render_template('timeline_standalone.html', trips=trips), 200, {'Content-Type': 'text/html'})
+        return resp
+
+
+class TripsByPostAPI(Resource):
+    def get(self, offset=0, limit=12):
+        db_session = Session()
+        trips = db_session.query(TripDetails).all()
+        return make_response(render_template('timeline_standalone.html', trips=trips), 200, {'Content-Type': 'text/html'})
+
 
 class DestinationAPI(Resource):
     def get(self, destination_id):
@@ -452,6 +474,8 @@ class DestinationAPI(Resource):
 
 api.add_resource(UserAPI, '/user_api/<int:user_id>')
 api.add_resource(TripAPI, '/trip_api/<int:trip_id>')
+api.add_resource(TripsByDateAPI, '/trips_api/order_by_trip_date')
+api.add_resource(TripsByPostAPI, '/trips_api/order_by_post_date')
 api.add_resource(DestinationAPI, '/destination_api/<int:destination_id>')
 
 if __name__ == '__main__':
