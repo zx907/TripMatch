@@ -52,27 +52,27 @@
         <p style="background-color: #f8f8f8; padding: 15px;" >{{ trip.notes }}</p>
     </div>
 
-    <hr style="height: 20px;">
-
+   
     <div class="col-md-8 col-md-offset-2 join-trip">
       <form method="post">
         <div class="form-group">
           <label for="leave-a-message-textarea">Leave a message if you want to join my trip:</label>
-          <textarea class="form-control" rows="4" id="leave-a-message-textarea"></textarea>
+          <textarea class="form-control" rows="4" id="leave-a-message-textarea" name="leave-a-message-textarea"></textarea>
         </div>
         <input style="display:none" type="text" name="trip_id" value="{{ trip.id }}">
-        <button type="submit" class="btn btn-primary pull-right">Submit</button>
+        <button type="submit" class="btn btn-primary pull-right">Leave this message</button>
       </form>
     </div>
 
 
+    {% if waitinglist %}
     <div class="waitinglist col-md-8 col-md-offset-2">
     <hr style="width: 100%; size: 5px;">
     <h3>Message Board</h3>
 
-      <ul class="list-unstyled">
+      <ul class="list-unstyled list-group">
         {% for post in waitinglist %}
-          <li>
+          <li class="list-group-item">
             <div class="comment">
               <p>{{ post.text }}</p>
               <p style="text-align: right"><i>posted by {{ post.users.username }} on {{ post.post_date }}</i></p>
@@ -81,6 +81,7 @@
         {% endfor %}
       </ul>
     </div>
+    {% endif %}
 
   </div>
 </div>

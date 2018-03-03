@@ -82,7 +82,7 @@ def display_trip(trip_id):
     if request.method == 'POST':    # Post to waiting list
         if login_session.get('user_id', None) is None:
             return redirect(url_for('login'))
-        text = request.form['message']
+        text = request.form['leave-a-message-textarea']
         user_id = login_session['user_id']
         trip_id = request.form['trip_id']
         post_date = datetime.now().isoformat(' ')
@@ -406,10 +406,6 @@ class UserAPI(Resource):
         user = db_session.query(Users).filter_by(id=user_id).one()
         return jsonify(user.to_dict())
 
-    def put(self, user_id):
-        db_session = Session()
-        user = db_session.query(Users).filter_by(id=user_id).one()
-        return jsonify(user.to_dict())
 
     def delete(self, user_id):
         db_session = Session()
@@ -424,10 +420,6 @@ class TripAPI(Resource):
         trip = db_session.query(TripDetails).options(subqueryload(TripDetails.destinations)).filter_by(id=trip_id).one()
         return jsonify(trip.to_dict_ex())
 
-    def put(self, trip_id):
-        db_session = Session()
-        trip = db_session.query(TripDetails).filter_by(id=trip_id).one()
-        return jsonify(trip.to_dict())
 
     def delete(self, trip_id):
         db_session = Session()
@@ -437,16 +429,8 @@ class TripAPI(Resource):
 
 class TripsByDateAPI(Resource):
     def get(self, offset=0, limit=12):
-        # offset = request.args.get('offset', 0)
-        # limit = request.args.get('limit', 12)
-        # db_session = Session()
-        # trips = db_session.query(TripDetails).offset(offset).limit(limit)
-        # app.logger.info(trips)
-        # trips_list = [x.to_dict() for x in trips] 
-        # return jsonify(trips_list)
-
         db_session = Session()
-        trips = db_session.query(TripDetails).all()
+        trips = db_session.query(TripDetails).order_by(TripDetails.date_start.desc()).all()
         resp = make_response(render_template('timeline_standalone.html', trips=trips), 200, {'Content-Type': 'text/html'})
         return resp
 
@@ -454,7 +438,7 @@ class TripsByDateAPI(Resource):
 class TripsByPostAPI(Resource):
     def get(self, offset=0, limit=12):
         db_session = Session()
-        trips = db_session.query(TripDetails).all()
+        trips = db_session.query(TripDetails).order_by(TripDetails.date_create.desc()).all()
         return make_response(render_template('timeline_standalone.html', trips=trips), 200, {'Content-Type': 'text/html'})
 
 
@@ -464,10 +448,6 @@ class DestinationAPI(Resource):
         destination = db_session.query(Destinations).filter_by(id=destination_id).one()
         return jsonify(destination.to_dict())
 
-    def put(self, destination_id):
-        db_session = Session()
-        destination = db_session.query(Destinations).filter_by(id=destination_id).one()
-        return jsonify(destination.to_dict())
 
     def delete(self, destination_id):
         db_session = Session()
