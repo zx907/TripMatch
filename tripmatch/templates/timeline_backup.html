@@ -25,8 +25,8 @@
       <!-- Cards -->
       <div class="trip-card row">
         {% for trip in trips %}
-          <div class="col-md-3 col-sm-6">
-            <div class="thumbnail card">
+          <div class="col-md-3 col-sm-3">
+            <div class="card">
               {% if trip.img_name %}
                 <img src="{{ url_for('static', filename='user_uploaded_photos/' + trip.img_name) }}" ,
                      alt='default' class="card-img-top">
@@ -34,7 +34,7 @@
                 <img src="{{ url_for('static', filename='dest_img/default_card_img.jpg') }}" , alt='default'
                      class="card-img-top">
               {% endif %}
-              <div class="caption">
+              <div class="card-body">
                 <h3 class="text-right">
                   <a href="{{ url_for('display_trip', trip_id=trip.id) }}">
                     <b>{{ trip.destinations.destination }}</b></a></h3>

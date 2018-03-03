@@ -63,3 +63,5 @@ It seems Flask-Restful always returns a json object even I set header to text/ht
 API CORS?
 
 Haven't test for cascading deletion
+
+Hehe.. never notice that bootstrap comes with its own thumbnails view...
