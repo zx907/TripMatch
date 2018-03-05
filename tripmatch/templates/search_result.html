@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+
+{% block body %}
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-sm-8 col-sm-offset-2 col-md-offset-2">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel_title">Search Results</h3>
+          </div>
+
+          <div class="panel-body">
+            <ul class="list-group">
+              {% for trip in trips %}
+                <li class="list-group-item">
+
+                  <div class="media">
+                    <div class="media-left crop">
+                      <a href="#">
+                        {% if trip.img_name %}
+                          <img src="{{ url_for('static', filename='user_uploaded_photos/' + trip.img_name) }}"
+                               alt='default' class="media-object">
+                        {% else %}
+                          <img src="{{ url_for('static', filename='dest_img/default_card_img.jpg') }}" alt='default'
+                               class="media-object">
+                        {% endif %}
+                      </a>
+                    </div>
+
+                    <div class="media-body">
+                      <h4 class="media-heading">
+                        <a href="{{ url_for('display_trip', trip_id=trip.id) }}"><b>{{ trip.destination }}</b></a>
+                      </h4>
+                      <p>{{ calc_date_end(trip.date_start, trip.duration) }} ~ {{ trip.date_start }}</p>
+                      <div style="position: absolute; right: 10px; bottom: 5px;">
+                        <p class="text-right"><b>created on:</b> {{ trip.date_create }}</p></div>
+                    </div>
+                  </div>
+
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

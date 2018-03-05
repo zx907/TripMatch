@@ -2,10 +2,9 @@ from flask import Flask, g, app
 from flask import blueprints
 from flask import render_template, url_for, redirect, flash
 from flask import session as login_session
-from flask import make_response, Response, request
+from flask import make_response, request
 from flask import json, jsonify
-from flask import abort
-from flask_restful import Resource, Api, marshal
+from flask_restful import Resource, Api
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import sessionmaker, subqueryload
@@ -77,9 +76,8 @@ def timeline():
 
 @app.route('/trip_detail/<int:trip_id>', methods=['GET', 'POST'])
 def display_trip(trip_id):
-
     db_session = Session()
-    if request.method == 'POST':    # Post to waiting list
+    if request.method == 'POST':  # Post to waiting list
         if login_session.get('user_id', None) is None:
             return redirect(url_for('login'))
         text = request.form['leave-a-message-textarea']
@@ -206,6 +204,30 @@ def edit_trip(trip_id):
     return render_template('edit_trip.html')
 
 
+@app.route('/search', methods=['POST'])
+def search():
+    if request.method == 'POST':
+        dest_kw = request.form['jumbosearch']
+        stmt = f"""
+               SELECT
+               trip_details.id, trip_details.destination_id, trip_details.date_create,
+               trip_details.date_start, trip_details.duration,
+               trip_details.img_name, destinations.destination
+               FROM destinations LEFT JOIN trip_details
+               ON destinations.id=trip_details.destination_id
+               WHERE destinations.destination=\'{dest_kw}\';
+               """
+
+        conn = engine.connect()
+        trips = conn.execute(stmt)
+        print(trips)
+
+        return make_response(render_template('search_result.html', trips=trips), 200,
+                             {'Content-Type': 'text/html'})
+    else:
+        redirect(url_for('timeline'))
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """
@@ -289,7 +311,7 @@ def register():
                 db_session.add(new_user)
                 db_session.commit()
                 flash('Register successfully')
-                login_session['user_id'] = request.form['username'] # automatically log user in after registration
+                login_session['user_id'] = request.form['username']  # automatically log user in after registration
                 app.logger.info(login_session)
                 return redirect(url_for('timeline'))
             except SQLAlchemyError:
@@ -406,7 +428,6 @@ class UserAPI(Resource):
         user = db_session.query(Users).filter_by(id=user_id).one()
         return jsonify(user.to_dict())
 
-
     def delete(self, user_id):
         db_session = Session()
         user = db_session.query(Users).filter_by(id=user_id).one()
@@ -420,18 +441,19 @@ class TripAPI(Resource):
         trip = db_session.query(TripDetails).options(subqueryload(TripDetails.destinations)).filter_by(id=trip_id).one()
         return jsonify(trip.to_dict_ex())
 
-
     def delete(self, trip_id):
         db_session = Session()
         trip = db_session.query(TripDetails).filter_by(id=trip_id).one()
         if not trip:
             db_session.delete(trip)
 
+
 class TripsByDateAPI(Resource):
     def get(self, offset=0, limit=12):
         db_session = Session()
         trips = db_session.query(TripDetails).order_by(TripDetails.date_start.desc()).all()
-        resp = make_response(render_template('timeline_standalone.html', trips=trips), 200, {'Content-Type': 'text/html'})
+        resp = make_response(render_template('timeline_standalone.html', trips=trips), 200,
+                             {'Content-Type': 'text/html'})
         return resp
 
 
@@ -439,15 +461,17 @@ class TripsByPostAPI(Resource):
     def get(self, offset=0, limit=12):
         db_session = Session()
         trips = db_session.query(TripDetails).order_by(TripDetails.date_create.desc()).all()
-        return make_response(render_template('timeline_standalone.html', trips=trips), 200, {'Content-Type': 'text/html'})
+        return make_response(render_template('timeline_standalone.html', trips=trips), 200,
+                             {'Content-Type': 'text/html'})
+
+
 
 
 class DestinationAPI(Resource):
-    def get(self, destination_id):
+    def get(self, destination_id) -> json:
         db_session = Session()
         destination = db_session.query(Destinations).filter_by(id=destination_id).one()
         return jsonify(destination.to_dict())
-
 
     def delete(self, destination_id):
         db_session = Session()
@@ -462,7 +486,6 @@ api.add_resource(TripAPI, '/trip_api/<int:trip_id>')
 api.add_resource(TripsByDateAPI, '/trips_api/order_by_trip_date')
 api.add_resource(TripsByPostAPI, '/trips_api/order_by_post_date')
 api.add_resource(DestinationAPI, '/destination_api/<int:destination_id>')
-
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000, debug=True)
