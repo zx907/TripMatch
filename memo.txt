@@ -41,7 +41,7 @@ update from page to load user cover images on trip cards
 
 design html pages is BORING
 
-todo: considering use blueprint to seperate manage page from main page
+todo: considering use blueprint to separate manage page from main page
 
 it seems that Jinja2 doesn't support multiple inheritance. Pity...
 
@@ -64,3 +64,5 @@ API CORS?
 Haven't test for cascading deletion
 
 Hehe.. never notice that bootstrap comes with its own thumbnails view...
+
+CIrcular import ... FUCK

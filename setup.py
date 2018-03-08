@@ -6,5 +6,5 @@ setup(
     author='caveman2015',
     packages=['tripmatch'],
     include_package_data=True,
-    install_requires=['flask', 'SQLAlchemy'],
+    install_requires=['flask', 'SQLAlchemy', 'werkzeug'],
 )

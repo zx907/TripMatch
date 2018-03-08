@@ -1,26 +1,36 @@
-from flask import Flask, g, app
-from flask import blueprints
-from flask import render_template, url_for, redirect, flash
-from flask import session as login_session
-from flask import make_response, request
-from flask import json, jsonify
-from flask_restful import Resource, Api
-from sqlalchemy import create_engine
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import sessionmaker, subqueryload
-from sqlalchemy.sql import ClauseElement
-from model.tripmatch_model import Base, Users, TripDetails, Waitinglist, Destinations
-from werkzeug.security import check_password_hash, generate_password_hash, gen_salt
-from werkzeug.utils import secure_filename
-from datetime import datetime, timedelta
-from functools import wraps
+import logging
+import os
 import random
 import string
-import os
-import logging
+from datetime import datetime, timedelta
+from functools import wraps
+
+from flask import Flask, g, app
+from flask import make_response, request
+from flask import render_template, url_for, redirect, flash
+from flask import session as login_session
+from flask_restful import Api
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql import ClauseElement
+from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import secure_filename
+
+from db import Session
+from api import UserAPI, TripAPI, TripsByDateAPI, TripsByPostAPI, DestinationAPI
+from manage import manage_page
+from model.tripmatch_model import Users, TripDetails, Waitinglist, Destinations
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('applogger')
+
+# # database engine and session
+# engine = create_engine("sqlite:///" + os.getcwd() +
+#                        "/testdb.db", connect_args={'check_same_thread': False})
+# # create tables
+# Base.metadata.create_all(engine)
+# Session = sessionmaker(bind=engine)
+
 
 PER_PAGE = 12
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'tripmatch', 'static', 'user_uploaded_photos')
@@ -33,16 +43,12 @@ app = Flask(__name__)
 app.secret_key = ''.join(random.choice(
     string.ascii_uppercase + string.digits) for x in range(32))
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['EXPLAIN_TEMPLATE_LOADING'] = True
 # TRIPMATCH_SETTINGS = 'settings.txt'
 # app.config.from_object(__name__)
 # app.config.from_envvar('TRIPMATCH_SETTINGS', silent=True)
 
-# database engine and session
-engine = create_engine("sqlite:///" + os.getcwd() +
-                       "/testdb.db", connect_args={'check_same_thread': False})
-# create tables
-Base.metadata.create_all(engine)
-Session = sessionmaker(bind=engine)
+app.register_blueprint(manage_page)
 
 
 def login_required(f):
@@ -375,42 +381,45 @@ def upload_trip_img():
             return redirect(url_for('uploaded file', filename=filename))
 
 
-@app.route('/manage', methods=['GET', 'POST'])
-@app.route('/manage/profile', methods=['GET', 'POST'])
-def manage_profile():
-    # if login_session.get('user_id', None):
-    #     app.logger.info('login_session user_id: {}'.format(login_session['user_id']))
-    #     return redirect(url_for('timeline'))
-
-    if request.method == 'POST':
-        db_session = Session()
-        try:
-            user = db_session.query(Users).filter(Users.id == login_session['user_id']).first()
-            user.email = request.form['NewEmail']
-            user.password = generate_password_hash(request.form['NewPassword'])
-            db_session.commit()
-            flash('Profile updated successfully')
-        except SQLAlchemyError:
-            db_session.rollback()
-            flash('Failed to update profile info')
-
-    return render_template('manage_profile.html')
 
 
-# @app.context_processor
-@app.route('/manage/trips')
-def manage_trips():
-    session = Session()
-    trips = session.query(TripDetails).filter(TripDetails.user_id == login_session['user_id']).all()
-    app.logger.info(trips)
-    return render_template('manage_trips.html', trips=trips)
 
-
-@app.route('/manage/inbox')
-def manage_inbox():
-    session = Session()
-    messages = session.query(Messages).join(Users).filter(Users.id == login_session['user_id']).all()
-    return render_template('manage_inbox.html', messages=messages)
+# @manage.route('/manage', methods=['GET', 'POST'])
+# @manage.route('/manage/profile', methods=['GET', 'POST'])
+# def manage_profile():
+#     # if login_session.get('user_id', None):
+#     #     app.logger.info('login_session user_id: {}'.format(login_session['user_id']))
+#     #     return redirect(url_for('timeline'))
+#
+#     if request.method == 'POST':
+#         db_session = Session()
+#         try:
+#             user = db_session.query(Users).filter(Users.id == login_session['user_id']).first()
+#             user.email = request.form['NewEmail']
+#             user.password = generate_password_hash(request.form['NewPassword'])
+#             db_session.commit()
+#             flash('Profile updated successfully')
+#         except SQLAlchemyError:
+#             db_session.rollback()
+#             flash('Failed to update profile info')
+#
+#     return render_template('manage_profile.html')
+#
+#
+# # @app.context_processor
+# @manage.route('/manage/trips')
+# def manage_trips():
+#     session = Session()
+#     trips = session.query(TripDetails).filter(TripDetails.user_id == login_session['user_id']).all()
+#     app.logger.info(trips)
+#     return render_template('manage_trips.html', trips=trips)
+#
+#
+# @manage.route('/manage/inbox')
+# def manage_inbox():
+#     session = Session()
+#     messages = session.query(Messages).join(Users).filter(Users.id == login_session['user_id']).all()
+#     return render_template('manage_inbox.html', messages=messages)
 
 
 @app.context_processor
@@ -421,63 +430,63 @@ def utility_processor():
     return dict(calc_date_end=calc_date_end)
 
 
-# Restful api
-class UserAPI(Resource):
-    def get(self, user_id):
-        db_session = Session()
-        user = db_session.query(Users).filter_by(id=user_id).one()
-        return jsonify(user.to_dict())
-
-    def delete(self, user_id):
-        db_session = Session()
-        user = db_session.query(Users).filter_by(id=user_id).one()
-        if not user:
-            db_session.delete(user)
-
-
-class TripAPI(Resource):
-    def get(self, trip_id):
-        db_session = Session()
-        trip = db_session.query(TripDetails).options(subqueryload(TripDetails.destinations)).filter_by(id=trip_id).one()
-        return jsonify(trip.to_dict_ex())
-
-    def delete(self, trip_id):
-        db_session = Session()
-        trip = db_session.query(TripDetails).filter_by(id=trip_id).one()
-        if not trip:
-            db_session.delete(trip)
-
-
-class TripsByDateAPI(Resource):
-    def get(self, offset=0, limit=12):
-        db_session = Session()
-        trips = db_session.query(TripDetails).order_by(TripDetails.date_start.desc()).all()
-        resp = make_response(render_template('timeline_standalone.html', trips=trips), 200,
-                             {'Content-Type': 'text/html'})
-        return resp
-
-
-class TripsByPostAPI(Resource):
-    def get(self, offset=0, limit=12):
-        db_session = Session()
-        trips = db_session.query(TripDetails).order_by(TripDetails.date_create.desc()).all()
-        return make_response(render_template('timeline_standalone.html', trips=trips), 200,
-                             {'Content-Type': 'text/html'})
-
-
-
-
-class DestinationAPI(Resource):
-    def get(self, destination_id) -> json:
-        db_session = Session()
-        destination = db_session.query(Destinations).filter_by(id=destination_id).one()
-        return jsonify(destination.to_dict())
-
-    def delete(self, destination_id):
-        db_session = Session()
-        destination = db_session.query(Destinations).filter_by(id=destination_id).one()
-        if not destination:
-            db_session.delete(destination)
+# # Restful api
+# class UserAPI(Resource):
+#     def get(self, user_id):
+#         db_session = Session()
+#         user = db_session.query(Users).filter_by(id=user_id).one()
+#         return jsonify(user.to_dict())
+#
+#     def delete(self, user_id):
+#         db_session = Session()
+#         user = db_session.query(Users).filter_by(id=user_id).one()
+#         if not user:
+#             db_session.delete(user)
+#
+#
+# class TripAPI(Resource):
+#     def get(self, trip_id):
+#         db_session = Session()
+#         trip = db_session.query(TripDetails).options(subqueryload(TripDetails.destinations)).filter_by(id=trip_id).one()
+#         return jsonify(trip.to_dict_ex())
+#
+#     def delete(self, trip_id):
+#         db_session = Session()
+#         trip = db_session.query(TripDetails).filter_by(id=trip_id).one()
+#         if not trip:
+#             db_session.delete(trip)
+#
+#
+# class TripsByDateAPI(Resource):
+#     def get(self, offset=0, limit=12):
+#         db_session = Session()
+#         trips = db_session.query(TripDetails).order_by(TripDetails.date_start.desc()).all()
+#         resp = make_response(render_template('timeline_standalone.html', trips=trips), 200,
+#                              {'Content-Type': 'text/html'})
+#         return resp
+#
+#
+# class TripsByPostAPI(Resource):
+#     def get(self, offset=0, limit=12):
+#         db_session = Session()
+#         trips = db_session.query(TripDetails).order_by(TripDetails.date_create.desc()).all()
+#         return make_response(render_template('timeline_standalone.html', trips=trips), 200,
+#                              {'Content-Type': 'text/html'})
+#
+#
+#
+#
+# class DestinationAPI(Resource):
+#     def get(self, destination_id) -> json:
+#         db_session = Session()
+#         destination = db_session.query(Destinations).filter_by(id=destination_id).one()
+#         return jsonify(destination.to_dict())
+#
+#     def delete(self, destination_id):
+#         db_session = Session()
+#         destination = db_session.query(Destinations).filter_by(id=destination_id).one()
+#         if not destination:
+#             db_session.delete(destination)
 
 
 api = Api(app)
