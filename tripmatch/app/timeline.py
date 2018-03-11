@@ -1,7 +1,7 @@
 import os
 from datetime import datetime, timedelta
 
-from flask import app, Blueprint, render_template, url_for, redirect, flash, make_response, request
+from flask import app, g, Blueprint, render_template, url_for, redirect, flash, make_response, request
 from flask import session as login_session
 from sqlalchemy import engine
 from sqlalchemy.exc import SQLAlchemyError
@@ -83,32 +83,27 @@ def new_trip():
                                    date_create=date_create)
 
             file = request.files['new_trip_img_file']
-            #             # app.logger.info('original filename: {}'.format(file.filename))
 
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 new_trip.img_name = filename
-            #                 # app.logger.info('uploaded filename in new_trip: {}'.format(new_trip.img_name))
             else:
                 new_trip.img_name = None
-            #                 # app.logger.info('should be empty filename: {}'.format(new_trip.img_name))
 
             db_session.add(new_trip)
             db_session.commit()
             flash('Your trip is posted')
         except SQLAlchemyError as e:
             db_session.rollback()
-            #             # app.logger.info(e)
             flash('Failed to post your trip')
 
     return render_template('new_trip.html')
 
 
-# Pre-fill forms with existing infomation
+# Pre-fill forms with existing information
 @timeline.route('/edit_trip/<int:trip_id>', methods=['GET', 'POST'])
 def edit_trip(trip_id):
-    #     # app.logger.info('edit_trip function')
     if 'user_id' not in login_session:
         redirect(url_for('.login'))
 
@@ -125,11 +120,9 @@ def edit_trip(trip_id):
             cur_trip.notes = request.form['notes']
 
             file = request.files['edited_trip_img_file']
-            #             # app.logger.info(file)
 
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                #                 # app.logger.info(filename)
                 # check if filename already exists
                 existing_files = [x for x in os.listdir(UPLOAD_FOLDER) if
                                   os.path.isfile(os.path.join(UPLOAD_FOLDER, x))]
@@ -137,17 +130,14 @@ def edit_trip(trip_id):
                 while filename in existing_files:
                     filename = filename.split('.')[0] + '_' + str(suffix_index)
                     suffix_index += 1
-                #                 # app.logger.info(filename)
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 cur_trip.img_name = filename
-            #                 # app.logger.info('uploaded filename in edited_trip: {}'.format(cur_trip.img_name))
 
             db_session.commit()
             flash('Your trip is updated')
 
         except SQLAlchemyError as e:
             db_session.rollback()
-            #             # app.logger.info(e)
             flash('Failed to update your trip')
 
     return render_template('edit_trip.html')
@@ -265,7 +255,7 @@ def register():
                 return redirect(url_for('.public_timeline'))
             except SQLAlchemyError:
                 db_session.rollback()
-                flash('Registion failure')
+                flash('Registration failure')
                 return redirect(url_for('.public_timeline'))
 
     return render_template('register.html')
