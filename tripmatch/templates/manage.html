@@ -38,16 +38,6 @@
 
 
     <script src="{{url_for('static', filename='css/bootstrap3/js/bootstrap.js')}}"></script>
-    
-    <script>
-        function logout() {
-            event.preventDefault();
-            console.log('logout 1')
-            location.href="{{ url_for('logout') }}";
-            console.log('logout 2')
-            return false;
-        };
-    </script>
    
 </body>
 </html>

@@ -1,5 +1,5 @@
 from sqlalchemy.orm import sessionmaker
-from tripmatch_model import Base, Users, TripDetails
+from db.tripmatch_model import Base, Users, TripDetails
 from sqlalchemy import create_engine
 
 engine = create_engine('sqlite:///testdb.db', echo=True)

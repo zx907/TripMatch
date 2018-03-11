@@ -1,20 +1,21 @@
+from datetime import datetime, timedelta
+
 from flask import Blueprint, request, flash, render_template
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash
 
-from db import Session
-from model.tripmatch_model import Users, TripDetails
+
 from flask import session as login_session
 
-manage_page = Blueprint('manage', __name__, url_prefix='/manage')
+from ..db import Users, TripDetails, Destinations
+from ..db import Session
+
+manage = Blueprint('manage', __name__, url_prefix='/manage')
 
 
-@manage_page.route('/', methods=['GET', 'POST'])
-@manage_page.route('/profile', methods=['GET', 'POST'])
+@manage.route('/', methods=['GET', 'POST'])
+@manage.route('/manage_profile', methods=['GET', 'POST'])
 def manage_profile():
-    # if login_session.get('user_id', None):
-    #     app.logger.info('login_session user_id: {}'.format(login_session['user_id']))
-    #     return redirect(url_for('timeline'))
 
     if request.method == 'POST':
         db_session = Session()
@@ -28,13 +29,19 @@ def manage_profile():
             db_session.rollback()
             flash('Failed to update profile info')
 
-    return render_template('manage.manage_profile.html')
+    return render_template('manage_profile.html')
 
 
-# @app.context_processor
-@manage_page.route('/trips')
+@manage.route('/manage_trips')
 def manage_trips():
     session = Session()
     trips = session.query(TripDetails).filter(TripDetails.user_id == login_session['user_id']).all()
-    app.logger.info(trips)
-    return render_template('manage.manage_trips.html', trips=trips)
+    return render_template('manage_trips.html', trips=trips)
+
+
+@manage.context_processor
+def utility_processor():
+    def calc_date_end(start_date, duration):
+        return (datetime.strptime(start_date, '%Y-%m-%d') + timedelta(int(duration))).strftime('%Y-%m-%d')
+
+    return dict(calc_date_end=calc_date_end)

@@ -1,6 +1,5 @@
 import unittest
-import tripmatch
-from tripmatch_model import Base
+from db.tripmatch_model import Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -13,11 +12,11 @@ class FlaskrTestCase(unittest.TestCase):
         Base.metadata.create_all(engine)
         Session = sessionmaker(bind=engine)
 
-        tripmatch.trip_server.app.testing = True
-        self.app = tripmatch.trip_server.app.test_client()
+        app.trip_server.app.testing = True
+        self.app = app.trip_server.app.test_client()
 
-        with tripmatch.trip_server.app.app_context():
-            tripmatch.trip_server.init_db()
+        with app.trip_server.app.app_context():
+            app.trip_server.init_db()
 
 
     def tearDown(self):

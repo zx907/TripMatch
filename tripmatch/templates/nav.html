@@ -6,7 +6,7 @@
             <a class="navbar-brand" href="/">TripMatch</a>
             </div>
             <div id="navbar" class="navbar-collapse">
-            <form action="{{url_for('login')}}" class="navbar-form navbar-right" method="post">
+            <form action="{{url_for('timeline.login')}}" class="navbar-form navbar-right" method="post">
             <div class="form-group">
             <input type="text" name="username" placeholder="Username" class="form-control">
             </div>
@@ -16,7 +16,7 @@
             <button type="submit" class="btn btn-primary">Sign In</button>
             <!-- <input type="hidden" name="remember_me" value=1/> -->
             <!-- <button type="submit" class="btn" onclick="logout">Sign Out</button> -->
-            <a href="{{url_for('register')}}" class="btn btn-success">Sign Up</a>
+            <a href="{{url_for('timeline.register')}}" class="btn btn-success">Sign Up</a>
             </form>
             
             </div>

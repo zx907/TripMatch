@@ -1,78 +1,33 @@
-import logging
 import os
-import random
-import string
 from datetime import datetime, timedelta
-from functools import wraps
 
-from flask import Flask, g, app
+from flask import app, Blueprint
 from flask import make_response, request
 from flask import render_template, url_for, redirect, flash
 from flask import session as login_session
-from flask_restful import Api
+from sqlalchemy import engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import ClauseElement
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
-from db import Session
-from api import UserAPI, TripAPI, TripsByDateAPI, TripsByPostAPI, DestinationAPI
-from manage import manage_page
-from model.tripmatch_model import Users, TripDetails, Waitinglist, Destinations
+from ..db.db import Session
+from ..db.tripmatch_model import Users, TripDetails, Waitinglist, Destinations
 
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger('applogger')
-
-# # database engine and session
-# engine = create_engine("sqlite:///" + os.getcwd() +
-#                        "/testdb.db", connect_args={'check_same_thread': False})
-# # create tables
-# Base.metadata.create_all(engine)
-# Session = sessionmaker(bind=engine)
-
-
-PER_PAGE = 12
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'tripmatch', 'static', 'user_uploaded_photos')
 ALLOWED_EXTENSIONS = {'bmp', 'jpg', 'jpeg', 'png'}
-DEBUG = True
 
-# configuration
-APPLICATION_NAME = 'Trip Match'
-app = Flask(__name__)
-app.secret_key = ''.join(random.choice(
-    string.ascii_uppercase + string.digits) for x in range(32))
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['EXPLAIN_TEMPLATE_LOADING'] = True
-# TRIPMATCH_SETTINGS = 'settings.txt'
-# app.config.from_object(__name__)
-# app.config.from_envvar('TRIPMATCH_SETTINGS', silent=True)
-
-app.register_blueprint(manage_page)
+timeline = Blueprint('timeline', __name__)
 
 
-def login_required(f):
-    """
-    Decorator for pages that requires user login
-    """
-
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if login_session['user_id'] is None:
-            return redirect(url_for('login', next=request.url))
-        g.user = login_session.get('user_id')
-        return f(*args, **kwargs)
-
-    return decorated_function
-
-
-@app.route('/')
-def timeline():
+@timeline.route('/')
+def public_timeline():
     if login_session.get('user_id', None):
         login_status = True
     else:
         login_status = False
-    app.logger.info('login_status: {0}'.format(login_status))
+#     # app.logger.info('login_status: {0}'.format(login_status))
 
     db_session = Session()
 
@@ -80,12 +35,12 @@ def timeline():
     return render_template('timeline.html', trips=trips, login_status=login_status)
 
 
-@app.route('/trip_detail/<int:trip_id>', methods=['GET', 'POST'])
+@timeline.route('/trip_detail/<int:trip_id>', methods=['GET', 'POST'])
 def display_trip(trip_id):
     db_session = Session()
     if request.method == 'POST':  # Post to waiting list
         if login_session.get('user_id', None) is None:
-            return redirect(url_for('login'))
+            return redirect(url_for('.login'))
         text = request.form['leave-a-message-textarea']
         user_id = login_session['user_id']
         trip_id = request.form['trip_id']
@@ -106,11 +61,11 @@ def display_trip(trip_id):
     return render_template('trip_details.html', trip=trip, waitinglist=waitinglist)
 
 
-@app.route('/new_trip', methods=['GET', 'POST'])
+@timeline.route('/new_trip', methods=['GET', 'POST'])
 def new_trip():
-    app.logger.info('new_trip function')
+#     # app.logger.info('new_trip function')
     if 'user_id' not in login_session:
-        redirect(url_for('login'))
+        redirect(url_for('.login'))
 
     # post new trip
     if request.method == 'POST':
@@ -137,37 +92,38 @@ def new_trip():
 
             # if no image is to upload, new_trip.ima_name = None
             if 'new_trip_img_file' not in request.files:
-                app.logger.info('No file')
+#                 # app.logger.info('No file')
+                pass
 
             file = request.files['new_trip_img_file']
-            app.logger.info('original filename: {}'.format(file.filename))
+#             # app.logger.info('original filename: {}'.format(file.filename))
 
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 new_trip.img_name = filename
-                app.logger.info('uploaded filename in new_trip: {}'.format(new_trip.img_name))
+#                 # app.logger.info('uploaded filename in new_trip: {}'.format(new_trip.img_name))
             else:
                 new_trip.img_name = None
-                app.logger.info('should be empty filename: {}'.format(new_trip.img_name))
+#                 # app.logger.info('should be empty filename: {}'.format(new_trip.img_name))
 
             db_session.add(new_trip)
             db_session.commit()
             flash('Your trip is posted')
         except SQLAlchemyError as e:
             db_session.rollback()
-            app.logger.info(e)
+#             # app.logger.info(e)
             flash('Failed to post your trip')
 
     return render_template('new_trip.html')
 
 
 # Pre-fill forms with existing infomation
-@app.route('/edit_trip/<int:trip_id>', methods=['GET', 'POST'])
+@timeline.route('/edit_trip/<int:trip_id>', methods=['GET', 'POST'])
 def edit_trip(trip_id):
-    app.logger.info('edit_trip function')
+#     # app.logger.info('edit_trip function')
     if 'user_id' not in login_session:
-        redirect(url_for('login'))
+        redirect(url_for('.login'))
 
     # update trip
     if request.method == 'POST':
@@ -182,11 +138,11 @@ def edit_trip(trip_id):
             cur_trip.notes = request.form['notes']
 
             file = request.files['edited_trip_img_file']
-            app.logger.info(file)
+#             # app.logger.info(file)
 
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                app.logger.info(filename)
+#                 # app.logger.info(filename)
                 # check if filename already exists
                 existing_files = [x for x in os.listdir(UPLOAD_FOLDER) if
                                   os.path.isfile(os.path.join(UPLOAD_FOLDER, x))]
@@ -194,35 +150,35 @@ def edit_trip(trip_id):
                 while filename in existing_files:
                     filename = filename.split('.')[0] + '_' + str(suffix_index)
                     suffix_index += 1
-                app.logger.info(filename)
+#                 # app.logger.info(filename)
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 cur_trip.img_name = filename
-                app.logger.info('uploaded filename in edited_trip: {}'.format(cur_trip.img_name))
+#                 # app.logger.info('uploaded filename in edited_trip: {}'.format(cur_trip.img_name))
 
             db_session.commit()
             flash('Your trip is updated')
 
         except SQLAlchemyError as e:
             db_session.rollback()
-            app.logger.info(e)
+#             # app.logger.info(e)
             flash('Failed to update your trip')
 
     return render_template('edit_trip.html')
 
 
-@app.route('/search', methods=['POST'])
+@timeline.route('/search', methods=['POST'])
 def search():
     if request.method == 'POST':
         dest_kw = request.form['jumbosearch']
-        stmt = f"""
+        stmt = """
                SELECT
                trip_details.id, trip_details.destination_id, trip_details.date_create,
                trip_details.date_start, trip_details.duration,
                trip_details.img_name, destinations.destination
                FROM destinations LEFT JOIN trip_details
                ON destinations.id=trip_details.destination_id
-               WHERE destinations.destination=\'{dest_kw}\';
-               """
+               WHERE destinations.destination={0};
+               """.format(dest_kw)
 
         conn = engine.connect()
         trips = conn.execute(stmt)
@@ -231,19 +187,19 @@ def search():
         return make_response(render_template('search_result.html', trips=trips), 200,
                              {'Content-Type': 'text/html'})
     else:
-        redirect(url_for('timeline'))
+        redirect(url_for('.public_timeline'))
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@timeline.route('/login', methods=['GET', 'POST'])
 def login():
     """
     Log user in and save logged-in username in login_session dict
     """
-    app.logger.info('enter login')
+    # app.logger.info('enter login')
     # redirect to home page if user has already been logged in
     if login_session.get('user_id', None):
-        app.logger.info(login_session['user_id'])
-        return redirect(url_for('timeline'))
+        # app.logger.info(login_session['user_id'])
+        return redirect(url_for('.public_timeline'))
 
     # Log user in
     if request.method == 'POST':
@@ -257,22 +213,22 @@ def login():
         # Add a cookie to response obj
         # elif request.form.get('remember_me', None) :
         #     print('set cookie')
-        #     resp = make_response(redirect(url_for('timeline')))
+        #     resp = make_response(redirect(url_for('public_timeline')))
         #     resp.set_cookie('tripmatch_user_id', str(user.id))
         #     login_session['user_id'] = user.id
         #     return resp
         else:
             flash('you were logged in')
             login_session['user_id'] = user.id
-            app.logger.info(login_session)
-            return redirect(url_for('timeline'))
+            # app.logger.info(login_session)
+            return redirect(url_for('.public_timeline'))
 
     return render_template('login.html')
 
 
-@app.route('/logout', methods=['GET', 'POST'])
+@timeline.route('/logout', methods=['GET', 'POST'])
 def logout():
-    app.logger.info('enter logout')
+    # app.logger.info('enter logout')
     login_session.pop('user_id')
     # if request.cookie.get('user_id', None):
     #     resp = make_response(redirect(url_for('public_timeline')))
@@ -282,15 +238,15 @@ def logout():
     #     return resp
     # else:
     flash('You were logged out')
-    app.logger.info(login_session)
-    return redirect(url_for('timeline'))
+    # app.logger.info(login_session)
+    return redirect(url_for('.public_timeline'))
 
 
-@app.route('/register', methods=['GET', 'POST'])
+@timeline.route('/register', methods=['GET', 'POST'])
 def register():
-    app.logger.info('enter register')
+    # app.logger.info('enter register')
     if login_session.get('user_id', None) is not None:
-        return redirect(url_for('timeline'))
+        return redirect(url_for('.public_timeline'))
 
     # todo: considering replace following code with WTForm
     # todo: characters validation
@@ -318,12 +274,12 @@ def register():
                 db_session.commit()
                 flash('Register successfully')
                 login_session['user_id'] = request.form['username']  # automatically log user in after registration
-                app.logger.info(login_session)
-                return redirect(url_for('timeline'))
+                # app.logger.info(login_session)
+                return redirect(url_for('.public_timeline'))
             except SQLAlchemyError:
                 db_session.rollback()
                 flash('Registion failure')
-                return redirect(url_for('timeline'))
+                return redirect(url_for('.public_timeline'))
 
     return render_template('register.html')
 
@@ -365,7 +321,7 @@ def allowed_file(filename):
     return '.' in filename and filename.split('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@app.route('/upload_trip_img', methods=['GET', 'POST'])
+@timeline.route('/upload_trip_img', methods=['GET', 'POST'])
 def upload_trip_img():
     if request.method == 'POST':
         if 'file' not in request.files:
@@ -378,123 +334,7 @@ def upload_trip_img():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('uploaded file', filename=filename))
+            return redirect(url_for('.uploaded file', filename=filename))
 
-
-
-
-
-# @manage.route('/manage', methods=['GET', 'POST'])
-# @manage.route('/manage/profile', methods=['GET', 'POST'])
-# def manage_profile():
-#     # if login_session.get('user_id', None):
-#     #     app.logger.info('login_session user_id: {}'.format(login_session['user_id']))
-#     #     return redirect(url_for('timeline'))
-#
-#     if request.method == 'POST':
-#         db_session = Session()
-#         try:
-#             user = db_session.query(Users).filter(Users.id == login_session['user_id']).first()
-#             user.email = request.form['NewEmail']
-#             user.password = generate_password_hash(request.form['NewPassword'])
-#             db_session.commit()
-#             flash('Profile updated successfully')
-#         except SQLAlchemyError:
-#             db_session.rollback()
-#             flash('Failed to update profile info')
-#
-#     return render_template('manage_profile.html')
-#
-#
-# # @app.context_processor
-# @manage.route('/manage/trips')
-# def manage_trips():
-#     session = Session()
-#     trips = session.query(TripDetails).filter(TripDetails.user_id == login_session['user_id']).all()
-#     app.logger.info(trips)
-#     return render_template('manage_trips.html', trips=trips)
-#
-#
-# @manage.route('/manage/inbox')
-# def manage_inbox():
-#     session = Session()
-#     messages = session.query(Messages).join(Users).filter(Users.id == login_session['user_id']).all()
-#     return render_template('manage_inbox.html', messages=messages)
-
-
-@app.context_processor
-def utility_processor():
-    def calc_date_end(start_date, duration):
-        return (datetime.strptime(start_date, '%Y-%m-%d') + timedelta(int(duration))).strftime('%Y-%m-%d')
-
-    return dict(calc_date_end=calc_date_end)
-
-
-# # Restful api
-# class UserAPI(Resource):
-#     def get(self, user_id):
-#         db_session = Session()
-#         user = db_session.query(Users).filter_by(id=user_id).one()
-#         return jsonify(user.to_dict())
-#
-#     def delete(self, user_id):
-#         db_session = Session()
-#         user = db_session.query(Users).filter_by(id=user_id).one()
-#         if not user:
-#             db_session.delete(user)
-#
-#
-# class TripAPI(Resource):
-#     def get(self, trip_id):
-#         db_session = Session()
-#         trip = db_session.query(TripDetails).options(subqueryload(TripDetails.destinations)).filter_by(id=trip_id).one()
-#         return jsonify(trip.to_dict_ex())
-#
-#     def delete(self, trip_id):
-#         db_session = Session()
-#         trip = db_session.query(TripDetails).filter_by(id=trip_id).one()
-#         if not trip:
-#             db_session.delete(trip)
-#
-#
-# class TripsByDateAPI(Resource):
-#     def get(self, offset=0, limit=12):
-#         db_session = Session()
-#         trips = db_session.query(TripDetails).order_by(TripDetails.date_start.desc()).all()
-#         resp = make_response(render_template('timeline_standalone.html', trips=trips), 200,
-#                              {'Content-Type': 'text/html'})
-#         return resp
-#
-#
-# class TripsByPostAPI(Resource):
-#     def get(self, offset=0, limit=12):
-#         db_session = Session()
-#         trips = db_session.query(TripDetails).order_by(TripDetails.date_create.desc()).all()
-#         return make_response(render_template('timeline_standalone.html', trips=trips), 200,
-#                              {'Content-Type': 'text/html'})
-#
-#
-#
-#
-# class DestinationAPI(Resource):
-#     def get(self, destination_id) -> json:
-#         db_session = Session()
-#         destination = db_session.query(Destinations).filter_by(id=destination_id).one()
-#         return jsonify(destination.to_dict())
-#
-#     def delete(self, destination_id):
-#         db_session = Session()
-#         destination = db_session.query(Destinations).filter_by(id=destination_id).one()
-#         if not destination:
-#             db_session.delete(destination)
-
-
-api = Api(app)
-api.add_resource(UserAPI, '/user_api/<int:user_id>')
-api.add_resource(TripAPI, '/trip_api/<int:trip_id>')
-api.add_resource(TripsByDateAPI, '/trips_api/order_by_trip_date')
-api.add_resource(TripsByPostAPI, '/trips_api/order_by_post_date')
-api.add_resource(DestinationAPI, '/destination_api/<int:destination_id>')
-
-if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5000, debug=True)
+# if __name__ == '__main__':
+#     app.run(host='127.0.0.1', port=5000, debug=True)

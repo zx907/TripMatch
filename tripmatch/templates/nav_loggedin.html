@@ -7,12 +7,12 @@
       <div class="nav navbar-nav navbar-right">
         <ul class="nav navbar-nav">
           <p class="navbar-btn">
-            <a href="{{ url_for('new_trip') }}" class="btn btn-default btn-success">
+            <a href="{{ url_for('timeline.new_trip') }}" class="btn btn-default btn-success">
               <span class="glyphicon glyphicon-plus"></span> Post New Trip</a>
             <a href="{{ url_for('manage.manage_profile') }}" class="btn btn-default btn-info">
               <span class="glyphicon glyphicon-cog"></span> Manage
             </a>
-            <a href="{{ url_for('logout') }}" class="btn btn-default">
+            <a href="{{ url_for('timeline.logout') }}" class="btn btn-default">
               <span class="glyphicon glyphicon-log-out"></span>
             </a>
           </p>

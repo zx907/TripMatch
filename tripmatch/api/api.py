@@ -1,18 +1,22 @@
-from flask import jsonify, make_response, render_template, json
-from flask import session as login_session
-from flask_restful import Resource
+from flask import jsonify, make_response, render_template, json, Blueprint
+from flask_restful import Resource, Api
 from sqlalchemy.orm import subqueryload
 
-from db import Session
-from model.tripmatch_model import Users, TripDetails, Destinations
+from ..db.db import Session
+from ..db.tripmatch_model import TripDetails, Destinations, Users
+from ..utils import login_required
+
+api = Blueprint('api', __name__)
 
 
 class UserAPI(Resource):
+    @login_required
     def get(self, user_id):
         db_session = Session()
         user = db_session.query(Users).filter_by(id=user_id).one()
         return jsonify(user.to_dict())
 
+    @login_required
     def delete(self, user_id):
         db_session = Session()
         user = db_session.query(Users).filter_by(id=user_id).one()
@@ -21,11 +25,13 @@ class UserAPI(Resource):
 
 
 class TripAPI(Resource):
+    @login_required
     def get(self, trip_id):
         db_session = Session()
         trip = db_session.query(TripDetails).options(subqueryload(TripDetails.destinations)).filter_by(id=trip_id).one()
         return jsonify(trip.to_dict_ex())
 
+    @login_required
     def delete(self, trip_id):
         db_session = Session()
         trip = db_session.query(TripDetails).filter_by(id=trip_id).one()
@@ -34,6 +40,7 @@ class TripAPI(Resource):
 
 
 class TripsByDateAPI(Resource):
+    @login_required
     def get(self, offset=0, limit=12):
         db_session = Session()
         trips = db_session.query(TripDetails).order_by(TripDetails.date_start.desc()).all()
@@ -43,6 +50,7 @@ class TripsByDateAPI(Resource):
 
 
 class TripsByPostAPI(Resource):
+    @login_required
     def get(self, offset=0, limit=12):
         db_session = Session()
         trips = db_session.query(TripDetails).order_by(TripDetails.date_create.desc()).all()
@@ -51,13 +59,23 @@ class TripsByPostAPI(Resource):
 
 
 class DestinationAPI(Resource):
+    @login_required
     def get(self, destination_id) -> json:
         db_session = Session()
         destination = db_session.query(Destinations).filter_by(id=destination_id).one()
         return jsonify(destination.to_dict())
 
+    @login_required
     def delete(self, destination_id):
         db_session = Session()
         destination = db_session.query(Destinations).filter_by(id=destination_id).one()
         if not destination:
             db_session.delete(destination)
+
+
+flask_api = Api(api)
+flask_api.add_resource(UserAPI, '/user_api/<int:user_id>')
+flask_api.add_resource(TripAPI, '/trip_api/<int:trip_id>')
+flask_api.add_resource(TripsByDateAPI, '/trips_api/order_by_trip_date')
+flask_api.add_resource(TripsByPostAPI, '/trips_api/order_by_post_date')
+flask_api.add_resource(DestinationAPI, '/destination_api/<int:destination_id>')

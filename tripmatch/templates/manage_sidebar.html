@@ -1,9 +1,9 @@
 {% block sidebar %}    
   <div class="col-md-2 col-sm-2 col-md-offset-1 col-sm-offset-1 sidebar">
     <ul class="nav nav-sidebar">
-      <li><a href="{{url_for('manage_profile')}}"><b>Account</b></a></li>
-      <li><a href="{{url_for('manage_trips')}}"><b>My Trips</b></a></li>
-      <li><a href="{{url_for('manage_inbox')}}"><b>InMails</b></a></li>
+      <li><a href="{{url_for('manage.manage_profile')}}"><b>Account</b></a></li>
+      <li><a href="{{url_for('manage.manage_trips')}}"><b>My Trips</b></a></li>
+{#      <li><a href="{{url_for('manage.manage_inbox')}}"><b>InMails</b></a></li>#}
     </ul>
   </div>
 {% endblock %}

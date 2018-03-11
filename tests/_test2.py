@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import ClauseElement
-from tripmatch_model import Base, Users, TripDetails, Messages, Waitinglist, Destinations, TripToDestination
+from db.tripmatch_model import Destinations
 
 engine = create_engine("sqlite:////testdb.db", connect_args={'check_same_thread': False})
 Session = sessionmaker(bind=engine)
