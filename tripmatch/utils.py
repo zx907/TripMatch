@@ -1,8 +1,8 @@
 from datetime import datetime
 from functools import wraps
 
-from flask import session as login_session
-from flask import g, redirect, url_for, request
+from flask import session as login_session, logging
+from flask import g, redirect, url_for
 
 
 def login_required(f: object) -> object:
@@ -12,8 +12,8 @@ def login_required(f: object) -> object:
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if login_session['user_id'] is None:
-            return redirect(url_for('login', next=request.url))
+        if login_session.get('user_id', None) is None:
+            return redirect(url_for('timeline.login'))
         g.user = login_session.get('user_id')
         return f(*args, **kwargs)
 

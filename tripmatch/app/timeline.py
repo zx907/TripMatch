@@ -1,9 +1,7 @@
 import os
 from datetime import datetime, timedelta
 
-from flask import app, Blueprint
-from flask import make_response, request
-from flask import render_template, url_for, redirect, flash
+from flask import app, Blueprint, render_template, url_for, redirect, flash, make_response, request
 from flask import session as login_session
 from sqlalchemy import engine
 from sqlalchemy.exc import SQLAlchemyError
@@ -12,8 +10,9 @@ from sqlalchemy.sql import ClauseElement
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
-from ..db.db import Session
+from ..db.db import Session, engine
 from ..db.tripmatch_model import Users, TripDetails, Waitinglist, Destinations
+from ..utils import login_required
 
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'tripmatch', 'static', 'user_uploaded_photos')
 ALLOWED_EXTENSIONS = {'bmp', 'jpg', 'jpeg', 'png'}
@@ -23,16 +22,9 @@ timeline = Blueprint('timeline', __name__)
 
 @timeline.route('/')
 def public_timeline():
-    if login_session.get('user_id', None):
-        login_status = True
-    else:
-        login_status = False
-#     # app.logger.info('login_status: {0}'.format(login_status))
-
     db_session = Session()
-
     trips = db_session.query(TripDetails).all()
-    return render_template('timeline.html', trips=trips, login_status=login_status)
+    return render_template('timeline.html', trips=trips)
 
 
 @timeline.route('/trip_detail/<int:trip_id>', methods=['GET', 'POST'])
@@ -62,10 +54,10 @@ def display_trip(trip_id):
 
 
 @timeline.route('/new_trip', methods=['GET', 'POST'])
+@login_required
 def new_trip():
-#     # app.logger.info('new_trip function')
-    if 'user_id' not in login_session:
-        redirect(url_for('.login'))
+    # if 'user_id' not in login_session:
+    #     redirect(url_for('.login'))
 
     # post new trip
     if request.method == 'POST':
@@ -90,29 +82,24 @@ def new_trip():
                                    notes=request.form['notes'],
                                    date_create=date_create)
 
-            # if no image is to upload, new_trip.ima_name = None
-            if 'new_trip_img_file' not in request.files:
-#                 # app.logger.info('No file')
-                pass
-
             file = request.files['new_trip_img_file']
-#             # app.logger.info('original filename: {}'.format(file.filename))
+            #             # app.logger.info('original filename: {}'.format(file.filename))
 
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 new_trip.img_name = filename
-#                 # app.logger.info('uploaded filename in new_trip: {}'.format(new_trip.img_name))
+            #                 # app.logger.info('uploaded filename in new_trip: {}'.format(new_trip.img_name))
             else:
                 new_trip.img_name = None
-#                 # app.logger.info('should be empty filename: {}'.format(new_trip.img_name))
+            #                 # app.logger.info('should be empty filename: {}'.format(new_trip.img_name))
 
             db_session.add(new_trip)
             db_session.commit()
             flash('Your trip is posted')
         except SQLAlchemyError as e:
             db_session.rollback()
-#             # app.logger.info(e)
+            #             # app.logger.info(e)
             flash('Failed to post your trip')
 
     return render_template('new_trip.html')
@@ -121,7 +108,7 @@ def new_trip():
 # Pre-fill forms with existing infomation
 @timeline.route('/edit_trip/<int:trip_id>', methods=['GET', 'POST'])
 def edit_trip(trip_id):
-#     # app.logger.info('edit_trip function')
+    #     # app.logger.info('edit_trip function')
     if 'user_id' not in login_session:
         redirect(url_for('.login'))
 
@@ -138,11 +125,11 @@ def edit_trip(trip_id):
             cur_trip.notes = request.form['notes']
 
             file = request.files['edited_trip_img_file']
-#             # app.logger.info(file)
+            #             # app.logger.info(file)
 
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-#                 # app.logger.info(filename)
+                #                 # app.logger.info(filename)
                 # check if filename already exists
                 existing_files = [x for x in os.listdir(UPLOAD_FOLDER) if
                                   os.path.isfile(os.path.join(UPLOAD_FOLDER, x))]
@@ -150,17 +137,17 @@ def edit_trip(trip_id):
                 while filename in existing_files:
                     filename = filename.split('.')[0] + '_' + str(suffix_index)
                     suffix_index += 1
-#                 # app.logger.info(filename)
+                #                 # app.logger.info(filename)
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 cur_trip.img_name = filename
-#                 # app.logger.info('uploaded filename in edited_trip: {}'.format(cur_trip.img_name))
+            #                 # app.logger.info('uploaded filename in edited_trip: {}'.format(cur_trip.img_name))
 
             db_session.commit()
             flash('Your trip is updated')
 
         except SQLAlchemyError as e:
             db_session.rollback()
-#             # app.logger.info(e)
+            #             # app.logger.info(e)
             flash('Failed to update your trip')
 
     return render_template('edit_trip.html')
@@ -177,7 +164,7 @@ def search():
                trip_details.img_name, destinations.destination
                FROM destinations LEFT JOIN trip_details
                ON destinations.id=trip_details.destination_id
-               WHERE destinations.destination={0};
+               WHERE destinations.destination=\'{0}\';
                """.format(dest_kw)
 
         conn = engine.connect()
@@ -284,6 +271,30 @@ def register():
     return render_template('register.html')
 
 
+@timeline.route('/upload_trip_img', methods=['GET', 'POST'])
+def upload_trip_img():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return redirect(url_for('.uploaded file', filename=filename))
+
+
+@timeline.context_processor
+def utility_processor():
+    def calc_date_end(start_date, duration):
+        return (datetime.strptime(start_date, '%Y-%m-%d') + timedelta(int(duration))).strftime('%Y-%m-%d')
+
+    return dict(calc_date_end=calc_date_end)
+
+
 def email_exists(email):
     db_session = Session()
     return db_session.query(Users).filter(Users.email == email).first()
@@ -319,22 +330,3 @@ def get_or_create(session, model, defaults=None, **kwargs):
 
 def allowed_file(filename):
     return '.' in filename and filename.split('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-@timeline.route('/upload_trip_img', methods=['GET', 'POST'])
-def upload_trip_img():
-    if request.method == 'POST':
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('.uploaded file', filename=filename))
-
-# if __name__ == '__main__':
-#     app.run(host='127.0.0.1', port=5000, debug=True)

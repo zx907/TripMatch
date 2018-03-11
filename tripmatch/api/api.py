@@ -25,7 +25,6 @@ class UserAPI(Resource):
 
 
 class TripAPI(Resource):
-    @login_required
     def get(self, trip_id):
         db_session = Session()
         trip = db_session.query(TripDetails).options(subqueryload(TripDetails.destinations)).filter_by(id=trip_id).one()
@@ -40,7 +39,6 @@ class TripAPI(Resource):
 
 
 class TripsByDateAPI(Resource):
-    @login_required
     def get(self, offset=0, limit=12):
         db_session = Session()
         trips = db_session.query(TripDetails).order_by(TripDetails.date_start.desc()).all()
@@ -50,7 +48,6 @@ class TripsByDateAPI(Resource):
 
 
 class TripsByPostAPI(Resource):
-    @login_required
     def get(self, offset=0, limit=12):
         db_session = Session()
         trips = db_session.query(TripDetails).order_by(TripDetails.date_create.desc()).all()
@@ -65,7 +62,6 @@ class DestinationAPI(Resource):
         destination = db_session.query(Destinations).filter_by(id=destination_id).one()
         return jsonify(destination.to_dict())
 
-    @login_required
     def delete(self, destination_id):
         db_session = Session()
         destination = db_session.query(Destinations).filter_by(id=destination_id).one()

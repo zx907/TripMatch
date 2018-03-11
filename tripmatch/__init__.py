@@ -20,7 +20,7 @@ APPLICATION_NAME = 'Trip Match'
 app.secret_key = ''.join(random.choice(
     string.ascii_uppercase + string.digits) for x in range(32))
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['EXPLAIN_TEMPLATE_LOADING'] = True
+# app.config['EXPLAIN_TEMPLATE_LOADING'] = True
 
 app.register_blueprint(timeline)
 app.register_blueprint(manage)
@@ -28,5 +28,5 @@ app.register_blueprint(api)
 
 # logging.basicConfig(level=logging.DEBUG)
 # logger = logging.getLogger('applogger')
-print(app.url_map)
+# print(app.url_map)
 

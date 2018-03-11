@@ -7,6 +7,7 @@ from werkzeug.security import generate_password_hash
 
 from flask import session as login_session
 
+from ..utils import login_required
 from ..db import Users, TripDetails, Destinations
 from ..db import Session
 
@@ -15,6 +16,7 @@ manage = Blueprint('manage', __name__, url_prefix='/manage')
 
 @manage.route('/', methods=['GET', 'POST'])
 @manage.route('/manage_profile', methods=['GET', 'POST'])
+@login_required
 def manage_profile():
 
     if request.method == 'POST':
@@ -33,6 +35,7 @@ def manage_profile():
 
 
 @manage.route('/manage_trips')
+@login_required
 def manage_trips():
     session = Session()
     trips = session.query(TripDetails).filter(TripDetails.user_id == login_session['user_id']).all()

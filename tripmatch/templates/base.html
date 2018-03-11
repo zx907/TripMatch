@@ -18,7 +18,7 @@
 <body>
     <div id="wrapper">
         <!-- Nav -->
-        {% if login_status %}
+        {% if g.user %}
         {% include "nav_loggedin.html" %}
         {% else %}
         {% include "nav.html" %}

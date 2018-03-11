@@ -65,4 +65,4 @@ Haven't test for cascading deletion
 
 Hehe.. never notice that bootstrap comes with its own thumbnails view...
 
-CIrcular import ... FUCK
+login_status?

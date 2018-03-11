@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends "base.html" %}
 
 {% block body %}
   <div class="container">
@@ -29,7 +29,7 @@
 
                     <div class="media-body">
                       <h4 class="media-heading">
-                        <a href="{{ url_for('display_trip', trip_id=trip.id) }}"><b>{{ trip.destination }}</b></a>
+                        <a href="{{ url_for('timeline.display_trip', trip_id=trip.id) }}"><b>{{ trip.destination }}</b></a>
                       </h4>
                       <p>{{ calc_date_end(trip.date_start, trip.duration) }} ~ {{ trip.date_start }}</p>
                       <div style="position: absolute; right: 10px; bottom: 5px;">
