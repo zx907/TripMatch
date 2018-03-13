@@ -1,2 +1,2 @@
-from .db import Session
+from .db import Session, init_db
 from .tripmatch_model import Base, Users, TripDetails, Destinations
