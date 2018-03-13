@@ -1,8 +1,7 @@
-from flask import jsonify, make_response, render_template, json, Blueprint
+from flask import jsonify, make_response, render_template, json, Blueprint, g
 from flask_restful import Resource, Api
 from sqlalchemy.orm import subqueryload
 
-from ..db.db import Session
 from ..db.tripmatch_model import TripDetails, Destinations, Users
 from ..utils import login_required
 
@@ -12,36 +11,31 @@ api = Blueprint('api', __name__)
 class UserAPI(Resource):
     @login_required
     def get(self, user_id):
-        db_session = Session()
-        user = db_session.query(Users).filter_by(id=user_id).one()
+        user = g.db_session.query(Users).filter_by(id=user_id).one()
         return jsonify(user.to_dict())
 
     @login_required
     def delete(self, user_id):
-        db_session = Session()
-        user = db_session.query(Users).filter_by(id=user_id).one()
+        user = g.db_session.query(Users).filter_by(id=user_id).one()
         if not user:
-            db_session.delete(user)
+            g.db_session.delete(user)
 
 
 class TripAPI(Resource):
     def get(self, trip_id):
-        db_session = Session()
-        trip = db_session.query(TripDetails).options(subqueryload(TripDetails.destinations)).filter_by(id=trip_id).one()
+        trip = g.db_session.query(TripDetails).options(subqueryload(TripDetails.destinations)).filter_by(id=trip_id).one()
         return jsonify(trip.to_dict_ex())
 
     @login_required
     def delete(self, trip_id):
-        db_session = Session()
-        trip = db_session.query(TripDetails).filter_by(id=trip_id).one()
+        trip = g.db_session.query(TripDetails).filter_by(id=trip_id).one()
         if not trip:
-            db_session.delete(trip)
+            g.db_session.delete(trip)
 
 
 class TripsByDateAPI(Resource):
     def get(self, offset=0, limit=12):
-        db_session = Session()
-        trips = db_session.query(TripDetails).order_by(TripDetails.date_start.desc()).all()
+        trips = g.db_session.query(TripDetails).order_by(TripDetails.date_start.desc()).all()
         resp = make_response(render_template('timeline_standalone.html', trips=trips), 200,
                              {'Content-Type': 'text/html'})
         return resp
@@ -49,8 +43,7 @@ class TripsByDateAPI(Resource):
 
 class TripsByPostAPI(Resource):
     def get(self, offset=0, limit=12):
-        db_session = Session()
-        trips = db_session.query(TripDetails).order_by(TripDetails.date_create.desc()).all()
+        trips = g.db_session.query(TripDetails).order_by(TripDetails.date_create.desc()).all()
         return make_response(render_template('timeline_standalone.html', trips=trips), 200,
                              {'Content-Type': 'text/html'})
 
@@ -58,15 +51,13 @@ class TripsByPostAPI(Resource):
 class DestinationAPI(Resource):
     @login_required
     def get(self, destination_id) -> json:
-        db_session = Session()
-        destination = db_session.query(Destinations).filter_by(id=destination_id).one()
+        destination = g.db_session.query(Destinations).filter_by(id=destination_id).one()
         return jsonify(destination.to_dict())
 
     def delete(self, destination_id):
-        db_session = Session()
-        destination = db_session.query(Destinations).filter_by(id=destination_id).one()
+        destination = g.db_session.query(Destinations).filter_by(id=destination_id).one()
         if not destination:
-            db_session.delete(destination)
+            g.db_session.delete(destination)
 
 
 flask_api = Api(api)

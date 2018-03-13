@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from flask import Blueprint, request, flash, render_template
+from flask import Blueprint, request, flash, render_template, g
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash
 
@@ -9,7 +9,6 @@ from flask import session as login_session
 
 from ..utils import login_required
 from ..db import Users, TripDetails, Destinations
-from ..db import Session
 
 manage = Blueprint('manage', __name__, url_prefix='/manage')
 
@@ -20,15 +19,14 @@ manage = Blueprint('manage', __name__, url_prefix='/manage')
 def manage_profile():
 
     if request.method == 'POST':
-        db_session = Session()
         try:
-            user = db_session.query(Users).filter(Users.id == login_session['user_id']).first()
+            user = g.db_session.query(Users).filter(Users.id == login_session['user_id']).first()
             user.email = request.form['NewEmail']
             user.password = generate_password_hash(request.form['NewPassword'])
-            db_session.commit()
+            g.db_session.commit()
             flash('Profile updated successfully')
         except SQLAlchemyError:
-            db_session.rollback()
+            g.db_session.rollback()
             flash('Failed to update profile info')
 
     return render_template('manage_profile.html')
@@ -37,8 +35,7 @@ def manage_profile():
 @manage.route('/manage_trips')
 @login_required
 def manage_trips():
-    session = Session()
-    trips = session.query(TripDetails).filter(TripDetails.user_id == login_session['user_id']).all()
+    trips = g.db_session.query(TripDetails).filter(TripDetails.user_id == login_session['user_id']).all()
     return render_template('manage_trips.html', trips=trips)
 
 

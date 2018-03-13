@@ -1,35 +1,29 @@
 import os
 from datetime import datetime, timedelta
 
-from flask import app, g, Blueprint, render_template, url_for, redirect, flash, make_response, request
+from flask import current_app, g, Blueprint, render_template, url_for, redirect, flash, make_response, request
 from flask import session as login_session
-from sqlalchemy import engine
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import ClauseElement
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
-from ..db.db import Session, engine
 from ..db.tripmatch_model import Users, TripDetails, Waitinglist, Destinations
 from ..utils import login_required
 
-UPLOAD_FOLDER = os.path.join(os.getcwd(), 'tripmatch', 'static', 'user_uploaded_photos')
-ALLOWED_EXTENSIONS = {'bmp', 'jpg', 'jpeg', 'png'}
+
 
 timeline = Blueprint('timeline', __name__)
 
 
 @timeline.route('/')
 def public_timeline():
-    db_session = Session()
-    trips = db_session.query(TripDetails).all()
+    trips = g.db_session.query(TripDetails).all()
     return render_template('timeline.html', trips=trips)
 
 
 @timeline.route('/trip_detail/<int:trip_id>', methods=['GET', 'POST'])
 def display_trip(trip_id):
-    db_session = Session()
     if request.method == 'POST':  # Post to waiting list
         if login_session.get('user_id', None) is None:
             return redirect(url_for('.login'))
@@ -38,17 +32,16 @@ def display_trip(trip_id):
         trip_id = request.form['trip_id']
         post_date = datetime.now().isoformat(' ')
 
-        db_session = Session()
         try:
             new_wtl_entry = Waitinglist(
                 user_id=user_id, trip_id=trip_id, text=text, post_date=post_date)
-            db_session.add(new_wtl_entry)
-            db_session.commit()
+            g.db_session.add(new_wtl_entry)
+            g.db_session.commit()
         except SQLAlchemyError:
-            db_session.rollback()
+            g.db_session.rollback()
 
-    trip = db_session.query(TripDetails).filter_by(id=trip_id).one()
-    waitinglist = db_session.query(
+    trip = g.db_session.query(TripDetails).filter_by(id=trip_id).one()
+    waitinglist = g.db_session.query(
         Waitinglist).filter_by(trip_id=trip_id).all()
     return render_template('trip_details.html', trip=trip, waitinglist=waitinglist)
 
@@ -62,10 +55,9 @@ def new_trip():
     # post new trip
     if request.method == 'POST':
 
-        db_session = Session()
         try:
             destination = get_or_create(
-                db_session,
+                g.db_session,
                 Destinations,
                 destination=request.form['destination']
             )[0]
@@ -86,16 +78,16 @@ def new_trip():
 
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
                 new_trip.img_name = filename
             else:
                 new_trip.img_name = None
 
-            db_session.add(new_trip)
-            db_session.commit()
+            g.db_session.add(new_trip)
+            g.db_session.commit()
             flash('Your trip is posted')
         except SQLAlchemyError as e:
-            db_session.rollback()
+            g.db_session.rollback()
             flash('Failed to post your trip')
 
     return render_template('new_trip.html')
@@ -109,9 +101,8 @@ def edit_trip(trip_id):
 
     # update trip
     if request.method == 'POST':
-        db_session = Session()
         try:
-            cur_trip = db_session.query(TripDetails).filter(TripDetails.id == trip_id).one()
+            cur_trip = g.db_session.query(TripDetails).filter(TripDetails.id == trip_id).one()
             cur_trip.duration = request.form['duration']
             cur_trip.date_start = request.form['date_start']
             cur_trip.companions = request.form['companions']
@@ -124,20 +115,20 @@ def edit_trip(trip_id):
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
                 # check if filename already exists
-                existing_files = [x for x in os.listdir(UPLOAD_FOLDER) if
-                                  os.path.isfile(os.path.join(UPLOAD_FOLDER, x))]
+                existing_files = [x for x in os.listdir(current_app.config['UPLOAD_FOLDER']) if
+                                  os.path.isfile(os.path.join(current_app.config['UPLOAD_FOLDER'], x))]
                 suffix_index = 0
                 while filename in existing_files:
                     filename = filename.split('.')[0] + '_' + str(suffix_index)
                     suffix_index += 1
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
                 cur_trip.img_name = filename
 
-            db_session.commit()
+            g.db_session.commit()
             flash('Your trip is updated')
 
         except SQLAlchemyError as e:
-            db_session.rollback()
+            g.db_session.rollback()
             flash('Failed to update your trip')
 
     return render_template('edit_trip.html')
@@ -157,9 +148,9 @@ def search():
                WHERE destinations.destination=\'{0}\';
                """.format(dest_kw)
 
-        conn = engine.connect()
-        trips = conn.execute(stmt)
-        print(trips)
+        trips = g.db_session.execute(stmt)
+        # conn = engine.connect()
+        # trips = conn.execute(stmt)
 
         return make_response(render_template('search_result.html', trips=trips), 200,
                              {'Content-Type': 'text/html'})
@@ -180,8 +171,7 @@ def login():
 
     # Log user in
     if request.method == 'POST':
-        db_session = Session()
-        user = db_session.query(Users).filter(
+        user = g.db_session.query(Users).filter(
             Users.username == request.form['username']).first()
         if user is None:
             flash('invalid username')
@@ -242,19 +232,18 @@ def register():
         elif request.form['password'] != request.form['password2']:
             flash('Passwords are not matched')
         else:
-            db_session = Session()
             try:
                 new_user = Users(
                     username=request.form['username'], email=request.form['email'],
                     password=generate_password_hash(request.form['password']))
-                db_session.add(new_user)
-                db_session.commit()
+                g.db_session.add(new_user)
+                g.db_session.commit()
                 flash('Register successfully')
                 login_session['user_id'] = request.form['username']  # automatically log user in after registration
                 # app.logger.info(login_session)
                 return redirect(url_for('.public_timeline'))
             except SQLAlchemyError:
-                db_session.rollback()
+                g.db_session.rollback()
                 flash('Registration failure')
                 return redirect(url_for('.public_timeline'))
 
@@ -273,7 +262,7 @@ def upload_trip_img():
             return redirect(request.url)
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
             return redirect(url_for('.uploaded file', filename=filename))
 
 
@@ -286,13 +275,11 @@ def utility_processor():
 
 
 def email_exists(email):
-    db_session = Session()
-    return db_session.query(Users).filter(Users.email == email).first()
+    return g.db_session.query(Users).filter(Users.email == email).first()
 
 
 def username_exists(username):
-    db_session = sessionmaker()()
-    return db_session.query(Users).filter(Users.username == username).first()
+    return g.db_session.query(Users).filter(Users.username == username).first()
 
 
 def item_exists(session, model, item):
@@ -319,4 +306,4 @@ def get_or_create(session, model, defaults=None, **kwargs):
 
 
 def allowed_file(filename):
-    return '.' in filename and filename.split('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return '.' in filename and filename.split('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
