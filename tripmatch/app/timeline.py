@@ -12,7 +12,6 @@ from ..db.tripmatch_model import Users, TripDetails, Waitinglist, Destinations
 from ..utils import login_required
 
 
-
 timeline = Blueprint('timeline', __name__)
 
 

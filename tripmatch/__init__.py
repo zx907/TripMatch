@@ -1,3 +1,4 @@
+import os
 from flask import Flask, g
 from flask import session as login_session
 
@@ -5,6 +6,7 @@ from flask import session as login_session
 def create_app(config_filename):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_pyfile(config_filename)
+    app.config['UPLOAD_FOLDER'] = os.path.join(app.instance_path, app.config['UPLOAD_FOLDER'])
 
     from .db import init_app
 
