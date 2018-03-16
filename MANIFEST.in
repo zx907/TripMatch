@@ -1,3 +1,2 @@
-graft RMA/templates
-graft RMA/static
-include RMA/testdb.db
+recursive-include tripmatch/templates *
+recursive-include tripmatch/static *
