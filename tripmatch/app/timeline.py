@@ -7,10 +7,10 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import ClauseElement
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
+from wtforms import ValidationError
 
 from ..db.tripmatch_model import Users, TripDetails, Waitinglist, Destinations
-from ..utils import login_required
-
+from ..utils import login_required, LoginForm, RegistrationForm, flash_error
 
 timeline = Blueprint('timeline', __name__)
 
@@ -162,16 +162,17 @@ def login():
     """
     Log user in and save logged-in username in login_session dict
     """
-    # app.logger.info('enter login')
+
     # redirect to home page if user has already been logged in
     if login_session.get('user_id', None):
         # app.logger.info(login_session['user_id'])
         return redirect(url_for('.public_timeline'))
 
+    form = LoginForm(request.form)
     # Log user in
-    if request.method == 'POST':
+    if request.method == 'POST' and form.validate():
         user = g.db_session.query(Users).filter(
-            Users.username == request.form['username']).first()
+            Users.username == form.username.data).first()
         if user is None:
             flash('invalid username')
         elif not check_password_hash(user.password, request.form['password']):
@@ -194,7 +195,6 @@ def login():
 
 @timeline.route('/logout', methods=['GET', 'POST'])
 def logout():
-    # app.logger.info('enter logout')
     login_session.pop('user_id')
     # if request.cookie.get('user_id', None):
     #     resp = make_response(redirect(url_for('public_timeline')))
@@ -204,7 +204,6 @@ def logout():
     #     return resp
     # else:
     flash('You were logged out')
-    # app.logger.info(login_session)
     return redirect(url_for('.public_timeline'))
 
 
@@ -214,31 +213,30 @@ def register():
     if login_session.get('user_id', None) is not None:
         return redirect(url_for('.public_timeline'))
 
-    # todo: considering replace following code with WTForm
-    # todo: characters validation
+    form = RegistrationForm(request.form)
 
-    if request.method == 'POST':
-        if not request.form['username']:
+    if request.method == 'POST' and form.validate():
+        if not form.username.data:
             flash('Please enter a username')
         elif username_exists(request.form['username']):
             flash('The username is already taken')
-        elif not request.form['email']:
+        elif not form.email.data:
             flash('Please enter an email address')
-        elif email_exists(request.form['email']):
+        elif email_exists(form.email.data):
             flash('The email address is already taken')
-        elif not request.form['password']:
+        elif not form.password.data:
             flash('Please enter a password')
-        elif request.form['password'] != request.form['password2']:
+        elif form.password.data != form.confirm.data:
             flash('Passwords are not matched')
         else:
             try:
                 new_user = Users(
-                    username=request.form['username'], email=request.form['email'],
-                    password=generate_password_hash(request.form['password']))
+                    username=form.username.data, email=form.email.data,
+                    password=generate_password_hash(form.password.data))
                 g.db_session.add(new_user)
                 g.db_session.commit()
                 flash('Register successfully')
-                login_session['user_id'] = request.form['username']  # automatically log user in after registration
+                login_session['user_id'] = form.username.data  # automatically log user in after registration
                 # app.logger.info(login_session)
                 return redirect(url_for('.public_timeline'))
             except SQLAlchemyError:

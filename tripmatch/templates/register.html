@@ -1,25 +1,33 @@
 {% extends "base.html" %}
+{% block head %}
+<link rel="stylesheet" href="{{url_for('static', filename='css/registration.css')}}">
+{% endblock%}
 {% block title %}Sign Up{% endblock %}
 {% block body %}
-    <h2>Sign Up</h2>
-    {% if error %}<div class="error"><strong>Error:</strong> {{ error }}</div>{% endif %}
-    <form method="post">
+  <div class="container">
+    <div class="row">
+      {% if error %}
+      <div class="error"><strong>Error:</strong> {{ error }}</div>{% endif %}
+      <form method="post" class="form-registration">
+        <h2>Sign Up</h2>
         <div class="form-group">
-            <label for="username">Username</label><br>
-            <input type="text" name="username" placeholder="Username">
+          <label for="username">Username</label><br>
+          <input type="text" name="username" placeholder="Username" class="form-control">
         </div>
         <div class="form-group">
-            <label for="email">Email</label><br>
-            <input type="email" name="email" placeholder="Email">
+          <label for="email">Email</label><br>
+          <input type="email" name="email" placeholder="Email" class="form-control">
         </div>
         <div class="form-group">
-            <label for="password">Password</label><br>
-            <input type="password" name="password" placeholder="Password">
+          <label for="password">Password</label><br>
+          <input type="password" name="password" placeholder="Password" class="form-control">
         </div>
         <div class="form-group">
-            <label for="password2">Repeat Password</label><br>
-            <input type="password" name="password2" placeholder="Repeat password">
+          <label for="repeat_password">Repeat Password</label><br>
+          <input type="password" name="repeat_password" placeholder="Repeat password" class="form-control">
         </div>
-        <button type="submit" class="btn btn-default">Submit</button>
-    </form>
+        <button type="submit" class="btn btn-primary btn-block">Submit</button>
+      </form>
+    </div>
+  </div>
 {% endblock %}
