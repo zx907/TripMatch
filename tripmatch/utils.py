@@ -31,20 +31,20 @@ def format_date_to_string(dt):
 
 
 class RegistrationForm(Form):
-    username = StringField('username', [validators.Length(min=4, max=25)])
-    email = StringField('email', [validators.Length(min=6, max=35), validators.email()])
-    password = PasswordField('password', [
+    username = StringField(u'Username', validators=[validators.Length(min=4, max=25)])
+    email = StringField(u'Email', validators=[validators.Length(min=6, max=35), validators.email()])
+    password = PasswordField(u'Password', validators=[
         validators.DataRequired(),
         validators.Length(min=6, max=30),
-        validators.EqualTo('confirm', message='Passwords must match')
+        validators.EqualTo('repeat_password', message='Passwords must match')
     ])
-    confirm = PasswordField('repeat_password')
+    repeat_password = PasswordField(u'Repeat_password')
 
 
 class LoginForm(Form):
-    username = StringField('username', [validators.Length(min=4, max=25)])
-    password = PasswordField('password', [validators.DataRequired()])
-    remember_me = BooleanField('remember_me')
+    username = StringField(u'Username', [validators.Length(min=4, max=25)])
+    password = PasswordField(u'Password', [validators.DataRequired()])
+    remember_me = BooleanField(u'Remember_me')
 
 
 def flash_error(form):
