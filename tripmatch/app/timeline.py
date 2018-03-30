@@ -218,7 +218,7 @@ def register():
     if request.method == 'POST' and form.validate():
         if not form.username.data:
             flash('Please enter a username')
-        elif username_exists(request.form['username']):
+        elif username_exists(form.username.data):
             flash('The username is already taken')
         elif not form.email.data:
             flash('Please enter an email address')
@@ -226,7 +226,7 @@ def register():
             flash('The email address is already taken')
         elif not form.password.data:
             flash('Please enter a password')
-        elif form.password.data != form.confirm.data:
+        elif form.password.data != form.repeat_password.data:
             flash('Passwords are not matched')
         else:
             try:

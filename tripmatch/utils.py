@@ -31,14 +31,14 @@ def format_date_to_string(dt):
 
 
 class RegistrationForm(Form):
-    username = StringField('username', [validators.Length(min=4, max=25)])
-    email = StringField('email', [validators.Length(min=6, max=35), validators.email()])
-    password = PasswordField('password', [
+    username = StringField(u'username', [validators.Length(min=4, max=25)])
+    email = StringField(u'email', [validators.Length(min=6, max=35), validators.email()])
+    password = PasswordField(u'password', [
         validators.DataRequired(),
         validators.Length(min=6, max=30),
-        validators.EqualTo('confirm', message='Passwords must match')
+        validators.EqualTo(u'repeat_password', message=u'Passwords must match')
     ])
-    confirm = PasswordField('repeat_password')
+    repeat_password = PasswordField(u'repeat_password')
 
 
 class LoginForm(Form):
