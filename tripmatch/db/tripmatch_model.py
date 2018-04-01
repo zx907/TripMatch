@@ -37,6 +37,7 @@ class TripDetails(Base):
     destination_id = Column(Integer, ForeignKey('destinations.id'))
     duration = Column(String, nullable=True)
     date_start = Column(String, nullable=False)
+    date_end = Column(String, nullable=True)
     companions = Column(Integer, nullable=False)
     city_takeoff = Column(String, nullable=True)
     expected_group_size = Column(Integer, nullable=True)

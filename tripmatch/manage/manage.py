@@ -42,6 +42,8 @@ def manage_trips():
 @manage.context_processor
 def utility_processor():
     def calc_date_end(start_date, duration):
+        if not isinstance(duration, int):
+            duration = 1
         return (datetime.strptime(start_date, '%Y-%m-%d') + timedelta(int(duration))).strftime('%Y-%m-%d')
 
     return dict(calc_date_end=calc_date_end)

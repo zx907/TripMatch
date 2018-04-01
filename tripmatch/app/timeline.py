@@ -7,10 +7,11 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import ClauseElement
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
+from wtforms import ValidationError
 
 from ..db.tripmatch_model import Users, TripDetails, Waitinglist, Destinations
 from ..utils import login_required
-
+from ..forms import LoginForm, RegistrationForm, TripForm
 
 timeline = Blueprint('timeline', __name__)
 
@@ -52,30 +53,34 @@ def new_trip():
     #     redirect(url_for('.login'))
 
     # post new trip
+
+    form = TripForm(request.form)
+
     if request.method == 'POST':
 
         try:
             destination = get_or_create(
                 g.db_session,
                 Destinations,
-                destination=request.form['destination']
+                destination=form.destination.data
             )[0]
 
             date_create = datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')
 
             new_trip = TripDetails(user_id=login_session['user_id'],
                                    destination_id=destination.id,
-                                   duration=request.form['duration'],
-                                   date_start=request.form['date_start'],
-                                   companions=request.form['companions'],
-                                   city_takeoff=request.form['city_takeoff'],
-                                   expected_group_size=request.form['expected_group_size'],
-                                   notes=request.form['notes'],
+                                   date_end=form.duration.data,
+                                   date_start=form.date_start.data,
+                                   companions=form.companions.data,
+                                   city_takeoff=form.city_takeoff.data,
+                                   expected_group_size=form.expected_group_size.data,
+                                   notes=form.notes.data,
                                    date_create=date_create)
 
-            file = request.files['new_trip_img_file']
+            file = request.files['img_name']
 
             if file and allowed_file(file.filename):
+                current_app.logger.info('111')
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
                 new_trip.img_name = filename
@@ -85,11 +90,11 @@ def new_trip():
             g.db_session.add(new_trip)
             g.db_session.commit()
             flash('Your trip is posted')
-        except SQLAlchemyError as e:
+        except SQLAlchemyError:
             g.db_session.rollback()
             flash('Failed to post your trip')
 
-    return render_template('new_trip.html')
+    return render_template('new_trip.html', form=form)
 
 
 # Pre-fill forms with existing information
@@ -98,18 +103,33 @@ def edit_trip(trip_id):
     if 'user_id' not in login_session:
         redirect(url_for('.login'))
 
+    if request.method == 'GET':
+
+        trip = g.db_session.query(TripDetails).filter(TripDetails.id == trip_id).one()
+        form = TripForm(request.form)
+        form.destination.data = trip.destinations.destination
+        form.date_start.data = datetime.strptime(trip.date_start, '%Y-%m-%d')
+        if trip.date_end is None:
+            trip.date_end = '2018-12-31'
+        form.date_end.data = datetime.strptime(trip.date_end, '%Y-%m-%d')
+        form.companions.data = trip.companions
+        form.city_takeoff.data = trip.city_takeoff
+        form.expected_group_size.data = trip.expected_group_size
+        form.notes.data = trip.notes
+
     # update trip
     if request.method == 'POST':
+        form = TripForm(request.form)
         try:
             cur_trip = g.db_session.query(TripDetails).filter(TripDetails.id == trip_id).one()
-            cur_trip.duration = request.form['duration']
-            cur_trip.date_start = request.form['date_start']
-            cur_trip.companions = request.form['companions']
-            cur_trip.city_takeoff = request.form['city_takeoff']
-            cur_trip.expected_group_size = request.form['expected_group_size']
-            cur_trip.notes = request.form['notes']
+            cur_trip.date_start = form.date_start.data
+            cur_trip.date_end = form.date_end.data
+            cur_trip.companions = form.companions.data
+            cur_trip.city_takeoff = form.city_takeoff.data
+            cur_trip.expected_group_size = form.expected_group_size.data
+            cur_trip.notes = form.notes.data
 
-            file = request.files['edited_trip_img_file']
+            file = request.files['img_name']
 
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
@@ -122,15 +142,18 @@ def edit_trip(trip_id):
                     suffix_index += 1
                 file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
                 cur_trip.img_name = filename
+            else:
+                cur_trip.img_name = None
 
             g.db_session.commit()
             flash('Your trip is updated')
+            return redirect(url_for('.display_trip', trip_id=trip_id))
 
         except SQLAlchemyError as e:
             g.db_session.rollback()
             flash('Failed to update your trip')
 
-    return render_template('edit_trip.html')
+    return render_template('edit_trip.html', form=form)
 
 
 @timeline.route('/search', methods=['POST'])
@@ -162,19 +185,20 @@ def login():
     """
     Log user in and save logged-in username in login_session dict
     """
-    # app.logger.info('enter login')
+
     # redirect to home page if user has already been logged in
     if login_session.get('user_id', None):
         # app.logger.info(login_session['user_id'])
         return redirect(url_for('.public_timeline'))
 
+    form = LoginForm(request.form)
     # Log user in
-    if request.method == 'POST':
+    if request.method == 'POST' and form.validate():
         user = g.db_session.query(Users).filter(
-            Users.username == request.form['username']).first()
+            Users.username == form.username.data).first()
         if user is None:
             flash('invalid username')
-        elif not check_password_hash(user.password, request.form['password']):
+        elif not check_password_hash(user.password, form.password.data):
             flash('invalid password')
         # Add a cookie to response obj
         # elif request.form.get('remember_me', None) :
@@ -189,12 +213,11 @@ def login():
             # app.logger.info(login_session)
             return redirect(url_for('.public_timeline'))
 
-    return render_template('login.html')
+    return render_template('login.html', form=form)
 
 
 @timeline.route('/logout', methods=['GET', 'POST'])
 def logout():
-    # app.logger.info('enter logout')
     login_session.pop('user_id')
     # if request.cookie.get('user_id', None):
     #     resp = make_response(redirect(url_for('public_timeline')))
@@ -204,7 +227,6 @@ def logout():
     #     return resp
     # else:
     flash('You were logged out')
-    # app.logger.info(login_session)
     return redirect(url_for('.public_timeline'))
 
 
@@ -214,39 +236,29 @@ def register():
     if login_session.get('user_id', None) is not None:
         return redirect(url_for('.public_timeline'))
 
-    # todo: considering replace following code with WTForm
-    # todo: characters validation
+    form = RegistrationForm(request.form)
 
-    if request.method == 'POST':
-        if not request.form['username']:
-            flash('Please enter a username')
-        elif username_exists(request.form['username']):
+    if request.method == 'POST' and form.validate():
+        if username_exists(form.username.data):
             flash('The username is already taken')
-        elif not request.form['email']:
-            flash('Please enter an email address')
-        elif email_exists(request.form['email']):
+        elif email_exists(form.email.data):
             flash('The email address is already taken')
-        elif not request.form['password']:
-            flash('Please enter a password')
-        elif request.form['password'] != request.form['password2']:
-            flash('Passwords are not matched')
         else:
             try:
                 new_user = Users(
-                    username=request.form['username'], email=request.form['email'],
-                    password=generate_password_hash(request.form['password']))
+                    username=form.username.data, email=form.email.data,
+                    password=generate_password_hash(form.password.data))
                 g.db_session.add(new_user)
                 g.db_session.commit()
                 flash('Register successfully')
-                login_session['user_id'] = request.form['username']  # automatically log user in after registration
-                # app.logger.info(login_session)
+                login_session['user_id'] = form.username.data  # automatically log user in after registration
                 return redirect(url_for('.public_timeline'))
             except SQLAlchemyError:
                 g.db_session.rollback()
                 flash('Registration failure')
                 return redirect(url_for('.public_timeline'))
 
-    return render_template('register.html')
+    return render_template('register.html', form=form)
 
 
 @timeline.route('/upload_trip_img', methods=['GET', 'POST'])

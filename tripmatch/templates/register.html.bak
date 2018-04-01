@@ -20,22 +20,20 @@
       <form method="post" class="form-registration">
         <h2>Sign Up</h2>
         <div class="form-group">
-            {{ form.username.label }}
-            {{ form.username(class="form-control") }}
+          <label for="username">Username</label><br>
+          <input type="text" name="username" placeholder="Username" class="form-control">
         </div>
         <div class="form-group">
-            {{ form.email.label }}
-            {{ form.email(class="form-control") }}
+          <label for="email">Email</label><br>
+          <input type="email" name="email" placeholder="Email" class="form-control">
         </div>
         <div class="form-group">
-            {{ form.password.label }}
-            {{ form.password(class="form-control") }}
+          <label for="password">Password</label><br>
+          <input type="password" name="password" placeholder="Password" class="form-control">
         </div>
         <div class="form-group">
-{#          <label for="repeat_password">Repeat Password</label><br>#}
-{#          <input type="password" name="repeat_password" placeholder="Repeat password" class="form-control">#}
-            {{ form.repeat_password.label }}
-            {{ form.repeat_password(class="form-control") }}
+          <label for="repeat_password">Repeat Password</label><br>
+          <input type="password" name="repeat_password" placeholder="Repeat password" class="form-control">
         </div>
         <button type="submit" class="btn btn-primary btn-block">Submit</button>
       </form>
