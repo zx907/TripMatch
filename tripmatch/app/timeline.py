@@ -10,7 +10,8 @@ from werkzeug.utils import secure_filename
 from wtforms import ValidationError
 
 from ..db.tripmatch_model import Users, TripDetails, Waitinglist, Destinations
-from ..utils import login_required, LoginForm, RegistrationForm, flash_error
+from ..utils import login_required
+from ..forms import LoginForm, RegistrationForm
 
 timeline = Blueprint('timeline', __name__)
 
@@ -216,18 +217,10 @@ def register():
     form = RegistrationForm(request.form)
 
     if request.method == 'POST' and form.validate():
-        if not form.username.data:
-            flash('Please enter a username')
-        elif username_exists(form.username.data):
+        if username_exists(form.username.data):
             flash('The username is already taken')
-        elif not form.email.data:
-            flash('Please enter an email address')
         elif email_exists(form.email.data):
             flash('The email address is already taken')
-        elif not form.password.data:
-            flash('Please enter a password')
-        elif form.password.data != form.repeat_password.data:
-            flash('Passwords are not matched')
         else:
             try:
                 new_user = Users(
@@ -237,14 +230,13 @@ def register():
                 g.db_session.commit()
                 flash('Register successfully')
                 login_session['user_id'] = form.username.data  # automatically log user in after registration
-                # app.logger.info(login_session)
                 return redirect(url_for('.public_timeline'))
             except SQLAlchemyError:
                 g.db_session.rollback()
                 flash('Registration failure')
                 return redirect(url_for('.public_timeline'))
 
-    return render_template('register.html')
+    return render_template('register.html', form=form)
 
 
 @timeline.route('/upload_trip_img', methods=['GET', 'POST'])

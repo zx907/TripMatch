@@ -1,3 +1,4 @@
+import logging
 import os
 from flask import Flask, g
 from flask import session as login_session
@@ -19,6 +20,8 @@ def create_app(config_filename):
     app.register_blueprint(api)
 
     session_factory = init_app(app)
+
+    logger = logging.getLogger('applogger')
 
     @app.before_request
     def before_request():
