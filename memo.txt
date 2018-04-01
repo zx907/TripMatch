@@ -67,3 +67,5 @@ Hehe.. never notice that bootstrap comes with its own thumbnails view...
 
 login_status? app.before_request
 
+Use WTForms rendering to auto-generate template
+how to replace login form in navbar with WTForms?

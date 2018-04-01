@@ -1,5 +1,6 @@
 from flask import flash
-from wtforms import Form, StringField, PasswordField, validators, BooleanField
+from wtforms import Form, StringField, PasswordField, validators, BooleanField, SubmitField, IntegerField, DateField, \
+    TextAreaField, FileField
 
 
 class RegistrationForm(Form):
@@ -16,7 +17,21 @@ class RegistrationForm(Form):
 class LoginForm(Form):
     username = StringField(u'Username', [validators.Length(min=4, max=25)])
     password = PasswordField(u'Password', [validators.DataRequired()])
-    remember_me = BooleanField(u'Remember_me')
+    remember_me = BooleanField(u'Remember Me')
+    submit = SubmitField(u'Sign In')
+
+class TripForm(Form):
+    destination = StringField(u'Destination')
+    duration = IntegerField(u'Duration')
+    date_start = DateField(u'Start Date')
+    date_end = DateField(u'End Date')
+    companions = IntegerField(u'Companions')
+    city_takeoff = StringField(u'Leaving From')
+    expected_group_size = IntegerField(u'Expect Group Size')
+    notes = TextAreaField(u'Notes')
+    contact = StringField(u'Contact')
+    img_name = FileField(u'Cover Image')
+    submit = SubmitField(u'Post')
 
 
 def flash_error(form):
