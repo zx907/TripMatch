@@ -6,7 +6,7 @@ from .tripmatch_model import Base
 
 
 def init_app(app):
-    engine = create_engine(app.config['DATABASE_URI'], connect_args={'check_same_thread': False})
+    engine = create_engine(app.config['DATABASE_URI'])
 
     # create tables
     Base.metadata.create_all(engine)

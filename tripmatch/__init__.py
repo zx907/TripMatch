@@ -21,8 +21,6 @@ def create_app(config_filename):
 
     session_factory = init_app(app)
 
-    logger = logging.getLogger('applogger')
-
     @app.before_request
     def before_request():
         g.user = login_session.get('user_id', None)

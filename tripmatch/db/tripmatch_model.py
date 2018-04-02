@@ -1,5 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, Date, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy import Table
 
@@ -30,19 +30,18 @@ class Users(Base):
 
 
 class TripDetails(Base):
-    """username, country, state, destination, duration, date_start, companions, city_takeoff"""
+    """username, country, state, destination, date_start, date_end, companions, city_takeoff"""
     __tablename__ = 'trip_details'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     destination_id = Column(Integer, ForeignKey('destinations.id'))
-    duration = Column(String, nullable=True)
-    date_start = Column(String, nullable=False)
-    date_end = Column(String, nullable=True)
+    date_start = Column(Date, nullable=False)
+    date_end = Column(Date, nullable=True)
     companions = Column(Integer, nullable=False)
     city_takeoff = Column(String, nullable=True)
     expected_group_size = Column(Integer, nullable=True)
     notes = Column(String, nullable=True)
-    date_create = Column(String, nullable=False)
+    date_create = Column(DateTime, nullable=False)
     contact = Column(String, nullable=True)
     img_name = Column(String, nullable=True)
 
@@ -60,8 +59,8 @@ class TripDetails(Base):
         return d
 
     def __repr__(self):
-        "<TripDetails(username='%s', destination='%s', duration='%s', date_start='%s', companion='%s', city_takeoff='%s', expected_group_size='%s', notes='%s')>" \
-        % (self.username, self.destination, self.duration, self.date_start, self.companions, self.city_takeoff,
+        "<TripDetails(username='%s', destination='%s', date_start='%s', companion='%s', city_takeoff='%s', expected_group_size='%s', notes='%s')>" \
+        % (self.username, self.destination, self.date_start, self.companions, self.city_takeoff,
            self.expected_group_size, self.notes)
 
 
@@ -83,7 +82,7 @@ class Waitinglist(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
     trip_id = Column(Integer, ForeignKey('trip_details.id'))
     text = Column(String, nullable=False)
-    post_date = Column(String, nullable=False)
+    post_date = Column(DateTime, nullable=False)
 
     users = relationship('Users', back_populates="waitinglist")
     trip_details = relationship('TripDetails', back_populates="waitinglist")
@@ -99,7 +98,7 @@ class InMails(Base):
     to_id = Column(Integer, nullable=False)
     inmail_title = Column(String, nullable=False)
     inmail_text = Column(String, nullable=False)
-    send_date = Column(String, nullable=False)
+    send_date = Column(DateTime, nullable=False)
 
     def to_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}

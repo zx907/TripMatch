@@ -30,7 +30,7 @@ def display_trip(trip_id):
         text = request.form['leave-a-message-textarea']
         user_id = login_session['user_id']
         trip_id = request.form['trip_id']
-        post_date = datetime.now().isoformat(' ')
+        post_date = datetime.now().isoformat(' ', timespec='seconds')
 
         try:
             new_wtl_entry = Waitinglist(
@@ -57,6 +57,8 @@ def new_trip():
     form = TripForm(request.form)
 
     if request.method == 'POST':
+        current_app.logger.info(type(form.date_start.data))
+        current_app.logger.info(type(form.date_end.data))
 
         try:
             destination = get_or_create(
@@ -65,12 +67,13 @@ def new_trip():
                 destination=form.destination.data
             )[0]
 
-            date_create = datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')
+            # date_create = datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')
+            date_create = datetime.now().isoformat(' ', timespec='seconds')
 
-            new_trip = TripDetails(user_id=login_session['user_id'],
+            new_trip = TripDetails(user_id=g.user,
                                    destination_id=destination.id,
-                                   date_end=form.duration.data,
                                    date_start=form.date_start.data,
+                                   date_end=form.date_end.data,
                                    companions=form.companions.data,
                                    city_takeoff=form.city_takeoff.data,
                                    expected_group_size=form.expected_group_size.data,
@@ -90,7 +93,8 @@ def new_trip():
             g.db_session.add(new_trip)
             g.db_session.commit()
             flash('Your trip is posted')
-        except SQLAlchemyError:
+        except SQLAlchemyError as e:
+            current_app.logger.error(e)
             g.db_session.rollback()
             flash('Failed to post your trip')
 
@@ -102,16 +106,15 @@ def new_trip():
 def edit_trip(trip_id):
     if 'user_id' not in login_session:
         redirect(url_for('.login'))
-
     if request.method == 'GET':
 
         trip = g.db_session.query(TripDetails).filter(TripDetails.id == trip_id).one()
         form = TripForm(request.form)
         form.destination.data = trip.destinations.destination
-        form.date_start.data = datetime.strptime(trip.date_start, '%Y-%m-%d')
+        form.date_start.data = trip.date_start
         if trip.date_end is None:
             trip.date_end = '2018-12-31'
-        form.date_end.data = datetime.strptime(trip.date_end, '%Y-%m-%d')
+        form.date_end.data = trip.date_end
         form.companions.data = trip.companions
         form.city_takeoff.data = trip.city_takeoff
         form.expected_group_size.data = trip.expected_group_size
@@ -150,10 +153,27 @@ def edit_trip(trip_id):
             return redirect(url_for('.display_trip', trip_id=trip_id))
 
         except SQLAlchemyError as e:
+            current_app.logger.info(e)
             g.db_session.rollback()
             flash('Failed to update your trip')
 
     return render_template('edit_trip.html', form=form)
+
+
+@timeline.route('/delete_trip/<int:trip_id>')
+@login_required
+def delete_trip(trip_id):
+    try:
+        trip = g.db_session.query(TripDetails).filter_by(id=trip_id).one()
+        g.db_session.delete(trip)
+        g.db_session.commit()
+        flash('Your trip is deleted')
+        return redirect(url_for('.public_timeline'))
+    except SQLAlchemyError as e:
+        current_app.logger.error(e)
+        g.db_session.rollback()
+        flash('Failed to delete the trip')
+        return redirect(url_for('manage.manage_trips'))
 
 
 @timeline.route('/search', methods=['POST'])
@@ -163,7 +183,7 @@ def search():
         stmt = """
                SELECT
                trip_details.id, trip_details.destination_id, trip_details.date_create,
-               trip_details.date_start, trip_details.duration,
+               trip_details.date_start, trip_details.date_end,
                trip_details.img_name, destinations.destination
                FROM destinations LEFT JOIN trip_details
                ON destinations.id=trip_details.destination_id
@@ -210,7 +230,7 @@ def login():
         else:
             flash('you were logged in')
             login_session['user_id'] = user.id
-            # app.logger.info(login_session)
+            current_app.logger.info(login_session)
             return redirect(url_for('.public_timeline'))
 
     return render_template('login.html', form=form)
@@ -251,8 +271,7 @@ def register():
                 g.db_session.add(new_user)
                 g.db_session.commit()
                 flash('Register successfully')
-                login_session['user_id'] = form.username.data  # automatically log user in after registration
-                return redirect(url_for('.public_timeline'))
+                return redirect(url_for('.login'))
             except SQLAlchemyError:
                 g.db_session.rollback()
                 flash('Registration failure')
@@ -277,12 +296,12 @@ def upload_trip_img():
             return redirect(url_for('.uploaded file', filename=filename))
 
 
-@timeline.context_processor
-def utility_processor():
-    def calc_date_end(start_date, duration):
-        return (datetime.strptime(start_date, '%Y-%m-%d') + timedelta(int(duration))).strftime('%Y-%m-%d')
-
-    return dict(calc_date_end=calc_date_end)
+# @timeline.context_processor
+# def utility_processor():
+#     def calc_date_end(start_date, duration):
+#         return (datetime.strptime(start_date, '%Y-%m-%d') + timedelta(int(duration))).strftime('%Y-%m-%d')
+#
+#     return dict(calc_date_end=calc_date_end)
 
 
 def email_exists(email):

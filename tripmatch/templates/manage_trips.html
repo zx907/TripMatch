@@ -30,11 +30,12 @@
                       <p style="font-size: x-large;">
                         <a href="{{ url_for('timeline.display_trip', trip_id=trip.id) }}"><b>{{ trip.destinations.destination }}</b></a>
                       </p>
-                      <p>{{ calc_date_end(trip.date_start, trip.duration) }} ~ {{ trip.date_start }}</p>
+                      <p>{{ trip.date_start }} ~ {{ trip.date_start }}</p>
                     </div>
                   </div>
                   <div class="rb"><b>created on:</b> {{ trip.date_create }}</div>
                   <div class="rt"><i><a href="{{ url_for('timeline.edit_trip', trip_id=trip.id) }}">Edit</a></i></div>
+                  <div class="rt"><i><a href="{{ url_for('timeline.delete_trip', trip_id=trip.id) }}">Delete</a></i></div>
 
 
                 </div>
