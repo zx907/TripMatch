@@ -28,3 +28,5 @@ def get_current_datetime_string():
 
 def format_date_to_string(dt):
     return datetime.strptime(dt, '%Y-%m-%d')
+
+

@@ -1,13 +1,14 @@
-import logging
 import os
-from flask import Flask, g
+from flask import Flask, g, url_for
 from flask import session as login_session
 
+_basedir = os.path.abspath(os.path.dirname(__file__))
 
 def create_app(config_filename):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_pyfile(config_filename)
-    app.config['UPLOAD_FOLDER'] = os.path.join(app.instance_path, app.config['UPLOAD_FOLDER'])
+    # app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, '..', app.config['UPLOAD_FOLDER'])
+    app.config['UPLOAD_FOLDER'] = os.path.join(app.static_folder, 'user_uploaded_photos')
 
     from .db import init_app
 

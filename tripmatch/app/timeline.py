@@ -83,7 +83,6 @@ def new_trip():
             file = request.files['img_name']
 
             if file and allowed_file(file.filename):
-                current_app.logger.info('111')
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
                 new_trip.img_name = filename
