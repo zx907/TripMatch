@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from flask import current_app, g, Blueprint, render_template, url_for, redirect, flash, make_response, request
 from flask import session as login_session
@@ -7,11 +7,10 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import ClauseElement
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
-from wtforms import ValidationError
 
 from ..db.tripmatch_model import Users, TripDetails, Waitinglist, Destinations
-from ..utils import login_required
 from ..forms import LoginForm, RegistrationForm, TripForm
+from ..utils import login_required
 
 timeline = Blueprint('timeline', __name__)
 
@@ -30,7 +29,7 @@ def display_trip(trip_id):
         text = request.form['leave-a-message-textarea']
         user_id = login_session['user_id']
         trip_id = request.form['trip_id']
-        post_date = datetime.now().isoformat(' ', timespec='seconds')
+        post_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
         try:
             new_wtl_entry = Waitinglist(
@@ -57,9 +56,6 @@ def new_trip():
     form = TripForm(request.form)
 
     if request.method == 'POST':
-        current_app.logger.info(type(form.date_start.data))
-        current_app.logger.info(type(form.date_end.data))
-
         try:
             destination = get_or_create(
                 g.db_session,
@@ -67,8 +63,7 @@ def new_trip():
                 destination=form.destination.data
             )[0]
 
-            # date_create = datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')
-            date_create = datetime.now().isoformat(' ', timespec='seconds')
+            date_create = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
             new_trip = TripDetails(user_id=g.user,
                                    destination_id=destination.id,
@@ -101,18 +96,18 @@ def new_trip():
 
 
 # Pre-fill forms with existing information
+# noinspection PyUnboundLocalVariable
 @timeline.route('/edit_trip/<int:trip_id>', methods=['GET', 'POST'])
 def edit_trip(trip_id):
     if 'user_id' not in login_session:
         redirect(url_for('.login'))
     if request.method == 'GET':
-
         trip = g.db_session.query(TripDetails).filter(TripDetails.id == trip_id).one()
         form = TripForm(request.form)
         form.destination.data = trip.destinations.destination
         form.date_start.data = trip.date_start
-        if trip.date_end is None:
-            trip.date_end = '2018-12-31'
+        # if trip.date_end is None:
+        #     trip.date_end = '2018-12-31'
         form.date_end.data = trip.date_end
         form.companions.data = trip.companions
         form.city_takeoff.data = trip.city_takeoff
@@ -156,6 +151,7 @@ def edit_trip(trip_id):
             g.db_session.rollback()
             flash('Failed to update your trip')
 
+    # noinspection PyUnboundLocalVariable,PyUnboundLocalVariable
     return render_template('edit_trip.html', form=form)
 
 

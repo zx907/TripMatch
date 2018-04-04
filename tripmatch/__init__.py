@@ -1,5 +1,6 @@
 import os
-from flask import Flask, g, url_for
+
+from flask import Flask, g
 from flask import session as login_session
 
 _basedir = os.path.abspath(os.path.dirname(__file__))

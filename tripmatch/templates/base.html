@@ -47,8 +47,7 @@
             event.preventDefault();
             location.href="{{ url_for('timeline.logout') }}";
             return false;
-        };
-
+        }
         function orderByPostDate() {
             console.log('calling orderByPostDate');
             $.get('http://127.0.0.1:5000/trips_api/order_by_post_date', function(data) {
