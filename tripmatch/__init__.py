@@ -1,16 +1,21 @@
 import os
 
+import redis
 from flask import Flask, g
 from flask import session as login_session
+
+from tripmatch.redis_session import RedisSessionInterface
 
 _basedir = os.path.abspath(os.path.dirname(__file__))
 
 def create_app(config_filename):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_pyfile(config_filename)
-    # app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, '..', app.config['UPLOAD_FOLDER'])
     app.config['UPLOAD_FOLDER'] = os.path.join(app.static_folder, 'user_uploaded_photos')
 
+    redis_conn = redis.StrictRedis(host='localhost', port=6379, db=0)
+    app.session_interface = RedisSessionInterface(redis=redis_conn)
+    
     from .db import init_app
 
     from .app import timeline

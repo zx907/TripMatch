@@ -24,10 +24,10 @@ def public_timeline():
 @timeline.route('/trip_detail/<int:trip_id>', methods=['GET', 'POST'])
 def display_trip(trip_id):
     if request.method == 'POST':  # Post to waiting list
-        if login_session.get('user_id', None) is None:
+        if g.user_id is None:
             return redirect(url_for('.login'))
         text = request.form['leave-a-message-textarea']
-        user_id = login_session['user_id']
+        user_id = g.user_id
         trip_id = request.form['trip_id']
         post_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
@@ -99,7 +99,7 @@ def new_trip():
 # noinspection PyUnboundLocalVariable
 @timeline.route('/edit_trip/<int:trip_id>', methods=['GET', 'POST'])
 def edit_trip(trip_id):
-    if 'user_id' not in login_session:
+    if g.user_id is None:
         redirect(url_for('.login'))
     if request.method == 'GET':
         trip = g.db_session.query(TripDetails).filter(TripDetails.id == trip_id).one()
@@ -202,8 +202,7 @@ def login():
     """
 
     # redirect to home page if user has already been logged in
-    if login_session.get('user_id', None):
-        # app.logger.info(login_session['user_id'])
+    if g.user_id is None:
         return redirect(url_for('.public_timeline'))
 
     form = LoginForm(request.form)
@@ -248,7 +247,7 @@ def logout():
 @timeline.route('/register', methods=['GET', 'POST'])
 def register():
     # app.logger.info('enter register')
-    if login_session.get('user_id', None) is not None:
+    if g.user_id is not None:
         return redirect(url_for('.public_timeline'))
 
     form = RegistrationForm(request.form)
