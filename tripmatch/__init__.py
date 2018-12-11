@@ -5,6 +5,7 @@ from flask import Flask, g
 from flask import session as login_session
 
 from tripmatch.redis_session import RedisSessionInterface
+from tripmatch.customized_session import MySessionInterface
 
 _basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -15,6 +16,8 @@ def create_app(config_filename):
 
     redis_conn = redis.StrictRedis(host='localhost', port=6379, db=0)
     app.session_interface = RedisSessionInterface(redis=redis_conn)
+    # app.session_interface = MySessionInterface()
+
     
     from .db import init_app
 
