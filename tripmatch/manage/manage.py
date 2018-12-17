@@ -4,14 +4,18 @@ from flask import Blueprint, request, flash, render_template, g
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash
 
-
 from flask import session as login_session
 
 from ..utils import login_required
 from ..db import Users, TripDetails, Destinations
 
+from flask_mail import Message
+from flask_mail import Mail
+
 manage = Blueprint('manage', __name__, url_prefix='/manage')
 
+mail = Mail()
+mail.init_app(manage)
 
 @manage.route('/', methods=['GET', 'POST'])
 @manage.route('/manage_profile', methods=['GET', 'POST'])
@@ -47,3 +51,12 @@ def utility_processor():
         return (datetime.strptime(start_date, '%Y-%m-%d') + timedelta(int(duration))).strftime('%Y-%m-%d')
 
     return dict(calc_date_end=calc_date_end)
+
+
+
+@manage.route("/mail")
+def index():
+    msg = Message("Hello", sender="test@test.com", recipients=["test1@test.com"])
+    msg.add_recipient("test2@test.com")
+    msg.body = "testing"
+    mail.send(msg)
