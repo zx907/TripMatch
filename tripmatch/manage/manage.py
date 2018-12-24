@@ -12,7 +12,10 @@ from ..db import Users, TripDetails, Destinations
 from flask_mail import Message
 from flask_mail import Mail
 
+from ..message_queue import make_celery
+
 manage = Blueprint('manage', __name__, url_prefix='/manage')
+celery = make_celery(manage)
 
 mail = Mail()
 mail.init_app(manage)
@@ -53,10 +56,13 @@ def utility_processor():
     return dict(calc_date_end=calc_date_end)
 
 
-
-@manage.route("/mail")
-def index():
-    msg = Message("Hello", sender="test@test.com", recipients=["test1@test.com"])
-    msg.add_recipient("test2@test.com")
-    msg.body = "testing"
+def send_email(subject, sender, recipients, text_body):
+    msg = Message(subject, sender=sender, recipients=recipients)
+    msg.body = text_body
     mail.send(msg)
+
+
+@celery.task()
+def send_registration_confirm_mail(recipient):
+    send_email("New Registration From Tripmatch", "no_reply@tripmatch.com", recipient,
+               "Thank your for register our community, hope you can find trip pal here.")

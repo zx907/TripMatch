@@ -11,6 +11,7 @@ from werkzeug.utils import secure_filename
 from ..db.tripmatch_model import Users, TripDetails, Waitinglist, Destinations
 from ..forms import LoginForm, RegistrationForm, TripForm
 from ..utils import login_required
+import manage
 
 timeline = Blueprint('timeline', __name__)
 
@@ -265,6 +266,7 @@ def register():
                 g.db_session.add(new_user)
                 g.db_session.commit()
                 flash('Register successfully')
+                manage.send_registration_confirm_mail(form.username.data)
                 return redirect(url_for('.login'))
             except SQLAlchemyError:
                 g.db_session.rollback()

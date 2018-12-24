@@ -5,9 +5,8 @@ from flask import Flask, g
 from flask import session as login_session
 
 from tripmatch.redis_session import RedisSessionInterface
-from tripmatch.customized_session import MySessionInterface
 
-from .message_queue import make_celery
+
 
 _basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -25,11 +24,7 @@ def create_app(config_filename):
         CELERY_BROKER_URL='redis://localhost:6379',
         CELERY_RESULT_BACKEND='redis://localhost:6379'
     )
-    celery = make_celery(app)
-
-
-
-    
+   
     from .db import init_app
 
     from .app import timeline
