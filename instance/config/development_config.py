@@ -9,3 +9,6 @@ DATABASE_URI = 'postgresql://tripmatch_user:123456@localhost/tripmatch_db'
 DEBUG = True
 # EXPLAIN_TEMPLATE_LOADING = True
 SQLALCHEMY_ECHO = True
+# --------------------------------------
+CELERY_BROKER_URL='redis://localhost:6379',
+CELERY_RESULT_BACKEND='redis://localhost:6379'
