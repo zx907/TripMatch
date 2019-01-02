@@ -12,8 +12,10 @@ from ..db import Users, TripDetails, Destinations
 from flask_mail import Message
 from flask_mail import Mail
 
-manage = Blueprint('manage', __name__, url_prefix='/manage')
+import logging
 
+manage = Blueprint('manage', __name__, url_prefix='/manage')
+logger = logging.getLogger(__name__)
 
 @manage.route('/', methods=['GET', 'POST'])
 @manage.route('/manage_profile', methods=['GET', 'POST'])

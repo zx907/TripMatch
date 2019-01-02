@@ -1,13 +1,14 @@
 import os
 
-import redis
-
 from flask import Flask, g, app
 from flask import session as login_session
+import werkzeug
+from .config import BaseConfig
 
 from tripmatch.redis_session import RedisSessionInterface
 
 from celery import Celery
+import redis
 
 _basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -15,9 +16,10 @@ _basedir = os.path.abspath(os.path.dirname(__file__))
 celery = Celery(__name__)
 
 
-def create_app(config_filename):
+def create_app(config_filename="config.py"):
     app = Flask(__name__, instance_relative_config=True)
-    app.config.from_pyfile(config_filename)
+    app.config.from_object(BaseConfig)
+    app.config.from_pyfile(config_filename, silent=True)
     app.config['UPLOAD_FOLDER'] = os.path.join(
         app.static_folder, 'user_uploaded_photos')
 
@@ -50,3 +52,8 @@ def create_app(config_filename):
             g.db_session.close()
 
     return app
+
+    # Customize error page
+    @app.errorhandler(werkzeug.exceptions.BadRequest)
+    def handle_bad_request(e):
+        return 'bad request!', 400

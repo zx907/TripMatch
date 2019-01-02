@@ -1,10 +1,12 @@
-from .. import celery
 from flask_mail import Message, Mail
+from .. import celery
 
 from flask import Blueprint
+import logging
 
 mail = Blueprint('mail', __name__, url_prefix='/mail')
 mail_app = Mail(mail)
+logger = logging.getLogger(__name__)
 
 def send_email(subject, sender, recipients, text_body):
     msg = Message(subject, sender=sender, recipients=recipients)

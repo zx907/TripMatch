@@ -5,8 +5,10 @@ from sqlalchemy.orm import subqueryload
 from ..db.tripmatch_model import TripDetails, Destinations, Users
 from ..utils import login_required
 
-api = Blueprint('api', __name__)
+import logging
 
+api = Blueprint('api', __name__)
+logger = logging.getLogger(__name__)
 
 class UserAPI(Resource):
     @login_required

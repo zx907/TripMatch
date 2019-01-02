@@ -12,9 +12,10 @@ from ..db.tripmatch_model import Users, TripDetails, Waitinglist, Destinations
 from ..forms import LoginForm, RegistrationForm, TripForm
 from ..utils import login_required
 import manage
+import logging
 
 timeline = Blueprint('timeline', __name__)
-
+logger = logging.getLogger(__name__)
 
 @timeline.route('/')
 def public_timeline():
@@ -333,3 +334,5 @@ def get_or_create(session, model, defaults=None, **kwargs):
 
 def allowed_file(filename):
     return '.' in filename and filename.split('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
+
+
